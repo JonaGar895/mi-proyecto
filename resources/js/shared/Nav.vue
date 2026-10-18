@@ -8,6 +8,12 @@
             </li>
 
             <li>
+                <NavLink href="/cuadros" :active="$page.component === 'Paintings'">
+                    Cuadros
+                </NavLink>
+            </li>
+
+            <li>
                 <NavLink href="/users" :active="$page.component === 'Users'">
                     User
                 </NavLink>
