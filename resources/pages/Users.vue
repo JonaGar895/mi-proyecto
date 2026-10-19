@@ -1,4 +1,11 @@
+
 <template>
+    <Head>
+        <title>
+            Users
+        </title>
+    </Head>
+
     <Layout>
         <h1 class="text-4xl font-bold text-gray-800">
             👥 Users
@@ -20,20 +27,13 @@
     </Layout>
 </template>
 
-<script>
-import Layout from '../shared/Layout.vue';
-import { Link } from '@inertiajs/vue3';
+<script setup>
+//import { Head, Link } from "@inertiajs/vue3";
+//import Layout from "../shared/Layout.vue";
 
-export default {
-    components: {
-        Layout,
-        Link,
-    },
-
-    props: {
-        name: String,
-        frameworks: Array,
-        time: String,
-    },
-};
+defineProps({
+    name: String,
+    frameworks: Array,
+    time: String,
+});
 </script>

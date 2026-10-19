@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="href"
-        class="text-blue-500 hover:underline"
+        class="text-black hover:underline"
         :class="{ 'font-bold underline': active }"
     >
         <slot />

@@ -1,4 +1,12 @@
 <template>
+    <Head>
+        <title> Home </title>
+        <meta type="descripcion"
+        content="Home information"
+        head-key="descripcion"
+        
+    </Head>
+
     <Layout>
         <h1 class="text-4xl font-bold text-gray-800">
             🎨 Galería de Cuadros
@@ -10,17 +18,3 @@
     </Layout>
 </template>
 
-<script>
-import Layout from '../shared/Layout.vue';
-
-export default {
-    components: {
-        Layout,
-    },
-
-    props: {
-        username: String,
-        frameworks: Array,
-    },
-};
-</script>

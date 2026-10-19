@@ -1,4 +1,9 @@
 <template>
+      <Head>
+        <title>
+            Setting
+        </title>
+    </Head>
     <Layout>
         <h1 class="text-4xl font-bold text-gray-800">
             🖼️ Cuadros
@@ -22,8 +27,7 @@
                     <h2 class="text-lg font-semibold text-gray-800">
                         {{ painting.title }}
                     </h2>
-
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-grayS-600">
                         {{ painting.author }}
                     </p>
                 </div>
@@ -33,12 +37,11 @@
 </template>
 
 <script>
-import Layout from '../shared/Layout.vue';
+//import { Head } from "@inertiajs/vue3";
+//import Layout from "../shared/Layout.vue";
 
 export default {
-    components: {
-        Layout,
-    },
+
 
     props: {
         paintings: {
