@@ -1,7 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\User; 
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -10,9 +12,24 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/users', function () {
+Route::get('/users', function (Request $request) {
+    $search = $request->input('search', '');
+
     return Inertia::render('Users', [
-        'time' => now()->toDateTimeString(),
+        'users' => User::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+            ]),
+
+        'filters' => [
+            'search' => $search,
+        ],
     ]);
 });
 
