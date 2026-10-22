@@ -9,16 +9,22 @@ import Layout from '../shared/Layout.vue';
 
 createInertiaApp({
     resolve: async (name) => {
-        const page = await resolvePageComponent(
-            `../pages/${name}.vue`,
-            import.meta.glob('../pages/**/*.vue')
-        );
+    const pages = import.meta.glob('../pages/**/*.vue');
 
-        page.default.layout ??= Layout;
+    const path = `../pages/${name}.vue`;
 
-        return page;
-    },
+    if (!pages[path]) {
+        throw new Error(`No se encuentra la página: ${path}`);
+    }
 
+    const page = await pages[path]();
+
+    if (page.default.layout === undefined) {
+        page.default.layout = Layout;
+    }
+
+    return page;
+},
     progress: {
         delay: 0,
         color: '#0060f0',

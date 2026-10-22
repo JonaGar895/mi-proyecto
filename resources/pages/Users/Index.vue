@@ -5,7 +5,13 @@
 
     <Layout>
         <div class="flex justify-between mb-6">
-            <h1 class="text-3xl">👥 Users</h1>
+            <div class="flex items-center">
+                <h1 class="text-3xl">Users</h1>
+
+                <Link href="/users/create" class="text-blue-500 text-sm ml-3"
+                    >New User</Link
+                >
+            </div>
 
             <input
                 v-model="search"
@@ -19,10 +25,14 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                        >
                             Nombre
                         </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        <th
+                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
+                        >
                             Acciones
                         </th>
                     </tr>
@@ -58,9 +68,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import Pagination from '../Shared/Pagination.vue';
+import { ref, watch } from "vue";
+import { Head, Link, router } from "@inertiajs/vue3";
+import Pagination from "../../Shared/Pagination.vue";
+import debounce from "lodash/debounce";
 
 const props = defineProps({
     users: {
@@ -69,21 +80,24 @@ const props = defineProps({
     },
     filters: {
         type: Object,
-        default: () => ({ search: '' }),
+        default: () => ({ search: "" }),
     },
 });
 
-const search = ref(props.filters?.search ?? '');
+const search = ref(props.filters?.search ?? "");
 
-watch(search, (value) => {
-    router.get(
-        '/users',
-        { search: value },
-        {
-            preserveState: true,
-            replace: true,
-            preserveScroll: true,
-        }
-    );
-});
+watch(
+    search,
+    debounce((value) => {
+        router.get(
+            "/users",
+            { search: value },
+            {
+                preserveState: true,
+                replace: true,
+                preserveScroll: true,
+            },
+        );
+    }, 300),
+);
 </script>
