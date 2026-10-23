@@ -1,8 +1,8 @@
+
 <?php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Auth\LoginController;
 use App\Models\User;
 use Inertia\Inertia;
@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Home');
     })->name('home');
 
-    // Listado de usuarios, búsqueda y paginación
+    // Listado de usuarios
     Route::get('/users', function (Request $request) {
         $search = $request->input('search', '');
 
@@ -49,29 +49,39 @@ Route::middleware('auth')->group(function () {
                 'search' => $search,
             ],
         ]);
-    })->name('users.index');
+    })
+        ->can('viewAny', User::class)
+        ->name('users.index');
 
     // Formulario de creación
     Route::get('/users/create', function () {
         return Inertia::render('Users/Create');
-    })->name('users.create');
+    })
+        ->can('create', User::class)
+        ->name('users.create');
 
     // Guardar usuario
     Route::post('/users', function (Request $request) {
         $attributes = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email',
+            ],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
-        $attributes['password'] = Hash::make($attributes['password']);
-
+        // El cast "hashed" del modelo User procesa la contraseña.
         User::create($attributes);
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Usuario creado correctamente.');
-    })->name('users.store');
+    })
+        ->can('create', User::class)
+        ->name('users.store');
 
     // Ajustes
     Route::get('/settings', function () {
