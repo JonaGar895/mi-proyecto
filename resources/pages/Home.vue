@@ -1,20 +1,79 @@
 <template>
-    <Head>
-        <title> Home </title>
-        <meta type="descripcion"
-        content="Home information"
-        head-key="descripcion"
-        
-    </Head>
+    <Head title="Inicio" />
 
     <Layout>
-        <h1 class="text-4xl font-bold text-gray-800">
-            🎨 Galería de Cuadros
-        </h1>
+        <section
+            class="rounded-2xl bg-gradient-to-br from-indigo-50 to-white p-8 ring-1 ring-gray-100"
+        >
+            <p class="text-sm uppercase tracking-widest text-indigo-600">
+                Galería de arte
+            </p>
+            <h1 class="mt-2 text-4xl font-bold text-gray-800">
+                🎨 Galería de Cuadros
+            </h1>
+            <p class="mt-2 max-w-2xl text-gray-600">
+                Bienvenido a nuestra galería. Descubre obras, guarda tus favoritas
+                y comparte tu opinión con otros amantes del arte.
+            </p>
 
-        <p class="mt-2 text-gray-600">
-            Bienvenido a nuestra galería.
-        </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <Link
+                    href="/cuadros"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                >
+                    Ver galería
+                </Link>
+                <Link
+                    href="/cuadros/create"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50"
+                >
+                    Publicar obra
+                </Link>
+            </div>
+        </section>
+
+        <section v-if="featuredPaintings.length" class="mt-10">
+            <h2 class="text-2xl font-bold text-gray-800">Últimas obras</h2>
+
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <Link
+                    v-for="painting in featuredPaintings"
+                    :key="painting.id"
+                    :href="`/cuadros/${painting.id}`"
+                    class="overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
+                >
+                    <div
+                        class="flex h-32 items-center justify-center bg-gray-100 text-5xl"
+                    >
+                        <img
+                            v-if="painting.image_url"
+                            :src="painting.image_url"
+                            :alt="painting.title"
+                            class="h-full w-full object-cover"
+                        />
+                        <span v-else>{{ painting.emoji }}</span>
+                    </div>
+                    <div class="p-4">
+                        <p class="font-medium text-gray-800">
+                            {{ painting.title }}
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            {{ painting.artist || "Anónimo" }}
+                        </p>
+                    </div>
+                </Link>
+            </div>
+        </section>
     </Layout>
 </template>
 
+<script setup>
+import { Head, Link } from "@inertiajs/vue3";
+
+defineProps({
+    featuredPaintings: {
+        type: Array,
+        default: () => [],
+    },
+});
+</script>

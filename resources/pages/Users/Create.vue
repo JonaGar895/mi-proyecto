@@ -1,8 +1,9 @@
 <template>
     <Head title="Create User" />
 
-    <div class="max-w-2xl mx-auto p-6">
-        <h1 class="text-3xl font-bold">Create New User</h1>
+    <Layout>
+        <div class="max-w-2xl mx-auto p-6">
+            <h1 class="text-3xl font-bold">Create New User</h1>
 
         <form @submit.prevent="submit" class="max-w-md mx-auto mt-8">
             <div class="mb-6">
@@ -64,6 +65,8 @@
                     class="border border-gray-400 p-2 w-full"
                     type="password"
                     id="password"
+                    minlength="8"
+                    required
                 />
                 <div
                     v-if="form.errors.password"
@@ -79,7 +82,8 @@
                 {{ form.processing ? "Saving..." : "Submit" }}
             </button>
         </form>
-    </div>
+        </div>
+    </Layout>
 </template>
 
 <script setup>

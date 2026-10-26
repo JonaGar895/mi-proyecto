@@ -25,6 +25,24 @@
             </div>
         </header>
 
+        <div
+            v-if="$page.props.flash?.success"
+            class="max-w-7xl mx-auto px-6 pt-4"
+        >
+            <div class="rounded-lg bg-green-100 px-4 py-2 text-green-800">
+                {{ $page.props.flash.success }}
+            </div>
+        </div>
+
+        <div
+            v-if="$page.props.flash?.error"
+            class="max-w-7xl mx-auto px-6 pt-4"
+        >
+            <div class="rounded-lg bg-red-100 px-4 py-2 text-red-800">
+                {{ $page.props.flash.error }}
+            </div>
+        </div>
+
         <main class="max-w-7xl mx-auto p-6">
             <slot />
         </main>

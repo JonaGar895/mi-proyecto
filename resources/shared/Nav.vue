@@ -8,20 +8,20 @@
             </li>
 
             <li>
-                <NavLink href="/cuadros" :active="$page.component === 'Paintings'">
+                <NavLink href="/cuadros" :active="$page.component.startsWith('Paintings')">
                     Cuadros
                 </NavLink>
             </li>
 
             <li>
-                <NavLink href="/users" :active="$page.component === 'Users'">
-                    User
+                <NavLink href="/users" :active="$page.component.startsWith('Users')">
+                    Usuarios
                 </NavLink>
             </li>
 
             <li>
-                <NavLink href="/setting" :active="$page.component === 'Setting'">
-                    Setting
+                <NavLink href="/settings" :active="$page.component === 'Settings'">
+                    Ajustes
                 </NavLink>
             </li>
               <li>

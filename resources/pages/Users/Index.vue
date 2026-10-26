@@ -31,6 +31,11 @@
                             Nombre
                         </th>
                         <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                        >
+                            Email
+                        </th>
+                        <th
                             class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
                         >
                             Acciones
@@ -44,6 +49,10 @@
                             {{ user.name }}
                         </td>
 
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ user.email }}
+                        </td>
+
                         <td class="px-6 py-4 text-right">
                             <Link
                                 :href="`/users/${user.id}/edit`"
@@ -55,7 +64,7 @@
                     </tr>
 
                     <tr v-if="users.data.length === 0">
-                        <td colspan="2" class="px-6 py-4 text-gray-500">
+                        <td colspan="3" class="px-6 py-4 text-gray-500">
                             No se encontraron usuarios.
                         </td>
                     </tr>
@@ -70,7 +79,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { Head, Link, router } from "@inertiajs/vue3";
-import Pagination from "../../Shared/Pagination.vue";
+import Pagination from "../../shared/Pagination.vue";
 import debounce from "lodash/debounce";
 
 const props = defineProps({

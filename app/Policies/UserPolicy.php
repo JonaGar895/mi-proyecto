@@ -19,12 +19,14 @@ class UserPolicy
 
     public function create(User $user): bool
     {
-        return $user->id === 1;
+        // Demo: cualquier usuario autenticado puede crear usuarios.
+        return true;
     }
 
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id;
+        // Demo: cualquier usuario autenticado puede editar usuarios.
+        return true;
     }
 
     public function delete(User $user, User $model): bool

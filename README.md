@@ -1,59 +1,145 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Galería de Cuadros
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación de galería de arte construida con **Laravel 12 + Inertia.js + Vue 3 + Tailwind CSS**, con base de datos **SQLite**.
 
-## About Laravel
+Incluye usuarios, cuadros, categorías, favoritos, comentarios y exposiciones.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2+
+- Composer
+- Node.js 20+ y npm
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalación
 
-## Learning Laravel
+```bash
+composer install
+cp .env.example .env        # en PowerShell: Copy-Item .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Arrancar la aplicación
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Opción rápida (servidor + colas + logs + Vite a la vez):
 
-## Laravel Sponsors
+```bash
+composer dev
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+O en dos terminales:
 
-### Premium Partners
+```bash
+# Terminal 1
+php artisan serve
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Terminal 2
+npm run dev
+```
 
-## Contributing
+La app queda en <http://127.0.0.1:8000>.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Usuario de prueba
 
-## Code of Conduct
+```
+Email:    juan@example.com
+Password: 12345678
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Persistencia de los datos
 
-## Security Vulnerabilities
+Los datos **ya se guardan de forma permanente** en un único archivo:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+database/database.sqlite
+```
 
-## License
+Cada cambio (usuarios, cuadros, comentarios, favoritos, exposiciones y sesiones) se escribe ahí al instante. Apagar `php artisan serve`, cerrar Vite, reiniciar el PC o volver a arrancar la app **no borra nada**: al iniciar se lee el mismo archivo.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Las sesiones también viven en la base de datos (`SESSION_DRIVER=database`), así que reiniciar el servidor no cierra la sesión; esta caduca tras `SESSION_LIFETIME` minutos de inactividad (120 por defecto).
+
+### Qué sí borra los datos
+
+| Comando | Efecto |
+|---|---|
+| `php artisan migrate` | Seguro: solo aplica migraciones nuevas |
+| `php artisan test` | Seguro: usa una BD SQLite en memoria (`:memory:`) |
+| `composer setup` | Seguro: usa `migrate --force`, no `fresh` |
+| `php artisan migrate:fresh` | **Borra todas las tablas y datos** |
+| `php artisan migrate:refresh` | **Borra todas las tablas y datos** |
+| `php artisan db:wipe` | **Borra todas las tablas** |
+| Borrar `database/database.sqlite` | **Borra la base de datos** |
+
+Regla: para conservar los datos usa siempre `php artisan migrate`, nunca `fresh`, `refresh` ni `db:wipe`.
+
+## Copias de seguridad
+
+Crear una copia (se guarda en `database/backups/` con fecha y hora):
+
+```bash
+composer db:backup
+# o directamente:
+php artisan db:backup
+```
+
+Por defecto conserva las **10 copias más recientes** y elimina las antiguas. Para cambiar cuántas se guardan:
+
+```bash
+php artisan db:backup --keep=30   # conservar 30
+php artisan db:backup --keep=0    # no borrar nunca ninguna
+```
+
+La carpeta `database/backups/` está en `.gitignore`, así que las copias no se suben al repositorio.
+
+### Restaurar una copia
+
+1. Para el servidor (`Ctrl+C` en `php artisan serve`).
+2. Copia el backup elegido sobre la base actual:
+
+```powershell
+Copy-Item database\backups\database-2026-10-26_11-06-45.sqlite database\database.sqlite -Force
+```
+
+3. Vuelve a arrancar la app.
+
+## Tests
+
+```bash
+composer test
+# o
+php artisan test
+```
+
+## Estructura de datos
+
+```
+users
+ ├──< paintings          (user_id = artista/publicador)
+ ├──< comments           (user_id + painting_id)
+ ├──< favorites          (user_id + painting_id, N:M)
+ └──< paintings >──< exhibitions   (N:M)
+
+paintings
+ ├── user_id     → users
+ ├── category_id → categories
+ └── title, description, year, technique, emoji, image_url, price, is_public
+```
+
+## Rutas principales
+
+| Ruta | Descripción |
+|---|---|
+| `/` | Inicio con las últimas obras |
+| `/cuadros` | Galería con búsqueda, filtro y favoritos |
+| `/cuadros/create` | Publicar una obra |
+| `/cuadros/{id}` | Detalle, exposiciones y comentarios |
+| `/users` | Listado de usuarios |
+| `/users/create` | Crear usuario |
+| `/users/{id}/edit` | Editar usuario |
+| `/settings` | Ajustes y estadísticas del usuario |
+
+## Nota sobre el repositorio
+
+`database/database.sqlite` y `database/backups/` están ignorados por Git: la base de datos no se versiona. Si necesitas mover los datos a otro equipo, usa una copia de `database/database.sqlite` o un backup de `database/backups/`.

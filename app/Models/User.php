@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -22,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'stripe_token',
     ];
 
     /**
@@ -47,8 +50,23 @@ class User extends Authenticatable
         ];
     }
 
-    public function setPasswordAttribute($value)
+    public function paintings(): HasMany
     {
-        $this->attributes['password'] = bcrypt($value);
-     }   
+        return $this->hasMany(Painting::class);
+    }
+
+    public function favoritePaintings(): BelongsToMany
+    {
+        return $this->belongsToMany(Painting::class, 'favorites')->withTimestamps();
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -1,6 +1,8 @@
 <template>
     <Link
         :href="href"
+        :method="method"
+        :as="as"
         class="text-black hover:underline"
         :class="{ 'font-bold underline': active }"
     >
@@ -16,6 +18,14 @@ export default {
     props: {
         href: String,
         active: Boolean,
+        method: {
+            type: String,
+            default: undefined,
+        },
+        as: {
+            type: String,
+            default: undefined,
+        },
     },
 };
 </script>
