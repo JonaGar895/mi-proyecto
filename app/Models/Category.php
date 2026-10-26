@@ -19,4 +19,9 @@ class Category extends Model
     {
         return $this->hasMany(Painting::class);
     }
+
+    public function publications(): HasMany
+    {
+        return $this->hasMany(Publication::class);
+    }
 }

@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PaintingController;
+use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\UserController;
 use App\Models\Painting;
+use App\Models\Publication;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +44,19 @@ Route::middleware('auth')->group(function () {
                     'image_url' => $painting->image_url,
                     'artist' => $painting->user?->name,
                 ]),
+            'latestPublications' => Publication::query()
+                ->published()
+                ->with(['user:id,name', 'category:id,name'])
+                ->latest('published_at')
+                ->take(3)
+                ->get()
+                ->map(fn (Publication $publication) => [
+                    'id' => $publication->id,
+                    'title' => $publication->title,
+                    'summary' => $publication->summary,
+                    'author' => $publication->user?->name,
+                    'category' => $publication->category?->name,
+                ]),
         ]);
     })->name('home');
 
@@ -53,6 +68,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cuadros/{painting}', [PaintingController::class, 'destroy'])->name('paintings.destroy');
     Route::post('/cuadros/{painting}/favorite', [PaintingController::class, 'favorite'])->name('paintings.favorite');
     Route::post('/cuadros/{painting}/comments', [PaintingController::class, 'comment'])->name('paintings.comments.store');
+
+    // Publicaciones (blog de la galería)
+    Route::get('/publicaciones', [PublicationController::class, 'index'])->name('publications.index');
+    Route::get('/publicaciones/create', [PublicationController::class, 'create'])->name('publications.create');
+    Route::post('/publicaciones', [PublicationController::class, 'store'])->name('publications.store');
+    Route::get('/publicaciones/{publication}', [PublicationController::class, 'show'])->name('publications.show');
+    Route::get('/publicaciones/{publication}/edit', [PublicationController::class, 'edit'])->name('publications.edit');
+    Route::put('/publicaciones/{publication}', [PublicationController::class, 'update'])->name('publications.update');
+    Route::delete('/publicaciones/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
+    Route::post('/publicaciones/{publication}/comments', [PublicationController::class, 'comment'])->name('publications.comments.store');
 
     // Usuarios
     Route::redirect('/users', '/users/list')->name('users.index');

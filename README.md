@@ -2,7 +2,7 @@
 
 Aplicación de galería de arte construida con **Laravel 12 + Inertia.js + Vue 3 + Tailwind CSS**, con base de datos **SQLite**.
 
-Incluye usuarios, cuadros, categorías, favoritos, comentarios y exposiciones.
+Incluye usuarios, cuadros, categorías, favoritos, comentarios, publicaciones y exposiciones.
 
 ## Requisitos
 
@@ -119,12 +119,24 @@ users
  ├──< paintings          (user_id = artista/publicador)
  ├──< comments           (user_id + painting_id)
  ├──< favorites          (user_id + painting_id, N:M)
+ ├──< publications       (user_id = autor)
+ ├──< publication_comments (user_id + publication_id)
  └──< paintings >──< exhibitions   (N:M)
 
 paintings
  ├── user_id     → users
  ├── category_id → categories
  └── title, description, year, technique, emoji, image_url, price, is_public
+
+publications
+ ├── user_id     → users        (autor)
+ ├── category_id → categories   (opcional)
+ ├── painting_id → paintings    (obra relacionada, opcional)
+ └── title, summary, content, is_published, published_at
+
+publication_comments
+ ├── user_id        → users
+ └── publication_id → publications
 ```
 
 ## Rutas principales
@@ -135,6 +147,10 @@ paintings
 | `/cuadros` | Galería con búsqueda, filtro y favoritos |
 | `/cuadros/create` | Publicar una obra |
 | `/cuadros/{id}` | Detalle, exposiciones y comentarios |
+| `/publicaciones` | Blog con búsqueda y filtro por categoría |
+| `/publicaciones/create` | Nueva publicación |
+| `/publicaciones/{id}` | Detalle y comentarios de la publicación |
+| `/publicaciones/{id}/edit` | Editar publicación |
 | `/users/list` | Listado de usuarios |
 | `/users/view/{id}` | Detalle de un usuario |
 | `/users/create` | Crear usuario |

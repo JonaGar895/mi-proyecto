@@ -59,6 +59,11 @@ class Painting extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function publications(): HasMany
+    {
+        return $this->hasMany(Publication::class);
+    }
+
     public function exhibitions(): BelongsToMany
     {
         return $this->belongsToMany(Exhibition::class)->withTimestamps();

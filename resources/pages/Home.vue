@@ -64,6 +64,41 @@
                 </Link>
             </div>
         </section>
+
+        <section v-if="latestPublications.length" class="mt-10">
+            <div class="flex items-end justify-between gap-4">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Últimas publicaciones
+                </h2>
+                <Link
+                    href="/publicaciones"
+                    class="text-sm text-blue-600 hover:underline"
+                >
+                    Ver todas
+                </Link>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <Link
+                    v-for="publication in latestPublications"
+                    :key="publication.id"
+                    :href="`/publicaciones/${publication.id}`"
+                    class="rounded-xl bg-white p-5 shadow-sm hover:shadow-md"
+                >
+                    <p
+                        class="text-xs uppercase tracking-wide text-indigo-600"
+                    >
+                        {{ publication.category || "General" }}
+                    </p>
+                    <p class="mt-2 font-medium text-gray-800">
+                        {{ publication.title }}
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ publication.author || "Anónimo" }}
+                    </p>
+                </Link>
+            </div>
+        </section>
     </Layout>
 </template>
 
@@ -72,6 +107,10 @@ import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
     featuredPaintings: {
+        type: Array,
+        default: () => [],
+    },
+    latestPublications: {
         type: Array,
         default: () => [],
     },

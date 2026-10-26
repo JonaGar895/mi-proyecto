@@ -14,6 +14,12 @@
             </li>
 
             <li>
+                <NavLink href="/publicaciones" :active="$page.component.startsWith('Publicaciones')">
+                    Publicaciones
+                </NavLink>
+            </li>
+
+            <li>
                 <NavLink href="/users/list" :active="$page.component.startsWith('Users')">
                     Usuarios
                 </NavLink>

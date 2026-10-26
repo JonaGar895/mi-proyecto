@@ -113,6 +113,8 @@ return [
         'password_confirmation' => 'confirmación de contraseña',
         'title' => 'título',
         'description' => 'descripción',
+        'summary' => 'resumen',
+        'content' => 'contenido',
         'category_id' => 'categoría',
         'year' => 'año',
         'technique' => 'técnica',
