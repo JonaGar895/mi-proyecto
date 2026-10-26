@@ -91,7 +91,7 @@ php artisan db:backup --keep=30   # conservar 30
 php artisan db:backup --keep=0    # no borrar nunca ninguna
 ```
 
-La carpeta `database/backups/` está en `.gitignore`, así que las copias no se suben al repositorio.
+La carpeta `database/backups/` sí se versiona en Git, así que puedes recuperar los datos desde el repositorio.
 
 ### Restaurar una copia
 
@@ -142,4 +142,8 @@ paintings
 
 ## Nota sobre el repositorio
 
-`database/database.sqlite` y `database/backups/` están ignorados por Git: la base de datos no se versiona. Si necesitas mover los datos a otro equipo, usa una copia de `database/database.sqlite` o un backup de `database/backups/`.
+`database/database.sqlite` está ignorado por Git, pero las copias de `database/backups/*.sqlite` sí se versionan. Si clonas el proyecto en otro equipo, puedes restaurar la copia más reciente con:
+
+```powershell
+Copy-Item database\backups\database-AAA-MM-DD_HH-mm-ss.sqlite database\database.sqlite -Force
+```

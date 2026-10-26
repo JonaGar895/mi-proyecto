@@ -1,1 +1,7 @@
-*.sqlite*
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# Las copias de seguridad sí se versionan para poder restaurarlas desde el repo.
+!backups/*.sqlite
