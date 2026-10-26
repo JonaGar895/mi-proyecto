@@ -1,97 +1,98 @@
 <template>
-    <Head title="Create User" />
+    <Head title="Crear usuario" />
 
     <Layout>
-        <div class="max-w-2xl mx-auto p-6">
-            <h1 class="text-3xl font-bold">Create New User</h1>
+        <div class="mx-auto max-w-2xl">
+            <h1 class="text-4xl font-bold text-gray-800">Crear usuario</h1>
+            <p class="mt-2 text-gray-600">
+                Añade un nuevo usuario a la aplicación.
+            </p>
 
-        <form @submit.prevent="submit" class="max-w-md mx-auto mt-8">
-            <div class="mb-6">
-                <label
-                    for="name"
-                    class="block mb-2 uppercase font-bold text-xs text-gray-700"
-                >
-                    Name
-                </label>
+            <form class="mt-8 space-y-5" @submit.prevent="submit">
+                <div>
+                    <label
+                        for="name"
+                        class="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                        Nombre
+                    </label>
+                    <input
+                        id="name"
+                        v-model="form.name"
+                        type="text"
+                        class="w-full rounded-lg border px-3 py-2"
+                        required
+                    />
+                    <p v-if="form.errors.name" class="mt-1 text-xs text-red-600">
+                        {{ form.errors.name }}
+                    </p>
+                </div>
 
-                <input
-                    v-model="form.name"
-                    class="border border-gray-400 p-2 w-full"
-                    type="text"
-                    id="name"
-                    required
-                />
-                <div
-                    v-if="form.errors.name"
-                    v-text="form.errors.name"
-                    class="text-red-500 text-xs mt-1"
-                ></div>
-            </div>
+                <div>
+                    <label
+                        for="email"
+                        class="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                        Correo electrónico
+                    </label>
+                    <input
+                        id="email"
+                        v-model="form.email"
+                        type="email"
+                        class="w-full rounded-lg border px-3 py-2"
+                        required
+                    />
+                    <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">
+                        {{ form.errors.email }}
+                    </p>
+                </div>
 
-            <div class="mb-6">
-                <label
-                    for="email"
-                    class="block mb-2 uppercase font-bold text-xs text-gray-700"
-                >
-                    Email
-                </label>
+                <div>
+                    <label
+                        for="password"
+                        class="mb-1 block text-sm font-medium text-gray-700"
+                    >
+                        Contraseña
+                    </label>
+                    <input
+                        id="password"
+                        v-model="form.password"
+                        type="password"
+                        minlength="8"
+                        class="w-full rounded-lg border px-3 py-2"
+                        required
+                    />
+                    <p
+                        v-if="form.errors.password"
+                        class="mt-1 text-xs text-red-600"
+                    >
+                        {{ form.errors.password }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Mínimo 8 caracteres.
+                    </p>
+                </div>
 
-                <input
-                    v-model="form.email"
-                    class="border border-gray-400 p-2 w-full"
-                    type="email"
-                    name="email"
-                    id="email"
-                    required
-                />
+                <div class="flex items-center gap-3">
+                    <button
+                        type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                        :disabled="form.processing"
+                    >
+                        {{ form.processing ? "Creando..." : "Crear usuario" }}
+                    </button>
 
-                <div
-                    v-if="form.errors.email"
-                    v-text="form.errors.email"
-                    class="text-red-500 text-xs mt-1"
-                ></div>
-            </div>
-
-            <div class="mb-6">
-                <label
-                    for="password"
-                    class="block mb-2 uppercase font-bold text-xs text-gray-700"
-                >
-                    Password
-                </label>
-
-                <input
-                    v-model="form.password"
-                    class="border border-gray-400 p-2 w-full"
-                    type="password"
-                    id="password"
-                    minlength="8"
-                    required
-                />
-                <div
-                    v-if="form.errors.password"
-                    v-text="form.errors.password"
-                    class="text-red-500 text-xs mt-1"
-                ></div>
-            </div>
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="form.processing"
-            >
-                {{ form.processing ? "Saving..." : "Submit" }}
-            </button>
-        </form>
+                    <Link href="/users/list" class="text-gray-600 hover:underline">
+                        Cancelar
+                    </Link>
+                </div>
+            </form>
         </div>
     </Layout>
 </template>
 
 <script setup>
-import { Head, useForm } from "@inertiajs/vue3";
-
-defineProps({
-    errors: Object,
-});
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
 const form = useForm({
     name: "",
@@ -100,13 +101,6 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post("/users", {
-        onSuccess: () => {
-            console.log("Usuario creado correctamente");
-        },
-        onError: (errors) => {
-            console.log("Errores:", errors);
-        },
-    });
+    form.post("/users/create");
 };
 </script>

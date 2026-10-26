@@ -3,6 +3,13 @@
 
     <Layout>
         <div class="mx-auto max-w-2xl">
+            <Link
+                :href="`/users/view/${user.id}`"
+                class="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+                ← Volver
+            </Link>
+
             <h1 class="text-4xl font-bold text-gray-800">Editar usuario</h1>
             <p class="mt-2 text-gray-600">
                 Actualiza los datos de {{ user.name }}.
@@ -27,7 +34,7 @@
 
                 <div>
                     <label for="email" class="mb-1 block text-sm font-medium text-gray-700">
-                        Email
+                        Correo electrónico
                     </label>
                     <input
                         id="email"
@@ -84,7 +91,10 @@
                         {{ form.processing ? "Guardando..." : "Guardar cambios" }}
                     </button>
 
-                    <Link href="/users" class="text-gray-600 hover:underline">
+                    <Link
+                        :href="`/users/view/${user.id}`"
+                        class="text-gray-600 hover:underline"
+                    >
                         Cancelar
                     </Link>
                 </div>
@@ -111,6 +121,6 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(`/users/${props.user.id}`);
+    form.post(`/users/edit/${props.user.id}`);
 };
 </script>

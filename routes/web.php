@@ -1,13 +1,12 @@
-
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PaintingController;
+use App\Http\Controllers\UserController;
 use App\Models\Painting;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Login: solo para usuarios que no han iniciado sesión
@@ -55,94 +54,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/cuadros/{painting}/favorite', [PaintingController::class, 'favorite'])->name('paintings.favorite');
     Route::post('/cuadros/{painting}/comments', [PaintingController::class, 'comment'])->name('paintings.comments.store');
 
-    // Listado de usuarios
-    Route::get('/users', function (Request $request) {
-        $search = $request->input('search', '');
+    // Usuarios
+    Route::redirect('/users', '/users/list')->name('users.index');
 
-        return Inertia::render('Users/Index', [
-            'users' => User::query()
-                ->when($search, function ($query, $search) {
-                    $query->where('name', 'like', "%{$search}%");
-                })
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn ($user) => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ]),
-
-            'filters' => [
-                'search' => $search,
-            ],
-        ]);
-    })
+    Route::get('/users/list', [UserController::class, 'list'])
         ->can('viewAny', User::class)
-        ->name('users.index');
+        ->name('users.list');
 
-    // Formulario de creación
-    Route::get('/users/create', function () {
-        return Inertia::render('Users/Create');
-    })
+    Route::get('/users/create', [UserController::class, 'createView'])
         ->can('create', User::class)
         ->name('users.create');
 
-    // Guardar usuario
-    Route::post('/users', function (Request $request) {
-        $attributes = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:users,email',
-            ],
-            'password' => ['required', 'string', 'min:8'],
-        ]);
-
-        // El cast "hashed" del modelo User procesa la contraseña.
-        User::create($attributes);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Usuario creado correctamente.');
-    })
+    Route::post('/users/create', [UserController::class, 'create'])
         ->can('create', User::class)
         ->name('users.store');
 
-    // Editar usuario
-    Route::get('/users/{user}/edit', function (User $user) {
-        return Inertia::render('Users/Edit', [
-            'user' => $user->only(['id', 'name', 'email']),
-        ]);
-    })
+    Route::get('/users/view/{user}', [UserController::class, 'view'])
+        ->can('view', 'user')
+        ->name('users.view');
+
+    Route::get('/users/edit/{user}', [UserController::class, 'editView'])
         ->can('update', 'user')
         ->name('users.edit');
 
-    Route::put('/users/{user}', function (Request $request, User $user) {
-        $attributes = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        if (blank($attributes['password'] ?? null)) {
-            unset($attributes['password']);
-        }
-
-        $user->update($attributes);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Usuario actualizado correctamente.');
-    })
+    Route::post('/users/edit/{user}', [UserController::class, 'update'])
         ->can('update', 'user')
         ->name('users.update');
+
+    Route::post('/users/delete/{user}', [UserController::class, 'delete'])
+        ->can('delete', 'user')
+        ->name('users.delete');
 
     // Ajustes
     Route::redirect('/setting', '/settings');

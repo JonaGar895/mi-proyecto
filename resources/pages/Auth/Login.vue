@@ -1,14 +1,14 @@
 <template>
-    <Head title="Log In" />
+    <Head title="Iniciar sesión" />
 
     <main class="grid place-items-center min-h-screen bg-gray-50">
         <section class="bg-white p-8 rounded-xl max-w-md mx-auto border w-full">
-            <h1 class="text-3xl font-bold mb-6">Log In</h1>
+            <h1 class="text-3xl font-bold mb-6">Iniciar sesión</h1>
 
             <form @submit.prevent="submit">
                 <div class="mb-6">
                     <label for="email" class="block mb-2 uppercase font-bold text-xs text-gray-700">
-                        Email
+                        Correo electrónico
                     </label>
 
                     <input
@@ -27,7 +27,7 @@
 
                 <div class="mb-6">
                     <label for="password" class="block mb-2 uppercase font-bold text-xs text-gray-700">
-                        Password
+                        Contraseña
                     </label>
 
                     <input
@@ -49,7 +49,7 @@
                     :disabled="form.processing"
                     class="bg-blue-500 text-white rounded py-2 px-4 hover:bg-blue-600 disabled:opacity-50"
                 >
-                    {{ form.processing ? 'Signing in...' : 'Log In' }}
+                    {{ form.processing ? 'Entrando...' : 'Iniciar sesión' }}
                 </button>
             </form>
         </section>

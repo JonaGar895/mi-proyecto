@@ -25,12 +25,17 @@ class PageAccessTest extends TestCase
             '/',
             '/cuadros',
             '/cuadros/create',
-            '/users',
+            '/users/list',
             '/users/create',
-            "/users/{$user->id}/edit",
+            "/users/view/{$user->id}",
+            "/users/edit/{$user->id}",
             '/settings',
         ] as $uri) {
             $this->actingAs($user)->get($uri)->assertOk();
         }
+
+        $this->actingAs($user)
+            ->get('/users')
+            ->assertRedirect('/users/list');
     }
 }

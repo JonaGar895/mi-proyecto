@@ -1,9 +1,9 @@
 <template>
     <Head>
-        <title>My App</title>
+        <title>Galería de Arte</title>
         <meta
             name="description"
-            content="Home informacion"
+            content="Galería de arte en línea"
             head-key="description"
         />
     </Head>
@@ -14,11 +14,11 @@
                 class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
             >
                 <h1 class="text-xl font-bold text-gray-800">
-                    🎨 My App
+                    🎨 Galería de Arte
                 </h1>
 
                 <p class="text-sm ml-4 text-gray-600">
-                    Welcome Back, {{ username }}!
+                    ¡Hola de nuevo, {{ userName }}!
                 </p>
 
                 <Nav />
@@ -59,7 +59,7 @@ export default {
         Nav,
     },
     computed: {
-        username() {
+        userName() {
             return this.$page.props.auth?.user?.username ?? "Usuario";
         },
     },

@@ -36,5 +36,5 @@ createInertiaApp({
             .mount(el);
     },
 
-    title: title => `My App - ${title}`,
+    title: title => `Galería de Arte - ${title}`,
 });

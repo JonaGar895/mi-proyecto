@@ -44,11 +44,15 @@ class LoginTest extends TestCase
     {
         $admin = User::factory()->create();
 
-        $this->actingAs($admin)->post('/users', [
+        $response = $this->actingAs($admin)->post('/users/create', [
             'name' => 'Nuevo Usuario',
             'email' => 'nuevo@example.com',
             'password' => 'password123',
-        ])->assertRedirect(route('users.index'));
+        ]);
+
+        $created = User::where('email', 'nuevo@example.com')->first();
+
+        $response->assertRedirect(route('users.view', $created->id));
 
         auth()->logout();
 
@@ -58,9 +62,7 @@ class LoginTest extends TestCase
         ]);
 
         $response->assertRedirect('/');
-        $this->assertAuthenticatedAs(
-            User::where('email', 'nuevo@example.com')->first()
-        );
+        $this->assertAuthenticatedAs($created);
     }
 
     public function test_login_fails_with_incorrect_password(): void

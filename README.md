@@ -135,9 +135,10 @@ paintings
 | `/cuadros` | Galería con búsqueda, filtro y favoritos |
 | `/cuadros/create` | Publicar una obra |
 | `/cuadros/{id}` | Detalle, exposiciones y comentarios |
-| `/users` | Listado de usuarios |
+| `/users/list` | Listado de usuarios |
+| `/users/view/{id}` | Detalle de un usuario |
 | `/users/create` | Crear usuario |
-| `/users/{id}/edit` | Editar usuario |
+| `/users/edit/{id}` | Editar usuario |
 | `/settings` | Ajustes y estadísticas del usuario |
 
 ## Nota sobre el repositorio

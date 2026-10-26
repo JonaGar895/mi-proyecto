@@ -3,7 +3,7 @@
           <ul class="flex items-center gap-6 list-none">
             <li>
                 <NavLink href="/" :active="$page.component === 'Home'">
-                    Home
+                    Inicio
                 </NavLink>
             </li>
 
@@ -14,7 +14,7 @@
             </li>
 
             <li>
-                <NavLink href="/users" :active="$page.component.startsWith('Users')">
+                <NavLink href="/users/list" :active="$page.component.startsWith('Users')">
                     Usuarios
                 </NavLink>
             </li>
@@ -26,7 +26,7 @@
             </li>
               <li>
         <NavLink href="/logout" method="post" as="button">
-          Log Out
+          Cerrar sesión
         </NavLink>
       </li>
         </ul>
