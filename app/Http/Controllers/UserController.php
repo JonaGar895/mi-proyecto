@@ -74,10 +74,15 @@ class UserController extends Controller
             ->with('success', 'Usuario creado correctamente.');
     }
 
-    public function editView(User $user)
+    public function editView(Request $request, User $user)
     {
+        $backUrl = $request->query('from') === 'list'
+            ? route('users.list')
+            : route('users.view', $user->id);
+
         return Inertia::render('Users/Edit', [
             'user' => $user->only(['id', 'name', 'email']),
+            'backUrl' => $backUrl,
         ]);
     }
 

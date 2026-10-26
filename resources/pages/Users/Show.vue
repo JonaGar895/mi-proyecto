@@ -21,7 +21,7 @@
 
                 <div class="flex items-center gap-3">
                     <Link
-                        :href="`/users/edit/${user.id}`"
+                        :href="`/users/edit/${user.id}?from=view`"
                         class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                     >
                         Editar

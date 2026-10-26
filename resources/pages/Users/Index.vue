@@ -75,7 +75,7 @@
                             </Link>
 
                             <Link
-                                :href="`/users/edit/${user.id}`"
+                                :href="`/users/edit/${user.id}?from=list`"
                                 class="ml-3 text-amber-600 hover:underline"
                             >
                                 Editar

@@ -4,7 +4,7 @@
     <Layout>
         <div class="mx-auto max-w-2xl">
             <Link
-                :href="`/users/view/${user.id}`"
+                :href="backHref"
                 class="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
                 ← Volver
@@ -92,7 +92,7 @@
                     </button>
 
                     <Link
-                        :href="`/users/view/${user.id}`"
+                        :href="backHref"
                         class="text-gray-600 hover:underline"
                     >
                         Cancelar
@@ -104,6 +104,7 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -111,7 +112,15 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    backUrl: {
+        type: String,
+        default: "",
+    },
 });
+
+const backHref = computed(
+    () => props.backUrl || `/users/view/${props.user.id}`,
+);
 
 const form = useForm({
     name: props.user.name,

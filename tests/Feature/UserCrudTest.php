@@ -54,6 +54,22 @@ class UserCrudTest extends TestCase
                 ->where('stats.comments', 0));
     }
 
+    public function test_edit_page_knows_where_to_return(): void
+    {
+        $admin = User::factory()->create();
+        $user = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->get(route('users.edit', $user))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('backUrl', route('users.view', $user->id)));
+
+        $this->actingAs($admin)
+            ->get(route('users.edit', ['user' => $user, 'from' => 'list']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('backUrl', route('users.list')));
+    }
+
     public function test_authenticated_user_can_create_a_user(): void
     {
         $admin = User::factory()->create();
