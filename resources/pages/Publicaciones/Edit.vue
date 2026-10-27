@@ -122,7 +122,10 @@
                                 :key="painting.id"
                                 :value="painting.id"
                             >
-                                {{ painting.title }}
+                                {{ painting.emoji }} {{ painting.title }}
+                                <template v-if="painting.user && painting.user.id !== $page.props.auth.user.id">
+                                    — {{ painting.user.name }}
+                                </template>
                             </option>
                         </select>
                         <p
@@ -130,6 +133,9 @@
                             class="mt-1 text-xs text-red-600"
                         >
                             {{ form.errors.painting_id }}
+                        </p>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Puedes enlazar tus propias obras o cualquier obra pública de otros usuarios.
                         </p>
                     </div>
                 </div>

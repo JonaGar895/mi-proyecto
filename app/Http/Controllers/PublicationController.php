@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Painting;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -195,9 +196,19 @@ class PublicationController extends Controller
 
     private function formData(Request $request): array
     {
+        $user = $request->user();
+
+        $paintings = Painting::query()
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)->orWhere('is_public', true);
+            })
+            ->with('user:id,name')
+            ->orderBy('title')
+            ->get(['id', 'title', 'user_id', 'emoji']);
+
         return [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'paintings' => $request->user()->paintings()->orderBy('title')->get(['id', 'title']),
+            'paintings' => $paintings,
         ];
     }
 

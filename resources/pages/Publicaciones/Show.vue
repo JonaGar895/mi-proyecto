@@ -10,9 +10,11 @@
         </Link>
 
         <article class="mt-4 overflow-hidden rounded-xl bg-white shadow-sm">
-            <div
+            <Link
                 v-if="publication.painting"
-                class="flex h-48 items-center justify-center bg-gray-100 text-7xl"
+                :href="`/cuadros/${publication.painting.id}`"
+                class="flex h-48 items-center justify-center bg-gray-100 text-7xl transition hover:opacity-90"
+                :title="`Ver ${publication.painting.title}`"
             >
                 <img
                     v-if="publication.painting.image_url"
@@ -21,7 +23,7 @@
                     class="h-full w-full object-cover"
                 />
                 <span v-else>{{ publication.painting.emoji }}</span>
-            </div>
+            </Link>
 
             <div class="p-8">
                 <div class="flex flex-wrap items-start justify-between gap-4">
