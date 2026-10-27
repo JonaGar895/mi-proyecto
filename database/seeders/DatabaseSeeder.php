@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             PaintingSeeder::class,
             ExhibitionSeeder::class,
+            PublicationSeeder::class,
         ]);
     }
 }
