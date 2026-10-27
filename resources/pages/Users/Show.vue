@@ -34,7 +34,7 @@
                         @click="deleteUser"
                     >
                         Eliminar
-                    </button>
+                    </button>                   
                 </div>
             </div>
 

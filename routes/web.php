@@ -75,7 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/publicaciones', [PublicationController::class, 'store'])->name('publications.store');
     Route::get('/publicaciones/{publication}', [PublicationController::class, 'show'])->name('publications.show');
     Route::get('/publicaciones/{publication}/edit', [PublicationController::class, 'edit'])->name('publications.edit');
-    Route::put('/publicaciones/{publication}', [PublicationController::class, 'update'])->name('publications.update');
+    Route::match(['put', 'post'], '/publicaciones/{publication}', [PublicationController::class, 'update'])->name('publications.update');
     Route::delete('/publicaciones/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
     Route::post('/publicaciones/{publication}/comments', [PublicationController::class, 'comment'])->name('publications.comments.store');
 
@@ -121,6 +121,7 @@ Route::middleware('auth')->group(function () {
                 'paintings' => $user->paintings()->count(),
                 'favorites' => $user->favoritePaintings()->count(),
                 'comments' => $user->comments()->count(),
+                'publications' => $user->publications()->count(),
             ],
             'favoritePaintings' => $user->favoritePaintings()
                 ->with('user:id,name')
@@ -132,6 +133,22 @@ Route::middleware('auth')->group(function () {
                     'title' => $painting->title,
                     'emoji' => $painting->emoji,
                     'artist' => $painting->user?->name,
+                ]),
+            'myPublications' => $user->publications()
+                ->with('category:id,name')
+                ->withCount('comments')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get()
+                ->map(fn (Publication $publication) => [
+                    'id' => $publication->id,
+                    'title' => $publication->title,
+                    'summary' => $publication->summary,
+                    'category' => $publication->category?->name,
+                    'is_published' => $publication->is_published,
+                    'date' => ($publication->published_at ?? $publication->created_at)
+                        ?->translatedFormat('d M Y'),
+                    'comments_count' => $publication->comments_count,
                 ]),
         ]);
     })->name('settings');

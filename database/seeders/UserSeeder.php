@@ -11,11 +11,24 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Juan Pérez',
-            'email' => 'juan@example.com',
-            'password' => Hash::make('12345678'),
-            'stripe_token' => null,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'broderick14@example.org'],
+            [
+                'name' => 'Broderick',
+                'password' => Hash::make('password'),
+                'stripe_token' => null,
+                'is_admin' => true,
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'juan@example.com'],
+            [
+                'name' => 'Juan Pérez',
+                'password' => Hash::make('12345678'),
+                'stripe_token' => null,
+                'is_admin' => false,
+            ]
+        );
     }
 }

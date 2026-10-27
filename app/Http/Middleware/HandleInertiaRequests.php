@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => Auth::user()->id,
                     'username' => Auth::user()->name,
                     'email' => Auth::user()->email,
+                    'is_admin' => (bool) Auth::user()->is_admin,
                 ] : null,
             ],
             'flash' => [

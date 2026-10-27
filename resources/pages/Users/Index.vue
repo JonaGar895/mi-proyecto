@@ -7,6 +7,7 @@
                 <h1 class="text-4xl font-bold text-gray-800">Usuarios</h1>
 
                 <Link
+                    v-if="$page.props.auth?.user?.is_admin"
                     href="/users/create"
                     class="mt-2 inline-block text-sm text-blue-600 hover:underline"
                 >
@@ -15,6 +16,7 @@
             </div>
 
             <input
+                v-if="$page.props.auth?.user?.is_admin"
                 v-model="search"
                 type="text"
                 placeholder="Buscar por nombre o correo electrónico..."
@@ -75,6 +77,7 @@
                             </Link>
 
                             <Link
+                                v-if="$page.props.auth?.user?.is_admin || user.id === $page.props.auth?.user?.id"
                                 :href="`/users/edit/${user.id}?from=list`"
                                 class="ml-3 text-amber-600 hover:underline"
                             >
@@ -82,7 +85,7 @@
                             </Link>
 
                             <button
-                                v-if="user.id !== $page.props.auth.user.id"
+                                v-if="$page.props.auth?.user?.is_admin && user.id !== $page.props.auth.user.id"
                                 type="button"
                                 class="ml-3 text-red-600 hover:underline"
                                 @click="deleteUser(user)"

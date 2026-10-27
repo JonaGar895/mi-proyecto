@@ -82,8 +82,9 @@ class PaintingController extends Controller
 
     public function show(Request $request, Painting $painting)
     {
+        $user = $request->user();
         abort_unless(
-            $painting->is_public || $painting->user_id === $request->user()->id,
+            $painting->is_public || $painting->user_id === $user->id || $user->isAdmin(),
             404,
         );
 
@@ -95,7 +96,7 @@ class PaintingController extends Controller
         $painting->loadCount(['favorites', 'comments']);
         $painting->setAttribute(
             'is_favorited',
-            $painting->favorites()->where('user_id', $request->user()->id)->exists(),
+            $painting->favorites()->where('user_id', $user->id)->exists(),
         );
 
         return Inertia::render('Paintings/Show', [
@@ -106,7 +107,7 @@ class PaintingController extends Controller
                     'starts_at' => $exhibition->starts_at?->toDateString(),
                     'ends_at' => $exhibition->ends_at?->toDateString(),
                 ]),
-                'can_delete' => $painting->user_id === $request->user()->id,
+                'can_delete' => $painting->user_id === $user->id || $user->isAdmin(),
             ]),
             'comments' => $painting->comments()
                 ->with('user:id,name')
@@ -126,7 +127,8 @@ class PaintingController extends Controller
 
     public function destroy(Request $request, Painting $painting)
     {
-        abort_unless($painting->user_id === $request->user()->id, 403);
+        $user = $request->user();
+        abort_unless($painting->user_id === $user->id || $user->isAdmin(), 403);
 
         $painting->delete();
 
@@ -137,20 +139,22 @@ class PaintingController extends Controller
 
     public function favorite(Request $request, Painting $painting)
     {
+        $user = $request->user();
         abort_unless(
-            $painting->is_public || $painting->user_id === $request->user()->id,
+            $painting->is_public || $painting->user_id === $user->id || $user->isAdmin(),
             404,
         );
 
-        $request->user()->favoritePaintings()->toggle($painting->id);
+        $user->favoritePaintings()->toggle($painting->id);
 
         return back();
     }
 
     public function comment(Request $request, Painting $painting)
     {
+        $user = $request->user();
         abort_unless(
-            $painting->is_public || $painting->user_id === $request->user()->id,
+            $painting->is_public || $painting->user_id === $user->id || $user->isAdmin(),
             404,
         );
 
@@ -159,7 +163,7 @@ class PaintingController extends Controller
         ]);
 
         $painting->comments()->create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'body' => $attributes['body'],
         ]);
 

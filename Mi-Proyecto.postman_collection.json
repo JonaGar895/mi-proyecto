@@ -1,0 +1,1056 @@
+{
+  "info": {
+    "name": "Mi Proyecto - Galería Laravel + Inertia",
+    "description": "Colección organizada con ejemplos de body para probar todos los endpoints. Usa POST /login primero para mantener la sesión con cookies.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "juan@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "12345678",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "painting_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "publication_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Formulario login (guest) | Auth: Guest | Middleware: web, guest"
+          },
+          "response": []
+        },
+        {
+          "name": "login.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Formulario login (guest) | Auth: Guest | Middleware: web, guest",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Cerrar sesión | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inicio y Ajustes",
+      "item": [
+        {
+          "name": "home",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}//",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "",
+                ""
+              ]
+            },
+            "description": "Home (obras destacadas + últimas publicaciones) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/settings",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "settings"
+              ]
+            },
+            "description": "Ajustes del usuario (cuadros, favoritos, comentarios, publicaciones) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cuadros",
+      "item": [
+        {
+          "name": "paintings.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros"
+              ]
+            },
+            "description": "Listado galería con búsqueda/filtro | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros"
+              ]
+            },
+            "description": "Listado galería con búsqueda/filtro | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Mi cuadro de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Descripción de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "type": "text"
+                },
+                {
+                  "key": "technique",
+                  "value": "Óleo sobre lienzo",
+                  "type": "text"
+                },
+                {
+                  "key": "emoji",
+                  "value": "🎨",
+                  "type": "text"
+                },
+                {
+                  "key": "image_url",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "is_public",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.show",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}"
+              ]
+            },
+            "description": "Detalle cuadro + favoritos/comentarios/exposiciones | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}"
+              ]
+            },
+            "description": "Detalle cuadro + favoritos/comentarios/exposiciones | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.comments.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/comments",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "comments"
+              ]
+            },
+            "description": "Añadir comentario al cuadro | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "body",
+                  "value": "Me gusta mucho esta obra",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/favorite",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "favorite"
+              ]
+            },
+            "description": "Marcar/desmarcar favorito | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.create",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/create",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "create"
+              ]
+            },
+            "description": "Formulario crear cuadro | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Publicaciones",
+      "item": [
+        {
+          "name": "publications.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Listado publicaciones (búsqueda/categoría/paginación). Muestra publicadas + borradores propios | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "publications.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Listado publicaciones (búsqueda/categoría/paginación). Muestra publicadas + borradores propios | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Mi nueva publicación",
+                  "type": "text"
+                },
+                {
+                  "key": "summary",
+                  "value": "Un breve resumen de esta publicación",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Aquí va el contenido completo de la publicación. Puedes escribir varias líneas para probarlo.",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "painting_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "publications.show",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}"
+              ]
+            },
+            "description": "Detalle publicación + comentarios + obra relacionada | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "publications.update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}"
+              ]
+            },
+            "description": "Detalle publicación + comentarios + obra relacionada | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Publicación actualizada",
+                  "type": "text"
+                },
+                {
+                  "key": "summary",
+                  "value": "Resumen modificado",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Contenido actualizado de la publicación.",
+                  "type": "text"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "painting_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "is_published",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "publications.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}"
+              ]
+            },
+            "description": "Detalle publicación + comentarios + obra relacionada | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "publications.comments.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}/comments",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}",
+                "comments"
+              ]
+            },
+            "description": "Añadir comentario a publicación (requiere poder verla) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "body",
+                  "value": "Muy interesante, me ha gustado mucho.",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "publications.edit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}/edit",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}",
+                "edit"
+              ]
+            },
+            "description": "Formulario editar publicación (solo autor) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "publications.create",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/create",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "create"
+              ]
+            },
+            "description": "Formulario crear publicación | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "users.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Illuminate\\Routing\\RedirectController | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "users.create",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/create",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "create"
+              ]
+            },
+            "description": "Formulario crear usuario (requiere permiso create) | Auth: Auth Session (cookie) | Middleware: web, auth, can:create,App\\Models\\User"
+          },
+          "response": []
+        },
+        {
+          "name": "users.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/create",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "create"
+              ]
+            },
+            "description": "Crear usuario (requiere permiso create) | Auth: Auth Session (cookie) | Middleware: web, auth, can:create,App\\Models\\User"
+          },
+          "response": []
+        },
+        {
+          "name": "users.delete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/delete/{user}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "delete",
+                "{user}"
+              ]
+            },
+            "description": "Eliminar usuario (requiere permiso delete) | Auth: Auth Session (cookie) | Middleware: web, auth, can:delete,user"
+          },
+          "response": []
+        },
+        {
+          "name": "users.edit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/edit/{user}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "edit",
+                "{user}"
+              ]
+            },
+            "description": "Formulario/actualizar usuario (requiere permiso update) | Auth: Auth Session (cookie) | Middleware: web, auth, can:update,user"
+          },
+          "response": []
+        },
+        {
+          "name": "users.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/edit/{user}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "edit",
+                "{user}"
+              ]
+            },
+            "description": "Formulario/actualizar usuario (requiere permiso update) | Auth: Auth Session (cookie) | Middleware: web, auth, can:update,user"
+          },
+          "response": []
+        },
+        {
+          "name": "users.list",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/list",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "list"
+              ]
+            },
+            "description": "Listado usuarios (requiere permiso viewAny) | Auth: Auth Session (cookie) | Middleware: web, auth, can:viewAny,App\\Models\\User"
+          },
+          "response": []
+        },
+        {
+          "name": "users.view",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/view/{user}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "view",
+                "{user}"
+              ]
+            },
+            "description": "Ver usuario (requiere permiso view) | Auth: Auth Session (cookie) | Middleware: web, auth, can:view,user"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

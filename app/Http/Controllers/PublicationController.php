@@ -73,8 +73,9 @@ class PublicationController extends Controller
 
     public function show(Request $request, Publication $publication)
     {
+        $user = $request->user();
         abort_unless(
-            $publication->is_published || $publication->user_id === $request->user()->id,
+            $publication->is_published || $publication->user_id === $user->id || $user->isAdmin(),
             404,
         );
 
@@ -88,8 +89,8 @@ class PublicationController extends Controller
         return Inertia::render('Publicaciones/Show', [
             'publication' => array_merge($this->publicationData($publication), [
                 'content' => $publication->content,
-                'can_edit' => $publication->user_id === $request->user()->id,
-                'can_delete' => $publication->user_id === $request->user()->id,
+                'can_edit' => $publication->user_id === $user->id || $user->isAdmin(),
+                'can_delete' => $publication->user_id === $user->id || $user->isAdmin(),
             ]),
             'comments' => $publication->comments()
                 ->with('user:id,name')
@@ -109,7 +110,8 @@ class PublicationController extends Controller
 
     public function edit(Request $request, Publication $publication)
     {
-        abort_unless($publication->user_id === $request->user()->id, 403);
+        $user = $request->user();
+        abort_unless($publication->user_id === $user->id || $user->isAdmin(), 403);
 
         return Inertia::render('Publicaciones/Edit', array_merge($this->formData($request), [
             'publication' => [
@@ -126,7 +128,8 @@ class PublicationController extends Controller
 
     public function update(Request $request, Publication $publication)
     {
-        abort_unless($publication->user_id === $request->user()->id, 403);
+        $user = $request->user();
+        abort_unless($publication->user_id === $user->id || $user->isAdmin(), 403);
 
         $attributes = $this->validatePublication($request);
         $isPublished = $request->has('is_published') ? $request->boolean('is_published') : true;
@@ -148,7 +151,8 @@ class PublicationController extends Controller
 
     public function destroy(Request $request, Publication $publication)
     {
-        abort_unless($publication->user_id === $request->user()->id, 403);
+        $user = $request->user();
+        abort_unless($publication->user_id === $user->id || $user->isAdmin(), 403);
 
         $publication->delete();
 
@@ -159,8 +163,9 @@ class PublicationController extends Controller
 
     public function comment(Request $request, Publication $publication)
     {
+        $user = $request->user();
         abort_unless(
-            $publication->is_published || $publication->user_id === $request->user()->id,
+            $publication->is_published || $publication->user_id === $user->id || $user->isAdmin(),
             404,
         );
 
@@ -169,7 +174,7 @@ class PublicationController extends Controller
         ]);
 
         $publication->comments()->create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'body' => $attributes['body'],
         ]);
 

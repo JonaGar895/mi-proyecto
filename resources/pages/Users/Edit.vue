@@ -82,6 +82,11 @@
                     />
                 </div>
 
+                <div v-if="$page.props.auth?.user?.is_admin" class="flex items-center gap-2">
+                    <input id="is_admin" v-model="form.is_admin" type="checkbox" class="rounded border-gray-300" />
+                    <label for="is_admin" class="text-sm font-medium text-gray-700">Administrador</label>
+                </div>
+
                 <div class="flex items-center gap-3">
                     <button
                         type="submit"
@@ -127,6 +132,7 @@ const form = useForm({
     email: props.user.email,
     password: "",
     password_confirmation: "",
+    is_admin: !!props.user.is_admin,
 });
 
 const submit = () => {

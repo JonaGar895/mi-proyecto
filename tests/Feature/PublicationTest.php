@@ -196,4 +196,29 @@ class PublicationTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('publications.data', 0));
     }
+
+    public function test_settings_shows_only_the_authenticated_users_publications(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        $publication = Publication::factory()->for($user)->create([
+            'title' => 'Mi publicación',
+        ]);
+
+        Publication::factory()->for($other)->create([
+            'title' => 'Publicación ajena',
+        ]);
+
+        $this->actingAs($user)
+            ->get('/settings')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Settings')
+                ->where('stats.publications', 1)
+                ->has('myPublications', 1)
+                ->where('myPublications.0.id', $publication->id)
+                ->where('myPublications.0.title', 'Mi publicación')
+                ->where('myPublications.0.is_published', true));
+    }
 }

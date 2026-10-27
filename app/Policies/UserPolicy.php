@@ -14,23 +14,33 @@ class UserPolicy
 
     public function view(User $user, User $model): bool
     {
-        return true;
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $model->id;
     }
 
     public function create(User $user): bool
     {
-        // Demo: cualquier usuario autenticado puede crear usuarios.
-        return true;
+        return $user->isAdmin();
     }
 
     public function update(User $user, User $model): bool
     {
-        // Demo: cualquier usuario autenticado puede editar usuarios.
-        return true;
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $model->id;
     }
 
     public function delete(User $user, User $model): bool
     {
+        if (! $user->isAdmin()) {
+            return false;
+        }
+
         return $user->id !== $model->id;
     }
 
