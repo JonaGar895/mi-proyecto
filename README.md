@@ -2,7 +2,7 @@
 
 Aplicación de galería de arte construida con **Laravel 12 + Inertia.js + Vue 3 + Tailwind CSS**, con base de datos **SQLite**.
 
-Incluye usuarios, cuadros, categorías, favoritos, comentarios, publicaciones y exposiciones.
+Incluye usuarios, cuadros, categorías, favoritos, comentarios, publicaciones, exposiciones y un sistema de roles (administrador/usuario).
 
 ## Requisitos
 
@@ -20,6 +20,28 @@ php artisan migrate
 npm install
 npm run build
 ```
+
+## Poblar la base de datos con datos de prueba
+
+Si quieres cargar datos iniciales (categorías, usuarios, cuadros, exposiciones y publicaciones), puedes ejecutar los seeders:
+
+```bash
+php artisan db:seed
+```
+
+Esto ejecutará `DatabaseSeeder` que:
+
+1. Crea 100 usuarios con `UserFactory`
+2. Ejecuta `UserSeeder`, `CategorySeeder`, `PaintingSeeder`, `ExhibitionSeeder` y `PublicationSeeder`
+
+### Usuarios de prueba
+
+Tras ejecutar los seeders, tendrás estos usuarios disponibles:
+
+| Email | Contraseña | Rol |
+|---|---|---|
+| `broderick14@example.org` | `password` | Administrador (`is_admin = true`) |
+| `juan@example.com` | `12345678` | Usuario (`is_admin = false`) |
 
 ## Arrancar la aplicación
 
@@ -41,12 +63,13 @@ npm run dev
 
 La app queda en <http://127.0.0.1:8000>.
 
-### Usuario de prueba
+## Autenticación
 
-```
-Email:    juan@example.com
-Password: 12345678
-```
+- Solo existe **inicio de sesión** (`/login`). No hay registro público.
+- Las credenciales se validan contra la base de datos.
+- Las sesiones se guardan en la base de datos (`SESSION_DRIVER=database`), por lo que no se cierran al reiniciar el servidor.
+- La sesión caduca tras `SESSION_LIFETIME` minutos de inactividad (120 por defecto).
+- Cierre de sesión mediante `POST /logout`.
 
 ## Persistencia de los datos
 
@@ -123,39 +146,63 @@ users
  ├──< publication_comments (user_id + publication_id)
  └──< paintings >──< exhibitions   (N:M)
 
+users
+ └── name, email, password, stripe_token (nullable), phone (nullable), is_admin (bool), timestamps
+
 paintings
  ├── user_id     → users
- ├── category_id → categories
- └── title, description, year, technique, emoji, image_url, price, is_public
+ ├── category_id → categories (nullable)
+ └── title, description, year, technique, emoji (default 🖼️), image_url, price, is_public (default true)
 
 publications
  ├── user_id     → users        (autor)
  ├── category_id → categories   (opcional)
  ├── painting_id → paintings    (obra relacionada, opcional)
- └── title, summary, content, is_published, published_at
+ └── title, slug, summary, content, is_published, published_at
 
 publication_comments
  ├── user_id        → users
  └── publication_id → publications
 ```
 
+## Roles y permisos
+
+La aplicación cuenta con dos roles:
+
+| Rol | Cómo se identifica | Privilegios |
+|---|---|---|
+| **Administrador** | `users.is_admin = true` | Puede crear/editar/eliminar cualquier usuario (excepto a sí mismo al eliminar), eliminar cualquier obra, ver cualquier perfil de usuario. |
+| **Usuario** | `users.is_admin = false` | Puede gestionar su propio perfil, publicar obras, añadir favoritos/comentarios, crear/editar/eliminar sus propias publicaciones. Solo puede ver su propio perfil a menos que sea administrador. |
+
+La autorización se gestiona mediante **Policies** (`app/Policies/UserPolicy.php`). Las rutas de usuarios están protegidas con `can()` en las rutas web. Los administradores también pueden eliminar cualquier pintura desde el detalle de la obra.
+
+## Exposiciones
+
+- Las **exposiciones** (`exhibitions`) agrupan obras de arte mediante una tabla pivot `exhibition_painting` (N:M).
+- En el detalle de una pintura (`/cuadros/{painting}`) se muestran las exposiciones en las que participa la obra, con sus fechas de inicio y fin.
+- Las exposiciones se cargan desde los seeders (`ExhibitionSeeder`) para datos de prueba.
+
 ## Rutas principales
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Inicio con las últimas obras |
-| `/cuadros` | Galería con búsqueda, filtro y favoritos |
-| `/cuadros/create` | Publicar una obra |
-| `/cuadros/{id}` | Detalle, exposiciones y comentarios |
-| `/publicaciones` | Blog con búsqueda y filtro por categoría |
-| `/publicaciones/create` | Nueva publicación |
-| `/publicaciones/{id}` | Detalle y comentarios de la publicación |
-| `/publicaciones/{id}/edit` | Editar publicación |
-| `/users/list` | Listado de usuarios |
-| `/users/view/{id}` | Detalle de un usuario |
-| `/users/create` | Crear usuario |
-| `/users/edit/{id}` | Editar usuario |
-| `/settings` | Ajustes y estadísticas del usuario |
+| `/` | Inicio con las últimas obras públicas y últimas publicaciones publicadas |
+| `/cuadros` | Galería con búsqueda, filtro por categoría y favoritos. Paginado (9 por página). |
+| `/cuadros/create` | Publicar una obra (autenticado) |
+| `/cuadros/{painting}` | Detalle de la obra, exposiciones, comentarios, opción de favorito |
+| `/cuadros/{painting}` (DELETE) | Eliminar obra (solo dueño o administrador) |
+| `/publicaciones` | Blog con búsqueda y filtro por categoría (solo publicaciones publicadas) |
+| `/publicaciones/create` | Nueva publicación (autenticado) |
+| `/publicaciones/{publication}` | Detalle y comentarios de la publicación |
+| `/publicaciones/{publication}/edit` | Editar publicación |
+| `/publicaciones/{publication}` (PUT/POST) | Actualizar publicación |
+| `/publicaciones/{publication}` (DELETE) | Eliminar publicación |
+| `/users/list` | Listado de usuarios (protegido por política) |
+| `/users/view/{user}` | Detalle de un usuario (propio o administrador) |
+| `/users/create` | Crear usuario (solo administrador) |
+| `/users/edit/{user}` | Editar usuario (propio o administrador) |
+| `/users/delete/{user}` | Eliminar usuario (solo administrador, no puede eliminarse a sí mismo) |
+| `/settings` | Ajustes y estadísticas del usuario (obras, favoritos, comentarios, publicaciones) |
 
 ## Nota sobre el repositorio
 
