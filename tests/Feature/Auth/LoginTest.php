@@ -42,7 +42,7 @@ class LoginTest extends TestCase
 
     public function test_user_created_from_the_users_page_can_login(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
 
         $response = $this->actingAs($admin)->post('/users/create', [
             'name' => 'Nuevo Usuario',

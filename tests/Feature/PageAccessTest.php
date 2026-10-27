@@ -19,7 +19,7 @@ class PageAccessTest extends TestCase
 
     public function test_authenticated_user_can_open_the_main_pages(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => true]);
 
         foreach ([
             '/',

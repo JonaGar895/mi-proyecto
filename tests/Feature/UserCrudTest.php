@@ -26,7 +26,7 @@ class UserCrudTest extends TestCase
 
     public function test_user_list_page_renders_users(): void
     {
-        $user = User::factory()->create(['name' => 'Usuario de prueba']);
+        $user = User::factory()->create(['name' => 'Usuario de prueba', 'is_admin' => true]);
 
         $this->actingAs($user)
             ->get(route('users.list'))
@@ -56,7 +56,7 @@ class UserCrudTest extends TestCase
 
     public function test_edit_page_knows_where_to_return(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
         $user = User::factory()->create();
 
         $this->actingAs($admin)
@@ -72,7 +72,7 @@ class UserCrudTest extends TestCase
 
     public function test_authenticated_user_can_create_a_user(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
 
         $response = $this->actingAs($admin)->post(route('users.store'), [
             'name' => 'Nuevo Usuario',
@@ -96,7 +96,7 @@ class UserCrudTest extends TestCase
 
     public function test_authenticated_user_can_update_a_user(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
         $user = User::factory()->create([
             'name' => 'Nombre viejo',
             'email' => 'viejo@example.com',
@@ -120,7 +120,7 @@ class UserCrudTest extends TestCase
 
     public function test_authenticated_user_can_delete_another_user(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
         $user = User::factory()->create();
 
         $response = $this->actingAs($admin)->post(route('users.delete', $user));
@@ -132,7 +132,7 @@ class UserCrudTest extends TestCase
 
     public function test_user_cannot_delete_their_own_account(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => true]);
 
         $this->actingAs($user)
             ->post(route('users.delete', $user))
@@ -143,7 +143,7 @@ class UserCrudTest extends TestCase
 
     public function test_create_user_requires_valid_data(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
 
         $this->actingAs($admin)
             ->post(route('users.store'), [])
@@ -152,7 +152,7 @@ class UserCrudTest extends TestCase
 
     public function test_email_must_be_unique_when_creating_a_user(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['is_admin' => true]);
         User::factory()->create(['email' => 'repetido@example.com']);
 
         $this->actingAs($admin)
