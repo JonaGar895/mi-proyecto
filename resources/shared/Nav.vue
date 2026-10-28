@@ -26,6 +26,12 @@
             </li>
 
             <li>
+                <NavLink href="/inquiries" :active="$page.component === 'Inquiries/Index'">
+                    Solicitudes
+                </NavLink>
+            </li>
+
+            <li>
                 <NavLink href="/settings" :active="$page.component === 'Settings'">
                     Ajustes
                 </NavLink>

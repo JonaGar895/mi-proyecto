@@ -43,6 +43,7 @@ class UserController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'is_admin' => $user->is_admin,
+                    'is_vendor' => $user->is_vendor,
                 ]),
 
             'filters' => [
@@ -56,7 +57,7 @@ class UserController extends Controller
         Gate::authorize('view', $user);
 
         return Inertia::render('Users/Show', [
-            'user' => $user->only(['id', 'name', 'email', 'is_admin']),
+            'user' => $user->only(['id', 'name', 'email', 'is_admin', 'is_vendor']),
             'stats' => [
                 'paintings' => $user->paintings()->count(),
                 'favorites' => $user->favoritePaintings()->count(),
@@ -86,12 +87,15 @@ class UserController extends Controller
             ],
             'password' => ['required', 'string', 'min:8'],
             'is_admin' => ['nullable', 'boolean'],
+            'is_vendor' => ['nullable', 'boolean'],
         ]);
 
         if (! $request->user()->isAdmin()) {
             unset($attributes['is_admin']);
+            unset($attributes['is_vendor']);
         } else {
             $attributes['is_admin'] = $request->boolean('is_admin');
+            $attributes['is_vendor'] = $request->boolean('is_vendor');
         }
 
         // El cast "hashed" del modelo User procesa la contraseña.
@@ -111,7 +115,7 @@ class UserController extends Controller
             : route('users.view', $user->id);
 
         return Inertia::render('Users/Edit', [
-            'user' => $user->only(['id', 'name', 'email', 'is_admin']),
+            'user' => $user->only(['id', 'name', 'email', 'is_admin', 'is_vendor']),
             'backUrl' => $backUrl,
         ]);
     }
@@ -130,6 +134,7 @@ class UserController extends Controller
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
+            'is_vendor' => ['nullable', 'boolean'],
         ]);
 
         if (blank($attributes['password'] ?? null)) {
@@ -138,8 +143,10 @@ class UserController extends Controller
 
         if (! $request->user()->isAdmin()) {
             unset($attributes['is_admin']);
+            unset($attributes['is_vendor']);
         } else {
             $attributes['is_admin'] = $request->boolean('is_admin');
+            $attributes['is_vendor'] = $request->boolean('is_vendor');
         }
 
         $user->update($attributes);

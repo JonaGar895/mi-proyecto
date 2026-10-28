@@ -89,7 +89,7 @@ class PaintingController extends Controller
         );
 
         $painting->load([
-            'user:id,name',
+            'user:id,name,email,is_vendor,is_admin',
             'category:id,name,slug',
             'exhibitions:id,title,starts_at,ends_at',
         ]);
@@ -99,8 +99,12 @@ class PaintingController extends Controller
             $painting->favorites()->where('user_id', $user->id)->exists(),
         );
 
+        $hasInquired = $painting->inquiries()->where('buyer_id', $user->id)->exists();
+
         return Inertia::render('Paintings/Show', [
             'painting' => array_merge($this->paintingData($painting), [
+                'status' => $painting->status ?? 'available',
+                'sold_at' => $painting->sold_at?->toDateString(),
                 'exhibitions' => $painting->exhibitions->map(fn ($exhibition) => [
                     'id' => $exhibition->id,
                     'title' => $exhibition->title,
@@ -108,6 +112,7 @@ class PaintingController extends Controller
                     'ends_at' => $exhibition->ends_at?->toDateString(),
                 ]),
                 'can_delete' => $painting->user_id === $user->id || $user->isAdmin(),
+                'is_owner' => $painting->user_id === $user->id,
             ]),
             'comments' => $painting->comments()
                 ->with('user:id,name')
@@ -122,6 +127,7 @@ class PaintingController extends Controller
                         'name' => $comment->user->name,
                     ],
                 ]),
+            'hasInquired' => $hasInquired,
         ]);
     }
 
@@ -178,6 +184,8 @@ class PaintingController extends Controller
             'description' => $painting->description,
             'year' => $painting->year,
             'technique' => $painting->technique,
+            'status' => $painting->status ?? 'available',
+            'sold_at' => $painting->sold_at?->toDateString(),
             'emoji' => $painting->emoji,
             'image_url' => $painting->image_url,
             'price' => $painting->price,

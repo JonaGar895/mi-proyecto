@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'stripe_token',
         'is_admin',
+        'is_vendor',
     ];
 
     /**
@@ -49,12 +50,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_vendor' => 'boolean',
         ];
     }
 
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;
+    }
+
+    public function isVendor(): bool
+    {
+        return (bool) $this->is_vendor || $this->isAdmin();
+    }
+
+    public function canSell(): bool
+    {
+        return (bool) $this->is_vendor || $this->isAdmin();
     }
 
     public function paintings(): HasMany
@@ -85,5 +97,20 @@ class User extends Authenticatable
     public function publicationComments(): HasMany
     {
         return $this->hasMany(PublicationComment::class);
+    }
+
+    public function inquiriesSent(): HasMany
+    {
+        return $this->hasMany(Inquiry::class, 'buyer_id');
+    }
+
+    public function inquiriesReceived(): HasMany
+    {
+        return $this->hasMany(Inquiry::class, 'seller_id');
+    }
+
+    public function soldPaintings(): HasMany
+    {
+        return $this->hasMany(Painting::class, 'sold_to_user_id');
     }
 }

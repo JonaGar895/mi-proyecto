@@ -68,6 +68,33 @@
                             {{ user.email }}
                         </td>
 
+                        <td class="px-6 py-4">
+                            <span
+                                v-if="user.is_admin && user.is_vendor"
+                                class="inline-flex items-center rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
+                            >
+                                Admin / Vendedor
+                            </span>
+                            <span
+                                v-else-if="user.is_admin"
+                                class="inline-flex items-center rounded-full bg-indigo-100 px-2 py-1 text-xs font-medium text-indigo-700"
+                            >
+                                Administrador
+                            </span>
+                            <span
+                                v-else-if="user.is_vendor"
+                                class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700"
+                            >
+                                Vendedor
+                            </span>
+                            <span
+                                v-else
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
+                            >
+                                Usuario
+                            </span>
+                        </td>
+
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <Link
                                 :href="`/users/view/${user.id}`"

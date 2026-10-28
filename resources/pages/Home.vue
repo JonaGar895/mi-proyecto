@@ -24,6 +24,7 @@
                     Ver galería
                 </Link>
                 <Link
+                    v-if="$page.props.auth?.user?.is_vendor || $page.props.auth?.user?.is_admin"
                     href="/cuadros/create"
                     class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50"
                 >

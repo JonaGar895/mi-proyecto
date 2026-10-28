@@ -152,4 +152,10 @@ Route::middleware('auth')->group(function () {
                 ]),
         ]);
     })->name('settings');
+
+    // Solicitudes / Me interesa
+    Route::post('/cuadros/{painting}/inquiries', [\App\Http\Controllers\InquiryController::class, 'store'])->name('paintings.inquiries.store');
+    Route::get('/inquiries', [\App\Http\Controllers\InquiryController::class, 'index'])->name('inquiries.index');
+    Route::post('/inquiries/{inquiry}/status', [\App\Http\Controllers\InquiryController::class, 'update'])->name('inquiries.update');
+    Route::post('/inquiries/{inquiry}/mark-sold', [\App\Http\Controllers\InquiryController::class, 'markSold'])->name('inquiries.markSold');
 });

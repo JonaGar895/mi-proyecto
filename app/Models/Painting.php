@@ -23,6 +23,9 @@ class Painting extends Model
         'image_url',
         'price',
         'is_public',
+        'status',
+        'sold_at',
+        'sold_to_user_id',
     ];
 
     protected function casts(): array
@@ -31,6 +34,7 @@ class Painting extends Model
             'year' => 'integer',
             'price' => 'decimal:2',
             'is_public' => 'boolean',
+            'sold_at' => 'datetime',
         ];
     }
 
@@ -69,8 +73,33 @@ class Painting extends Model
         return $this->belongsToMany(Exhibition::class)->withTimestamps();
     }
 
+    public function inquiries(): HasMany
+    {
+        return $this->hasMany(Inquiry::class);
+    }
+
+    public function soldTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sold_to_user_id');
+    }
+
     public function scopePublic($query)
     {
         return $query->where('is_public', true);
+    }
+
+    public function isSold(): bool
+    {
+        return $this->status === 'sold';
+    }
+
+    public function isReserved(): bool
+    {
+        return $this->status === 'reserved';
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === 'available';
     }
 }

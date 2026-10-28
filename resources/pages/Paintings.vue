@@ -11,6 +11,7 @@
             </div>
 
             <Link
+                v-if="$page.props.auth?.user?.is_vendor || $page.props.auth?.user?.is_admin"
                 href="/cuadros/create"
                 class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
