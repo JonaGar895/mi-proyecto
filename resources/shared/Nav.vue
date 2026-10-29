@@ -26,14 +26,14 @@
             </li>
 
             <li>
-                <NavLink href="/inquiries" :active="$page.component === 'Inquiries/Index'">
+                <NavLink href="/inquiries" :active="$page.component === 'Inquiries/Index' || $page.component === 'Inquiries/History'">
                     Solicitudes
                 </NavLink>
             </li>
 
             <li>
-                <NavLink href="/settings" :active="$page.component === 'Settings'">
-                    Ajustes
+                <NavLink href="/mi-cuenta" :active="$page.component === 'Settings' || $page.component === 'Account/Index'">
+                    Mi cuenta
                 </NavLink>
             </li>
               <li>

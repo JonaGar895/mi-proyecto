@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'stripe_token',
+        'balance',
         'is_admin',
         'is_vendor',
     ];
@@ -51,12 +52,27 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_vendor' => 'boolean',
+            'balance' => 'decimal:2',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->id === 1 && (bool) $this->is_admin;
     }
 
     public function isAdmin(): bool
     {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
         return (bool) $this->is_admin;
+    }
+
+    public function canApproveSales(): bool
+    {
+        return $this->isSuperAdmin() || (bool) $this->is_admin;
     }
 
     public function isVendor(): bool
@@ -67,6 +83,40 @@ class User extends Authenticatable
     public function canSell(): bool
     {
         return (bool) $this->is_vendor || $this->isAdmin();
+    }
+
+    public function canAfford(Painting $painting): bool
+    {
+        if (! $painting->price) {
+            return true;
+        }
+
+        return $this->balance >= $painting->price;
+    }
+
+    public function canBuy(Painting $painting): array
+    {
+        if ($painting->user_id === $this->id) {
+            return ['can_buy' => false, 'reason' => 'No puedes comprar tu propia obra.'];
+        }
+
+        if ($painting->status === 'sold') {
+            return ['can_buy' => false, 'reason' => 'Esta obra ya ha sido vendida.'];
+        }
+
+        if (! $painting->is_public && ! $this->isAdmin()) {
+            return ['can_buy' => false, 'reason' => 'Esta obra no está disponible para la compra.'];
+        }
+
+        if (! $this->canAfford($painting)) {
+            return ['can_buy' => false, 'reason' => 'Saldo insuficiente para comprar esta obra.'];
+        }
+
+        if (Inquiry::where('painting_id', $painting->id)->where('buyer_id', $this->id)->exists()) {
+            return ['can_buy' => false, 'reason' => 'Ya has enviado una solicitud de compra para esta obra.'];
+        }
+
+        return ['can_buy' => true, 'reason' => null];
     }
 
     public function paintings(): HasMany

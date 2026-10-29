@@ -100,6 +100,7 @@ class PaintingController extends Controller
         );
 
         $hasInquired = $painting->inquiries()->where('buyer_id', $user->id)->exists();
+        $buyCheck = $user->canBuy($painting);
 
         return Inertia::render('Paintings/Show', [
             'painting' => array_merge($this->paintingData($painting), [
@@ -128,6 +129,18 @@ class PaintingController extends Controller
                     ],
                 ]),
             'hasInquired' => $hasInquired,
+            'auth' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'balance' => $user->balance,
+                    'is_admin' => $user->isAdmin(),
+                    'is_super_admin' => $user->isSuperAdmin(),
+                ],
+                'can_buy' => $buyCheck['can_buy'],
+                'buy_reason' => $buyCheck['reason'],
+            ],
         ]);
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Painting;
+use App\Models\Publication;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -10,6 +12,81 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
+    public function settings(Request $request)
+    {
+        $user = $request->user();
+
+        $purchased = $user->soldPaintings()
+            ->with(['user:id,name', 'category:id,name'])
+            ->latest('sold_at')
+            ->get()
+            ->map(fn (Painting $painting) => [
+                'id' => $painting->id,
+                'title' => $painting->title,
+                'emoji' => $painting->emoji,
+                'image_url' => $painting->image_url,
+                'price' => $painting->price,
+                'sold_at' => $painting->sold_at?->format('d/m/Y H:i'),
+                'artist' => $painting->user?->name,
+            ]);
+
+        $inquiries = $user->inquiriesSent()
+            ->with(['painting', 'seller'])
+            ->latest()
+            ->get()
+            ->map(fn (\App\Models\Inquiry $inquiry) => [
+                'id' => $inquiry->id,
+                'status' => $inquiry->status,
+                'created_at' => $inquiry->created_at?->format('d/m/Y H:i'),
+                'painting' => [
+                    'id' => $inquiry->painting?->id,
+                    'title' => $inquiry->painting?->title,
+                    'price' => $inquiry->painting?->price,
+                ],
+                'seller' => [
+                    'name' => $inquiry->seller?->name,
+                ],
+            ]);
+
+        return Inertia::render('Settings', [
+            'stats' => [
+                'paintings' => $user->paintings()->count(),
+                'favorites' => $user->favoritePaintings()->count(),
+                'comments' => $user->comments()->count(),
+                'publications' => $user->publications()->count(),
+            ],
+            'favoritePaintings' => $user->favoritePaintings()
+                ->with('user:id,name')
+                ->orderByDesc('favorites.created_at')
+                ->take(6)
+                ->get()
+                ->map(fn (Painting $painting) => [
+                    'id' => $painting->id,
+                    'title' => $painting->title,
+                    'emoji' => $painting->emoji,
+                    'artist' => $painting->user?->name,
+                ]),
+            'myPublications' => $user->publications()
+                ->with('category:id,name')
+                ->withCount('comments')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get()
+                ->map(fn (Publication $publication) => [
+                    'id' => $publication->id,
+                    'title' => $publication->title,
+                    'summary' => $publication->summary,
+                    'category' => $publication->category?->name,
+                    'is_published' => $publication->is_published,
+                    'date' => ($publication->published_at ?? $publication->created_at)
+                        ?->translatedFormat('d M Y'),
+                    'comments_count' => $publication->comments_count,
+                ]),
+            'purchasedPaintings' => $purchased,
+            'myInquiries' => $inquiries,
+            'balance' => $user->balance,
+        ]);
+    }
     public function list(Request $request)
     {
         Gate::authorize('viewAny', User::class);

@@ -16,7 +16,19 @@ class Inquiry extends Model
         'seller_id',
         'message',
         'status',
+        'approved_by',
+        'approved_at',
+        'rejected_by',
+        'rejected_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
+        ];
+    }
 
     public function painting(): BelongsTo
     {
@@ -31,5 +43,15 @@ class Inquiry extends Model
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 }

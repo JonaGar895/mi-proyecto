@@ -60,7 +60,12 @@ export default {
     },
     computed: {
         userName() {
-            return this.$page.props.auth?.user?.username ?? "Usuario";
+            return (
+                this.$page.props.auth?.user?.name ??
+                this.$page.props.auth?.user?.username ??
+                this.$page.props.auth?.user?.email ??
+                "Usuario"
+            );
         },
     },
 };

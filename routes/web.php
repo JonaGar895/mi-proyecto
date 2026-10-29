@@ -7,7 +7,6 @@ use App\Http\Controllers\UserController;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -110,52 +109,17 @@ Route::middleware('auth')->group(function () {
         ->can('delete', 'user')
         ->name('users.delete');
 
-    // Ajustes
-    Route::redirect('/setting', '/settings');
+    // Mi cuenta
+    Route::redirect('/setting', '/mi-cuenta');
+    Route::get('/settings', [UserController::class, 'settings'])->name('settings');
+    Route::get('/mi-cuenta', [UserController::class, 'settings'])->name('account');
 
-    Route::get('/settings', function (Request $request) {
-        $user = $request->user();
-
-        return Inertia::render('Settings', [
-            'stats' => [
-                'paintings' => $user->paintings()->count(),
-                'favorites' => $user->favoritePaintings()->count(),
-                'comments' => $user->comments()->count(),
-                'publications' => $user->publications()->count(),
-            ],
-            'favoritePaintings' => $user->favoritePaintings()
-                ->with('user:id,name')
-                ->orderByDesc('favorites.created_at')
-                ->take(6)
-                ->get()
-                ->map(fn (Painting $painting) => [
-                    'id' => $painting->id,
-                    'title' => $painting->title,
-                    'emoji' => $painting->emoji,
-                    'artist' => $painting->user?->name,
-                ]),
-            'myPublications' => $user->publications()
-                ->with('category:id,name')
-                ->withCount('comments')
-                ->orderByDesc('created_at')
-                ->orderByDesc('id')
-                ->get()
-                ->map(fn (Publication $publication) => [
-                    'id' => $publication->id,
-                    'title' => $publication->title,
-                    'summary' => $publication->summary,
-                    'category' => $publication->category?->name,
-                    'is_published' => $publication->is_published,
-                    'date' => ($publication->published_at ?? $publication->created_at)
-                        ?->translatedFormat('d M Y'),
-                    'comments_count' => $publication->comments_count,
-                ]),
-        ]);
-    })->name('settings');
-
-    // Solicitudes / Me interesa
+    // Solicitudes / Compra de pinturas
     Route::post('/cuadros/{painting}/inquiries', [\App\Http\Controllers\InquiryController::class, 'store'])->name('paintings.inquiries.store');
     Route::get('/inquiries', [\App\Http\Controllers\InquiryController::class, 'index'])->name('inquiries.index');
+    Route::get('/inquiries/history', [\App\Http\Controllers\InquiryController::class, 'history'])->name('inquiries.history');
     Route::post('/inquiries/{inquiry}/status', [\App\Http\Controllers\InquiryController::class, 'update'])->name('inquiries.update');
+    Route::post('/inquiries/{inquiry}/approve', [\App\Http\Controllers\InquiryController::class, 'approve'])->name('inquiries.approve');
+    Route::post('/inquiries/{inquiry}/reject', [\App\Http\Controllers\InquiryController::class, 'reject'])->name('inquiries.reject');
     Route::post('/inquiries/{inquiry}/mark-sold', [\App\Http\Controllers\InquiryController::class, 'markSold'])->name('inquiries.markSold');
 });

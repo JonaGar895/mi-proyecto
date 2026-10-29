@@ -66,6 +66,40 @@
                     <span v-if="painting.price" class="rounded-full bg-gray-100 px-3 py-1">
                         {{ formatPrice(painting.price) }}
                     </span>
+                    <span class="rounded-full bg-gray-100 px-3 py-1">
+                        Estado: {{ painting.status === 'sold' ? 'Vendida' : painting.status === 'reserved' ? 'Reservada' : 'Disponible' }}
+                    </span>
+                </div>
+
+                <div class="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+                    <p class="font-medium">Tu saldo</p>
+                    <p class="mt-1 text-lg font-semibold">
+                        {{ auth?.user?.balance ? formatPrice(auth.user.balance) : formatPrice(0) }}
+                    </p>
+                    <p v-if="painting.price" class="mt-1 text-xs text-blue-700">
+                        Precio de la obra: {{ formatPrice(painting.price) }}
+                    </p>
+                </div>
+
+                <div class="mt-4">
+                    <button
+                        v-if="canShowBuyButton"
+                        type="button"
+                        class="w-full rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="form.processing || !auth.can_buy"
+                        @click="buyPainting"
+                    >
+                        {{ form.processing ? "Enviando solicitud..." : "Comprar obra" }}
+                    </button>
+                    <p v-if="auth.buy_reason && !canShowBuyButton && !hasInquired" class="mt-2 text-sm text-gray-600">
+                        {{ auth.buy_reason }}
+                    </p>
+                    <p v-if="hasInquired" class="mt-2 text-sm text-amber-700">
+                        Ya has enviado una solicitud de compra. Pendiente de aprobación por un administrador.
+                    </p>
+                    <p v-if="painting.status === 'sold'" class="mt-2 text-sm text-red-600">
+                        Esta obra ya ha sido vendida.
+                    </p>
                 </div>
 
                 <p class="mt-5 whitespace-pre-line text-gray-700">
@@ -169,6 +203,7 @@
 
 <script setup>
 import { Head, Link, router, useForm } from "@inertiajs/vue3";
+import { computed } from "vue";
 
 const props = defineProps({
     painting: {
@@ -179,10 +214,37 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    hasInquired: {
+        type: Boolean,
+        default: false,
+    },
+    auth: {
+        type: Object,
+        default: () => ({
+            user: null,
+            can_buy: false,
+            buy_reason: null,
+        }),
+    },
 });
 
 const commentForm = useForm({
     body: "",
+});
+
+const form = useForm({});
+
+const canShowBuyButton = computed(() => {
+    if (props.painting.status === 'sold') {
+        return false;
+    }
+    if (props.hasInquired) {
+        return false;
+    }
+    if (props.painting.is_owner) {
+        return false;
+    }
+    return true;
 });
 
 const toggleFavorite = () => {
@@ -203,6 +265,18 @@ const submitComment = () => {
 const destroy = () => {
     if (confirm("¿Seguro que quieres eliminar esta obra?")) {
         router.delete(`/cuadros/${props.painting.id}`);
+    }
+};
+
+const buyPainting = () => {
+    if (!props.auth?.can_buy) {
+        alert(props.auth?.buy_reason || 'No puedes comprar esta obra.');
+        return;
+    }
+    if (confirm("¿Enviar solicitud de compra para esta obra? Quedará pendiente de aprobación por un administrador.")) {
+        form.post(`/cuadros/${props.painting.id}/inquiries`, {
+            preserveScroll: true,
+        });
     }
 };
 

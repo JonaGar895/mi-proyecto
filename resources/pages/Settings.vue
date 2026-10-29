@@ -1,10 +1,10 @@
-<template>
-    <Head title="Ajustes" />
+﻿<template>
+    <Head title="Mi cuenta" />
 
     <Layout>
-        <h1 class="text-4xl font-bold text-gray-800">⚙️ Ajustes</h1>
+        <h1 class="text-4xl font-bold text-gray-800">⚙️ Mi cuenta</h1>
         <p class="mt-2 text-gray-600">
-            Hola, {{ $page.props.auth.user.username }}
+            Hola, {{ $page.props.auth.user.name || $page.props.auth.user.username || $page.props.auth.user.email }}
             <span class="text-sm text-gray-400">
                 ({{ $page.props.auth.user.email }})
             </span>
@@ -47,6 +47,43 @@
                 </p>
             </div>
         </div>
+
+        <section class="mt-10 rounded-xl bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-800">Mi saldo</h2>
+            <p class="mt-2 text-3xl font-bold text-emerald-700">{{ formatPrice(balance) }}</p>
+            <p class="mt-1 text-sm text-gray-500">Este saldo se usa para comprar obras. Las compras requieren aprobación de un administrador.</p>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-bold text-gray-800">Mis compras</h2>
+            <p class="mt-1 text-gray-600">Obras que has comprado (aprobadas por el administrador).</p>
+            <div v-if="purchasedPaintings?.length" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Link v-for="painting in purchasedPaintings" :key="painting.id" :href="`/cuadros/${painting.id}`" class="rounded-xl bg-white p-4 shadow-sm hover:shadow-md">
+                    <div class="text-4xl">{{ painting.emoji || '🎨' }}</div>
+                    <p class="mt-2 font-semibold text-gray-800">{{ painting.title }}</p>
+                    <p class="text-sm text-gray-500">{{ painting.artist }}</p>
+                    <p v-if="painting.price" class="mt-1 text-sm text-gray-600">{{ formatPrice(painting.price) }}</p>
+                    <p v-if="painting.sold_at" class="mt-1 text-xs text-gray-400">Comprada el {{ painting.sold_at }}</p>
+                </Link>
+            </div>
+            <p v-else class="mt-3 text-sm text-gray-500">Aún no has comprado ninguna obra.</p>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-bold text-gray-800">Mis solicitudes de compra</h2>
+            <p class="mt-1 text-gray-600">Estado de las solicitudes enviadas.</p>
+            <div v-if="myInquiries?.length" class="mt-4 space-y-3">
+                <div v-for="inq in myInquiries" :key="inq.id" class="rounded-xl bg-white p-4 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <Link :href="`/cuadros/${inq.painting?.id}`" class="font-medium text-gray-800 hover:underline">{{ inq.painting?.title }}</Link>
+                        <span class="rounded-full px-2 py-1 text-xs" :class="inqStatusClass(inq.status)">{{ inqStatusLabel(inq.status) }}</span>
+                    </div>
+                    <p class="text-sm text-gray-500">Vendedor: {{ inq.seller?.name }} · {{ inq.created_at }}</p>
+                    <p v-if="inq.painting?.price" class="text-sm text-gray-600">{{ formatPrice(inq.painting.price) }}</p>
+                </div>
+            </div>
+            <p v-else class="mt-3 text-sm text-gray-500">No has enviado ninguna solicitud.</p>
+        </section>
 
         <section class="mt-10">
             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -191,5 +228,60 @@ defineProps({
         type: Array,
         default: () => [],
     },
+    purchasedPaintings: {
+        type: Array,
+        default: () => [],
+    },
+    myInquiries: {
+        type: Array,
+        default: () => [],
+    },
+    balance: {
+        type: [Number, String],
+        default: 0,
+    },
 });
+
+const formatPrice = (price) => {
+    if (price === null || price === undefined || price === "") {
+        return "-";
+    }
+
+    const value = Number(price);
+
+    if (Number.isNaN(value)) {
+        return price;
+    }
+
+    return value.toLocaleString("es-ES", {
+        style: "currency",
+        currency: "EUR",
+    });
+};
+
+const inqStatusLabel = (status) => {
+    const map = {
+        pending: "Pendiente de aprobación",
+        contacted: "Contactado",
+        declined: "Rechazado",
+        rejected: "Rechazado",
+        closed: "Cerrado",
+        approved: "Aprobado",
+    };
+
+    return map[status] || status;
+};
+
+const inqStatusClass = (status) => {
+    const map = {
+        pending: "bg-amber-100 text-amber-700",
+        contacted: "bg-blue-100 text-blue-700",
+        declined: "bg-red-100 text-red-700",
+        rejected: "bg-red-100 text-red-700",
+        closed: "bg-gray-100 text-gray-600",
+        approved: "bg-emerald-100 text-emerald-700",
+    };
+
+    return map[status] || "bg-gray-100 text-gray-600";
+};
 </script>
