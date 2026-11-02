@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PaintingController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WalletController;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\User;
@@ -113,13 +116,17 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/setting', '/mi-cuenta');
     Route::get('/settings', [UserController::class, 'settings'])->name('settings');
     Route::get('/mi-cuenta', [UserController::class, 'settings'])->name('account');
+    Route::post('/mi-cuenta/saldo', [WalletController::class, 'deposit'])->name('wallet.deposit');
+
+    // Cuenta separada del super administrador (dinero de las ventas)
+    Route::get('/cuenta-super-admin', [AccountController::class, 'show'])->name('super-admin.account');
 
     // Solicitudes / Compra de pinturas
-    Route::post('/cuadros/{painting}/inquiries', [\App\Http\Controllers\InquiryController::class, 'store'])->name('paintings.inquiries.store');
-    Route::get('/inquiries', [\App\Http\Controllers\InquiryController::class, 'index'])->name('inquiries.index');
-    Route::get('/inquiries/history', [\App\Http\Controllers\InquiryController::class, 'history'])->name('inquiries.history');
-    Route::post('/inquiries/{inquiry}/status', [\App\Http\Controllers\InquiryController::class, 'update'])->name('inquiries.update');
-    Route::post('/inquiries/{inquiry}/approve', [\App\Http\Controllers\InquiryController::class, 'approve'])->name('inquiries.approve');
-    Route::post('/inquiries/{inquiry}/reject', [\App\Http\Controllers\InquiryController::class, 'reject'])->name('inquiries.reject');
-    Route::post('/inquiries/{inquiry}/mark-sold', [\App\Http\Controllers\InquiryController::class, 'markSold'])->name('inquiries.markSold');
+    Route::post('/cuadros/{painting}/inquiries', [InquiryController::class, 'store'])->name('paintings.inquiries.store');
+    Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+    Route::get('/inquiries/history', [InquiryController::class, 'history'])->name('inquiries.history');
+    Route::post('/inquiries/{inquiry}/status', [InquiryController::class, 'update'])->name('inquiries.update');
+    Route::post('/inquiries/{inquiry}/approve', [InquiryController::class, 'approve'])->name('inquiries.approve');
+    Route::post('/inquiries/{inquiry}/reject', [InquiryController::class, 'reject'])->name('inquiries.reject');
+    Route::post('/inquiries/{inquiry}/mark-sold', [InquiryController::class, 'markSold'])->name('inquiries.markSold');
 });

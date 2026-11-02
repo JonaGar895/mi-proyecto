@@ -2,9 +2,9 @@
     <Head title="Publicaciones" />
 
     <Layout>
-        <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800">📰 Publicaciones</h1>
+                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">📰 Publicaciones</h1>
                 <p class="mt-2 text-gray-600">
                     Noticias, artículos y reflexiones sobre las obras de la galería.
                 </p>
@@ -12,7 +12,7 @@
 
             <Link
                 href="/publicaciones/create"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
             >
                 + Nueva publicación
             </Link>
@@ -26,7 +26,7 @@
                 class="w-full rounded-lg border px-3 py-2 sm:max-w-md"
             />
 
-            <select v-model="category" class="rounded-lg border px-3 py-2">
+            <select v-model="category" class="w-full rounded-lg border px-3 py-2 sm:w-auto">
                 <option value="">Todas las categorías</option>
                 <option
                     v-for="item in categories"
@@ -40,7 +40,7 @@
 
         <div
             v-if="publications.data.length"
-            class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            class="mt-8 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
         >
             <article
                 v-for="publication in publications.data"
@@ -112,7 +112,7 @@
 
         <p
             v-else
-            class="mt-10 rounded-xl bg-white p-8 text-gray-500 shadow-sm"
+            class="mt-8 rounded-xl bg-white p-6 text-gray-500 shadow-sm sm:mt-10 sm:p-8"
         >
             Todavía no hay publicaciones. ¡Anímate a escribir la primera!
         </p>

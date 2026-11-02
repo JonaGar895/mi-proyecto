@@ -2,9 +2,9 @@
     <Head title="Solicitudes" />
 
     <Layout>
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800">Solicitudes</h1>
+                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Solicitudes</h1>
                 <p class="mt-2 text-gray-600">
                     <template v-if="isAdminView">
                         Panel de administración. Solo los administradores o el super administrador (ID 1) pueden aprobar o rechazar las solicitudes de compra.
@@ -17,14 +17,14 @@
             <Link
                 v-if="isAdminView"
                 href="/inquiries/history"
-                class="rounded-lg bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+                class="w-full rounded-lg bg-gray-800 px-4 py-2 text-center text-white hover:bg-gray-900 sm:w-auto"
             >
                 Ver histórico de compras/ventas
             </Link>
         </div>
 
         <div v-if="isAdminView">
-            <section class="rounded-xl bg-white p-6 shadow-sm">
+            <section class="rounded-xl bg-white p-4 shadow-sm sm:p-6">
                 <h2 class="text-xl font-semibold text-gray-800">Todas las solicitudes de compra</h2>
                 <p class="mt-1 text-sm text-gray-500">Requieren aprobación de un administrador para concretar la venta.</p>
 
@@ -93,8 +93,8 @@
             </section>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section class="rounded-xl bg-white p-6 shadow-sm">
+        <div v-else class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <section class="rounded-xl bg-white p-4 shadow-sm sm:p-6">
                 <h2 class="text-xl font-semibold text-gray-800">Recibidas</h2>
                 <p class="mt-1 text-sm text-gray-500">Solicitudes recibidas para tus obras (informativo).</p>
 
@@ -123,7 +123,7 @@
                 <p v-else class="mt-4 text-sm text-gray-500">No tienes solicitudes recibidas.</p>
             </section>
 
-            <section class="rounded-xl bg-white p-6 shadow-sm">
+            <section class="rounded-xl bg-white p-4 shadow-sm sm:p-6">
                 <h2 class="text-xl font-semibold text-gray-800">Enviadas</h2>
                 <p class="mt-1 text-sm text-gray-500">Solicitudes que has enviado para comprar obras.</p>
 
@@ -216,7 +216,7 @@ const updateStatus = (inq, status) => {
 };
 
 const approveInquiry = (inq) => {
-    if (confirm("¿Aprobar esta solicitud de compra? Se marcará la obra como vendida y se descontará el importe al comprador.")) {
+    if (confirm("¿Aprobar esta solicitud de compra? Se marcará la obra como vendida, se descontará el importe al comprador y se ingresará en la cuenta del super administrador.")) {
         router.post(`/inquiries/${inq.id}/approve`, {}, { preserveScroll: true });
     }
 };
@@ -228,7 +228,7 @@ const rejectInquiry = (inq) => {
 };
 
 const markSold = (inq) => {
-    if (confirm("¿Marcar esta obra como vendida y cerrar esta solicitud?")) {
+    if (confirm("¿Marcar esta obra como vendida y cerrar esta solicitud? Se descontará el importe al comprador y se ingresará en la cuenta del super administrador.")) {
         router.post(`/inquiries/${inq.id}/mark-sold`, {}, { preserveScroll: true });
     }
 };

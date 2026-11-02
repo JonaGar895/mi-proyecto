@@ -2,10 +2,10 @@
     <Head :title="painting.title" />
 
     <Layout>
-        <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+        <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
             <div class="overflow-hidden rounded-xl bg-white shadow-sm">
                 <div
-                    class="flex h-80 items-center justify-center bg-gray-100 text-8xl"
+                    class="flex h-64 items-center justify-center bg-gray-100 text-7xl sm:h-80 sm:text-8xl"
                 >
                     <img
                         v-if="painting.image_url"
@@ -17,19 +17,19 @@
                 </div>
             </div>
 
-            <div>
+            <div class="min-w-0">
                 <Link href="/cuadros" class="text-sm text-blue-600 hover:underline">
                     ← Volver a la galería
                 </Link>
 
-                <div class="mt-3 flex items-start justify-between gap-4">
-                    <h1 class="text-3xl font-bold text-gray-800">
+                <div class="mt-3 flex items-start justify-between gap-3">
+                    <h1 class="break-words text-2xl font-bold text-gray-800 sm:text-3xl">
                         {{ painting.title }}
                     </h1>
 
                     <button
                         type="button"
-                        class="rounded-full px-3 py-1 text-2xl leading-none"
+                        class="shrink-0 rounded-full px-3 py-1 text-2xl leading-none"
                         :class="
                             painting.is_favorited
                                 ? 'text-red-500'
@@ -147,13 +147,13 @@
             </div>
         </div>
 
-        <section class="mt-12">
-            <h2 class="text-2xl font-bold text-gray-800">
+        <section class="mt-8 sm:mt-12">
+            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">
                 Comentarios ({{ painting.comments_count }})
             </h2>
 
             <form
-                class="mt-4 rounded-xl bg-white p-4 shadow-sm"
+                class="mt-4 rounded-xl bg-white p-4 shadow-sm sm:p-6"
                 @submit.prevent="submitComment"
             >
                 <textarea
@@ -184,13 +184,13 @@
                     :key="comment.id"
                     class="rounded-xl bg-white p-4 shadow-sm"
                 >
-                    <div class="flex items-center justify-between text-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
                         <span class="font-medium text-gray-800">
                             {{ comment.user.name }}
                         </span>
                         <span class="text-gray-500">{{ comment.created_at }}</span>
                     </div>
-                    <p class="mt-2 text-gray-700">{{ comment.body }}</p>
+                    <p class="mt-2 break-words text-gray-700">{{ comment.body }}</p>
                 </div>
 
                 <p v-if="!comments.length" class="text-gray-500">

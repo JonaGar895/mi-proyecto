@@ -1,9 +1,13 @@
 <template>
     <Head title="Iniciar sesión" />
 
-    <main class="grid place-items-center min-h-screen bg-gray-50">
-        <section class="bg-white p-8 rounded-xl max-w-md mx-auto border w-full">
-            <h1 class="text-3xl font-bold mb-6">Iniciar sesión</h1>
+    <main class="relative grid min-h-screen place-items-center bg-gray-50 px-4 py-10">
+        <div class="absolute right-4 top-4 sm:right-6 sm:top-6">
+            <ThemeToggle />
+        </div>
+
+        <section class="mx-auto w-full max-w-md rounded-xl border bg-white p-6 sm:p-8">
+            <h1 class="mb-6 text-2xl font-bold sm:text-3xl">Iniciar sesión</h1>
 
             <form @submit.prevent="submit">
                 <div class="mb-6">
@@ -47,7 +51,7 @@
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="bg-blue-500 text-white rounded py-2 px-4 hover:bg-blue-600 disabled:opacity-50"
+                    class="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
                 >
                     {{ form.processing ? 'Entrando...' : 'Iniciar sesión' }}
                 </button>
@@ -58,6 +62,7 @@
 
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
+import ThemeToggle from '../../shared/ThemeToggle.vue';
 
 const form = useForm({
     email: '',

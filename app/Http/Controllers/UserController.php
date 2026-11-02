@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
+use App\Models\BalanceTransaction;
+use App\Models\Inquiry;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\User;
@@ -34,7 +37,7 @@ class UserController extends Controller
             ->with(['painting', 'seller'])
             ->latest()
             ->get()
-            ->map(fn (\App\Models\Inquiry $inquiry) => [
+            ->map(fn (Inquiry $inquiry) => [
                 'id' => $inquiry->id,
                 'status' => $inquiry->status,
                 'created_at' => $inquiry->created_at?->format('d/m/Y H:i'),
@@ -85,8 +88,32 @@ class UserController extends Controller
             'purchasedPaintings' => $purchased,
             'myInquiries' => $inquiries,
             'balance' => $user->balance,
+            'walletTransactions' => $user->balanceTransactions()
+                ->with('painting:id,title,emoji')
+                ->latest()
+                ->latest('id')
+                ->take(10)
+                ->get()
+                ->map(fn (BalanceTransaction $transaction) => [
+                    'id' => $transaction->id,
+                    'type' => $transaction->type,
+                    'amount' => $transaction->amount,
+                    'balance_after' => $transaction->balance_after,
+                    'description' => $transaction->description,
+                    'created_at' => $transaction->created_at?->format('d/m/Y H:i'),
+                    'painting' => $transaction->painting ? [
+                        'id' => $transaction->painting->id,
+                        'title' => $transaction->painting->title,
+                        'emoji' => $transaction->painting->emoji,
+                    ] : null,
+                ]),
+            'superAdminAccount' => $user->isSuperAdmin() ? [
+                'balance' => Account::superAdmin()->balance,
+                'url' => route('super-admin.account', absolute: false),
+            ] : null,
         ]);
     }
+
     public function list(Request $request)
     {
         Gate::authorize('viewAny', User::class);

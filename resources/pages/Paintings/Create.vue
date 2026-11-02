@@ -3,7 +3,7 @@
 
     <Layout>
         <div class="mx-auto max-w-2xl">
-            <h1 class="text-4xl font-bold text-gray-800">Nueva obra</h1>
+            <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Nueva obra</h1>
             <p class="mt-2 text-gray-600">
                 Añade un cuadro a la galería. Podrás editarlo más adelante.
             </p>
@@ -185,16 +185,16 @@
                     Visible en la galería pública
                 </label>
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button
                         type="submit"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
                         :disabled="form.processing"
                     >
                         {{ form.processing ? "Guardando..." : "Publicar obra" }}
                     </button>
 
-                    <Link href="/cuadros" class="text-gray-600 hover:underline">
+                    <Link href="/cuadros" class="text-center text-gray-600 hover:underline sm:text-left">
                         Cancelar
                     </Link>
                 </div>

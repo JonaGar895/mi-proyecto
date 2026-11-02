@@ -3,8 +3,8 @@
         :href="href"
         :method="method"
         :as="as"
-        class="text-black hover:underline"
-        :class="{ 'font-bold underline': active }"
+        class="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-black transition hover:bg-gray-100 hover:no-underline dark:text-gray-100 dark:hover:bg-gray-800"
+        :class="{ 'bg-gray-100 font-bold underline dark:bg-gray-800': active }"
     >
         <slot />
     </Link>

@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\SaleException;
 use App\Models\Inquiry;
 use App\Models\Painting;
+use App\Services\SaleService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InquiryController extends Controller
 {
+    public function __construct(private SaleService $saleService) {}
+
     public function store(Request $request, Painting $painting)
     {
         $user = $request->user();
@@ -168,41 +172,14 @@ class InquiryController extends Controller
     {
         $user = $request->user();
         abort_unless($user->canApproveSales(), 403, 'Solo los administradores o el super administrador pueden aprobar ventas.');
-        $painting = $inquiry->painting()->lockForUpdate()->first();
 
-        abort_if($painting->status === 'sold', 403, 'Esta obra ya ha sido vendida.');
-
-        $buyer = $inquiry->buyer()->lockForUpdate()->first();
-        if ($painting->price && $buyer && $buyer->balance < $painting->price) {
-            return back()->with('error', 'El comprador no tiene saldo suficiente para completar la compra.');
+        try {
+            $this->saleService->complete($inquiry, $user);
+        } catch (SaleException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        if ($painting->price && $buyer) {
-            $buyer->decrement('balance', $painting->price);
-        }
-
-        $painting->update([
-            'status' => 'sold',
-            'sold_at' => now(),
-            'sold_to_user_id' => $inquiry->buyer_id,
-        ]);
-
-        $inquiry->update([
-            'status' => 'approved',
-            'approved_by' => $user->id,
-            'approved_at' => now(),
-            'rejected_by' => null,
-            'rejected_at' => null,
-        ]);
-
-        Inquiry::where('painting_id', $painting->id)
-            ->where('id', '!=', $inquiry->id)
-            ->whereNotIn('status', ['approved'])
-            ->update([
-                'status' => 'closed',
-            ]);
-
-        return back()->with('success', 'Venta aprobada. La obra ha sido marcada como vendida y se ha descontado el importe al comprador.');
+        return back()->with('success', 'Venta aprobada. Se descontó el importe al comprador y se ingresó en la cuenta del super administrador.');
     }
 
     public function reject(Request $request, Inquiry $inquiry)
@@ -230,27 +207,14 @@ class InquiryController extends Controller
     {
         $user = $request->user();
         abort_unless($user->canApproveSales(), 403, 'Solo los administradores o el super administrador pueden marcar una venta como realizada.');
-        $painting = $inquiry->painting;
 
-        abort_if($painting->status === 'sold', 403);
+        try {
+            $this->saleService->complete($inquiry, $user);
+        } catch (SaleException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
 
-        $painting->update([
-            'status' => 'sold',
-            'sold_at' => now(),
-            'sold_to_user_id' => $inquiry->buyer_id,
-        ]);
-
-        $inquiry->update([
-            'status' => 'approved',
-            'approved_by' => $user->id,
-            'approved_at' => now(),
-        ]);
-
-        Inquiry::where('painting_id', $painting->id)
-            ->where('id', '!=', $inquiry->id)
-            ->update(['status' => 'closed']);
-
-        return back()->with('success', 'Venta aprobada y obra marcada como vendida.');
+        return back()->with('success', 'Venta concretada. Se descontó el importe al comprador y se ingresó en la cuenta del super administrador.');
     }
 
     public function history(Request $request)

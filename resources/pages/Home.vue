@@ -3,12 +3,12 @@
 
     <Layout>
         <section
-            class="rounded-2xl bg-gradient-to-br from-indigo-50 to-white p-8 ring-1 ring-gray-100"
+            class="rounded-2xl bg-gradient-to-br from-indigo-50 to-white p-5 ring-1 ring-gray-100 sm:p-8 lg:p-10"
         >
             <p class="text-sm uppercase tracking-widest text-indigo-600">
                 Galería de arte
             </p>
-            <h1 class="mt-2 text-4xl font-bold text-gray-800">
+            <h1 class="mt-2 text-3xl font-bold text-gray-800 sm:text-4xl">
                 🎨 Galería de Cuadros
             </h1>
             <p class="mt-2 max-w-2xl text-gray-600">
@@ -16,27 +16,27 @@
                 y comparte tu opinión con otros amantes del arte.
             </p>
 
-            <div class="mt-6 flex flex-wrap gap-3">
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
                     href="/cuadros"
-                    class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    class="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
                 >
                     Ver galería
                 </Link>
                 <Link
                     v-if="$page.props.auth?.user?.is_vendor || $page.props.auth?.user?.is_admin"
                     href="/cuadros/create"
-                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-gray-700 hover:bg-gray-50 sm:w-auto"
                 >
                     Publicar obra
                 </Link>
             </div>
         </section>
 
-        <section v-if="featuredPaintings.length" class="mt-10">
-            <h2 class="text-2xl font-bold text-gray-800">Últimas obras</h2>
+        <section v-if="featuredPaintings.length" class="mt-8 sm:mt-10">
+            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">Últimas obras</h2>
 
-            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Link
                     v-for="painting in featuredPaintings"
                     :key="painting.id"
@@ -66,9 +66,9 @@
             </div>
         </section>
 
-        <section v-if="latestPublications.length" class="mt-10">
-            <div class="flex items-end justify-between gap-4">
-                <h2 class="text-2xl font-bold text-gray-800">
+        <section v-if="latestPublications.length" class="mt-8 sm:mt-10">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">
                     Últimas publicaciones
                 </h2>
                 <Link
@@ -79,7 +79,7 @@
                 </Link>
             </div>
 
-            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Link
                     v-for="publication in latestPublications"
                     :key="publication.id"

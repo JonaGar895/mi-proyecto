@@ -2,9 +2,9 @@
     <Head title="Cuadros" />
 
     <Layout>
-        <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800">🖼️ Cuadros</h1>
+                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">🖼️ Cuadros</h1>
                 <p class="mt-2 text-gray-600">
                     Explora la galería, guarda tus favoritas y comenta las obras.
                 </p>
@@ -13,7 +13,7 @@
             <Link
                 v-if="$page.props.auth?.user?.is_vendor || $page.props.auth?.user?.is_admin"
                 href="/cuadros/create"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
             >
                 + Nueva obra
             </Link>
@@ -29,7 +29,7 @@
 
             <select
                 v-model="category"
-                class="rounded-lg border px-3 py-2"
+                class="w-full rounded-lg border px-3 py-2 sm:w-auto"
             >
                 <option value="">Todas las categorías</option>
                 <option
@@ -44,7 +44,7 @@
 
         <div
             v-if="paintings.data.length"
-            class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            class="mt-8 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
         >
             <article
                 v-for="painting in paintings.data"
@@ -53,7 +53,7 @@
             >
                 <Link :href="`/cuadros/${painting.id}`" class="block">
                     <div
-                        class="flex h-48 items-center justify-center bg-gray-100 text-6xl"
+                        class="flex h-44 items-center justify-center bg-gray-100 text-6xl sm:h-48"
                     >
                         <img
                             v-if="painting.image_url"
@@ -65,11 +65,11 @@
                     </div>
                 </Link>
 
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div class="flex items-start justify-between gap-3">
-                        <Link :href="`/cuadros/${painting.id}`">
+                        <Link :href="`/cuadros/${painting.id}`" class="min-w-0">
                             <h2
-                                class="text-lg font-semibold text-gray-800 hover:underline"
+                                class="break-words text-lg font-semibold text-gray-800 hover:underline"
                             >
                                 {{ painting.title }}
                             </h2>
@@ -77,7 +77,7 @@
 
                         <button
                             type="button"
-                            class="rounded-full px-2 py-1 text-xl leading-none"
+                            class="shrink-0 rounded-full px-2 py-1 text-xl leading-none"
                             :class="
                                 painting.is_favorited
                                     ? 'text-red-500'
@@ -108,7 +108,7 @@
                     </p>
 
                     <div
-                        class="mt-4 flex items-center justify-between text-sm text-gray-500"
+                        class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500"
                     >
                         <span>♥ {{ painting.favorites_count }}</span>
                         <span>💬 {{ painting.comments_count }}</span>
@@ -118,7 +118,7 @@
             </article>
         </div>
 
-        <p v-else class="mt-10 rounded-xl bg-white p-8 text-gray-500 shadow-sm">
+        <p v-else class="mt-8 rounded-xl bg-white p-6 text-gray-500 shadow-sm sm:mt-10 sm:p-8">
             No se encontraron obras con esos filtros.
         </p>
 
