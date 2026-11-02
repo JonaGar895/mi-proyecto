@@ -3,7 +3,7 @@
         :href="href"
         :method="method"
         :as="as"
-        class="text-black hover:underline"
+        class="text-black hover:underline dark:text-gray-100"
         :class="{ 'font-bold underline': active }"
     >
         <slot />

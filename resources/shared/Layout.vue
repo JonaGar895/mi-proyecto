@@ -8,20 +8,24 @@
         />
     </Head>
 
-    <div class="min-h-screen bg-gray-50">
-        <header class="bg-white shadow-sm">
+    <div class="min-h-screen bg-gray-50 transition-colors duration-300 dark:bg-gray-950">
+        <header class="bg-white shadow-sm transition-colors duration-300 dark:border-b dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
             <div
-                class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"
+                class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4"
             >
-                <h1 class="text-xl font-bold text-gray-800">
+                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
                     🎨 Galería de Arte
                 </h1>
 
-                <p class="text-sm ml-4 text-gray-600">
-                    ¡Hola de nuevo, {{ userName }}!
-                </p>
+                <div class="flex flex-wrap items-center gap-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        ¡Hola de nuevo, {{ userName }}!
+                    </p>
 
-                <Nav />
+                    <Nav />
+
+                    <ThemeToggle />
+                </div>
             </div>
         </header>
 
@@ -29,7 +33,7 @@
             v-if="$page.props.flash?.success"
             class="max-w-7xl mx-auto px-6 pt-4"
         >
-            <div class="rounded-lg bg-green-100 px-4 py-2 text-green-800">
+            <div class="rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900/40 dark:text-green-200">
                 {{ $page.props.flash.success }}
             </div>
         </div>
@@ -38,7 +42,7 @@
             v-if="$page.props.flash?.error"
             class="max-w-7xl mx-auto px-6 pt-4"
         >
-            <div class="rounded-lg bg-red-100 px-4 py-2 text-red-800">
+            <div class="rounded-lg bg-red-100 px-4 py-2 text-red-800 dark:bg-red-900/40 dark:text-red-200">
                 {{ $page.props.flash.error }}
             </div>
         </div>
@@ -52,11 +56,13 @@
 <script>
 import { Head } from "@inertiajs/vue3";
 import Nav from "./Nav.vue";
+import ThemeToggle from "./ThemeToggle.vue";
 
 export default {
     components: {
         Head,
         Nav,
+        ThemeToggle,
     },
     computed: {
         userName() {

@@ -1,7 +1,11 @@
 <template>
     <Head title="Iniciar sesión" />
 
-    <main class="grid place-items-center min-h-screen bg-gray-50">
+    <main class="relative grid place-items-center min-h-screen bg-gray-50">
+        <div class="absolute right-6 top-6">
+            <ThemeToggle />
+        </div>
+
         <section class="bg-white p-8 rounded-xl max-w-md mx-auto border w-full">
             <h1 class="text-3xl font-bold mb-6">Iniciar sesión</h1>
 
@@ -58,6 +62,7 @@
 
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
+import ThemeToggle from '../../shared/ThemeToggle.vue';
 
 const form = useForm({
     email: '',

@@ -86,6 +86,15 @@ La app queda en <http://127.0.0.1:8000>.
 - La sesión caduca tras `SESSION_LIFETIME` minutos de inactividad (120 por defecto).
 - Cierre de sesión mediante `POST /logout`.
 
+## Tema claro y oscuro
+
+La interfaz incluye un botón circular con un icono de luna/sol en la cabecera (y en la pantalla de login):
+
+- En modo claro muestra 🌙 y permite activar el modo oscuro.
+- En modo oscuro muestra ☀️ y permite volver al modo claro.
+- La preferencia se guarda en `localStorage` (`theme`) y se aplica antes de montar Vue para evitar parpadeos.
+- El tema oscuro afecta a todas las páginas mediante la variante `dark` de Tailwind CSS v4 y las adaptaciones globales de `resources/css/app.css`.
+
 ## Persistencia de los datos
 
 Los datos **ya se guardan de forma permanente** en un único archivo:
