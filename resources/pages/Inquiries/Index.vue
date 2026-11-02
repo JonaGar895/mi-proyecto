@@ -216,7 +216,7 @@ const updateStatus = (inq, status) => {
 };
 
 const approveInquiry = (inq) => {
-    if (confirm("¿Aprobar esta solicitud de compra? Se marcará la obra como vendida y se descontará el importe al comprador.")) {
+    if (confirm("¿Aprobar esta solicitud de compra? Se marcará la obra como vendida, se descontará el importe al comprador y se ingresará en la cuenta del super administrador.")) {
         router.post(`/inquiries/${inq.id}/approve`, {}, { preserveScroll: true });
     }
 };
@@ -228,7 +228,7 @@ const rejectInquiry = (inq) => {
 };
 
 const markSold = (inq) => {
-    if (confirm("¿Marcar esta obra como vendida y cerrar esta solicitud?")) {
+    if (confirm("¿Marcar esta obra como vendida y cerrar esta solicitud? Se descontará el importe al comprador y se ingresará en la cuenta del super administrador.")) {
         router.post(`/inquiries/${inq.id}/mark-sold`, {}, { preserveScroll: true });
     }
 };

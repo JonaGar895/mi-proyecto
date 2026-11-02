@@ -52,6 +52,107 @@
             <h2 class="text-xl font-semibold text-gray-800">Mi saldo</h2>
             <p class="mt-2 text-3xl font-bold text-emerald-700">{{ formatPrice(balance) }}</p>
             <p class="mt-1 text-sm text-gray-500">Este saldo se usa para comprar obras. Las compras requieren aprobación de un administrador.</p>
+
+            <form class="mt-6 flex flex-wrap items-end gap-3" @submit.prevent="submitDeposit">
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700">Importe a añadir</label>
+                    <div class="relative mt-1">
+                        <input
+                            id="amount"
+                            v-model="depositForm.amount"
+                            type="number"
+                            min="1"
+                            max="100000"
+                            step="0.01"
+                            inputmode="decimal"
+                            class="w-44 rounded-lg border border-gray-300 py-2 pl-3 pr-8 text-gray-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                        />
+                        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">€</span>
+                    </div>
+                    <p v-if="depositForm.errors.amount" class="mt-1 text-sm text-red-600">
+                        {{ depositForm.errors.amount }}
+                    </p>
+                </div>
+
+                <button
+                    type="submit"
+                    :disabled="depositForm.processing"
+                    class="rounded-lg bg-emerald-600 px-5 py-2 font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {{ depositForm.processing ? "Añadiendo…" : "Añadir saldo" }}
+                </button>
+            </form>
+
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+                <span class="text-sm text-gray-500">Importes rápidos:</span>
+                <button
+                    v-for="amount in quickAmounts"
+                    :key="amount"
+                    type="button"
+                    class="rounded-full border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:border-emerald-500 hover:text-emerald-700"
+                    @click="depositForm.amount = amount"
+                >
+                    +{{ formatPrice(amount) }}
+                </button>
+            </div>
+
+            <p class="mt-4 text-xs text-gray-400">
+                La recarga es simulada para la demo: el saldo se añade inmediatamente a tu cuenta.
+            </p>
+        </section>
+
+        <section class="mt-6 rounded-xl bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-800">Movimientos de saldo</h2>
+            <p class="mt-1 text-sm text-gray-500">Recargas y compras recientes.</p>
+
+            <div v-if="walletTransactions?.length" class="mt-4 divide-y divide-gray-100">
+                <div
+                    v-for="movement in walletTransactions"
+                    :key="movement.id"
+                    class="flex flex-wrap items-center justify-between gap-3 py-3"
+                >
+                    <div class="min-w-0">
+                        <p class="font-medium text-gray-800">
+                            {{ movement.description || (movement.type === "deposit" ? "Recarga de saldo" : "Compra de obra") }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {{ movement.created_at }}
+                            <span v-if="movement.painting">
+                                · {{ movement.painting.emoji }} {{ movement.painting.title }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="text-right">
+                        <p
+                            class="font-semibold"
+                            :class="movement.type === 'deposit' ? 'text-emerald-700' : 'text-red-600'"
+                        >
+                            {{ movement.type === "deposit" ? "+" : "−" }}{{ formatPrice(movement.amount) }}
+                        </p>
+                        <p class="text-xs text-gray-500">Saldo: {{ formatPrice(movement.balance_after) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <p v-else class="mt-3 text-sm text-gray-500">Todavía no hay movimientos de saldo.</p>
+        </section>
+
+        <section v-if="superAdminAccount" class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">Cuenta de ventas del super administrador</h2>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Cuenta separada donde se acumula el dinero de las obras vendidas.
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-emerald-700">{{ formatPrice(superAdminAccount.balance) }}</p>
+                    <Link :href="superAdminAccount.url" class="mt-1 inline-block text-sm text-emerald-700 hover:underline">
+                        Ver movimientos →
+                    </Link>
+                </div>
+            </div>
         </section>
 
         <section class="mt-10">
@@ -208,7 +309,7 @@
 </template>
 
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
 defineProps({
     stats: {
@@ -240,7 +341,28 @@ defineProps({
         type: [Number, String],
         default: 0,
     },
+    superAdminAccount: {
+        type: Object,
+        default: null,
+    },
+    walletTransactions: {
+        type: Array,
+        default: () => [],
+    },
 });
+
+const quickAmounts = [25, 50, 100, 250];
+
+const depositForm = useForm({
+    amount: 50,
+});
+
+const submitDeposit = () => {
+    depositForm.post("/mi-cuenta/saldo", {
+        preserveScroll: true,
+        onSuccess: () => depositForm.reset(),
+    });
+};
 
 const formatPrice = (price) => {
     if (price === null || price === undefined || price === "") {

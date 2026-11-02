@@ -23,25 +23,40 @@ npm run build
 
 ## Poblar la base de datos con datos de prueba
 
-Si quieres cargar datos iniciales (categorías, usuarios, cuadros, exposiciones y publicaciones), puedes ejecutar los seeders:
+Para cargar datos demo en **todas las entidades** puedes ejecutar:
 
 ```bash
 php artisan db:seed
 ```
 
-Esto ejecutará `DatabaseSeeder` que:
+Los seeders son **idempotentes**: puedes ejecutarlos varias veces sin duplicar los registros principales. Esto genera:
 
-1. Crea 100 usuarios con `UserFactory`
-2. Ejecuta `UserSeeder`, `CategorySeeder`, `PaintingSeeder`, `ExhibitionSeeder` y `PublicationSeeder`
+1. Usuarios demo con roles, saldo y credenciales conocidas (`UserSeeder`).
+2. La cuenta separada del super administrador (`AccountSeeder`).
+3. Categorías artísticas (`CategorySeeder`).
+4. Cuadros con precios, categorías y autores (`PaintingSeeder`).
+5. Exposiciones y sus obras (`ExhibitionSeeder`).
+6. Publicaciones y comentarios de publicaciones (`PublicationSeeder`).
+7. Favoritos de los usuarios demo (`FavoriteSeeder`).
+8. Comentarios de cuadros (`CommentSeeder`).
+9. Recargas iniciales y cargos de compras en el libro de movimientos de saldo (`BalanceTransactionSeeder`).
+10. Ventas demo reales con descuento al comprador y movimiento en la cuenta del super administrador (`SaleSeeder`).
+11. Solicitudes de compra en estados `pending`, `contacted`, `rejected` y `closed` (`InquirySeeder`).
 
 ### Usuarios de prueba
 
-Tras ejecutar los seeders, tendrás estos usuarios disponibles:
-
 | Email | Contraseña | Rol |
 |---|---|---|
-| `broderick14@example.org` | `password` | Administrador (`is_admin = true`) |
-| `juan@example.com` | `12345678` | Usuario (`is_admin = false`) |
+| `broderick14@example.org` | `password` | Super administrador (ID 1) |
+| `ana.admin@galeria.test` | `password` | Administradora |
+| `javier.vendedor@galeria.test` | `password` | Vendedor |
+| `lucia.vendedora@galeria.test` | `password` | Vendedora |
+| `juan@example.com` | `12345678` | Usuario / comprador |
+| `maria.compradora@galeria.test` | `password` | Usuario / compradora |
+| `carlos.coleccionista@galeria.test` | `password` | Usuario / comprador |
+| `sofia.visitante@galeria.test` | `password` | Usuario / compradora |
+
+> Los usuarios demo reciben un saldo inicial de `100000.00` al crearse. Si necesitas una base totalmente limpia para una demostración, puedes usar `php artisan migrate:fresh --seed` (**esto borra todos los datos actuales**).
 
 ## Arrancar la aplicación
 
@@ -149,6 +164,17 @@ users
 users
  └── name, email, password, stripe_token (nullable), phone (nullable), is_admin (bool), timestamps
 
+accounts
+ ├── user_id → users (titular: super administrador, nullable)
+ └── name, type (super_admin), balance
+
+account_transactions
+ ├── account_id → accounts
+ ├── inquiry_id → inquiries (opcional)
+ ├── painting_id → paintings (opcional)
+ ├── buyer_id / seller_id → users (opcional)
+ └── type (sale_income), amount, description
+
 paintings
  ├── user_id     → users
  ├── category_id → categories (nullable)
@@ -171,10 +197,38 @@ La aplicación cuenta con dos roles:
 
 | Rol | Cómo se identifica | Privilegios |
 |---|---|---|
-| **Administrador** | `users.is_admin = true` | Puede crear/editar/eliminar cualquier usuario (excepto a sí mismo al eliminar), eliminar cualquier obra, ver cualquier perfil de usuario. |
+| **Super administrador** | `users.id = 1` y `users.is_admin = true` | Todo lo de administrador y, además, es el titular de la **cuenta de ventas** donde se ingresan los importes de las obras vendidas. |
+| **Administrador** | `users.is_admin = true` | Puede crear/editar/eliminar cualquier usuario (excepto a sí mismo al eliminar), eliminar cualquier obra, ver cualquier perfil de usuario y aprobar/rechazar solicitudes de venta. |
 | **Usuario** | `users.is_admin = false` | Puede gestionar su propio perfil, publicar obras, añadir favoritos/comentarios, crear/editar/eliminar sus propias publicaciones. Solo puede ver su propio perfil a menos que sea administrador. |
 
 La autorización se gestiona mediante **Policies** (`app/Policies/UserPolicy.php`). Las rutas de usuarios están protegidas con `can()` en las rutas web. Los administradores también pueden eliminar cualquier pintura desde el detalle de la obra.
+
+## Añadir saldo (recarga)
+
+Cada usuario puede añadir saldo desde **`/mi-cuenta`**:
+
+1. Se introduce un importe entre `1` y `100000` €.
+2. El importe se suma a `users.balance` dentro de una transacción.
+3. Se guarda un movimiento de tipo `deposit` en `balance_transactions` con el saldo resultante.
+4. La página muestra los últimos movimientos (recargas y compras) con su importe y saldo posterior.
+
+La recarga es **simulada**, pensada para la demo: no interviene ninguna pasarela de pago real.
+
+Además, cada compra completada registra un movimiento de tipo `purchase` en `balance_transactions`, de modo que el usuario puede consultar en qué se ha gastado el saldo.
+
+## Ventas y cuenta del super administrador
+
+Cuando un administrador **aprueba una solicitud de compra** (o marca la venta como realizada):
+
+1. Se comprueba que el comprador tenga saldo suficiente.
+2. Se **descuenta el precio de la obra** del saldo personal del comprador (`users.balance`).
+3. El mismo importe se **ingresa en una cuenta separada del super administrador** (`accounts`, tipo `super_admin`), que es independiente de su saldo personal.
+4. Se guarda un movimiento en `account_transactions` para dejar constancia de la venta.
+5. La obra queda marcada como vendida y las demás solicitudes se cierran.
+
+Todo el proceso se ejecuta dentro de una transacción de base de datos (`app/Services/SaleService.php`), por lo que el descuento y el ingreso se realizan juntos o no se realizan.
+
+El super administrador puede consultar esa cuenta en **`/cuenta-super-admin`**, donde ve el saldo acumulado, los ingresos totales y el historial de movimientos.
 
 ## Exposiciones
 
@@ -203,6 +257,11 @@ La autorización se gestiona mediante **Policies** (`app/Policies/UserPolicy.php
 | `/users/edit/{user}` | Editar usuario (propio o administrador) |
 | `/users/delete/{user}` | Eliminar usuario (solo administrador, no puede eliminarse a sí mismo) |
 | `/settings` | Ajustes y estadísticas del usuario (obras, favoritos, comentarios, publicaciones) |
+| `/mi-cuenta` | Saldo, formulario de recarga, movimientos, compras y solicitudes del usuario |
+| `/mi-cuenta/saldo` (POST) | Añadir saldo a la cuenta del usuario autenticado |
+| `/cuenta-super-admin` | Saldo e histórico de la cuenta de ventas (solo super administrador, ID 1) |
+| `/inquiries` | Solicitudes de compra recibidas/enviadas; panel de aprobación para administradores |
+| `/inquiries/history` | Histórico de compras y ventas (solo administradores) |
 
 ## Nota sobre el repositorio
 

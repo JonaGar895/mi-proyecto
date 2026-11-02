@@ -10,7 +10,7 @@ class ExhibitionSeeder extends Seeder
 {
     public function run(): void
     {
-        $paintings = Painting::all();
+        $paintings = Painting::query()->orderBy('id')->get();
 
         if ($paintings->isEmpty()) {
             return;
@@ -23,7 +23,7 @@ class ExhibitionSeeder extends Seeder
             ['Clásicos revisitados', 'Grandes obras y su influencia en el arte contemporáneo.', 30, 90],
         ];
 
-        foreach ($exhibitions as [$title, $description, $startsIn, $endsIn]) {
+        foreach ($exhibitions as $index => [$title, $description, $startsIn, $endsIn]) {
             $exhibition = Exhibition::firstOrCreate(
                 ['title' => $title],
                 [
@@ -33,9 +33,13 @@ class ExhibitionSeeder extends Seeder
                 ],
             );
 
-            $exhibition->paintings()->syncWithoutDetaching(
-                $paintings->random(min(6, $paintings->count()))->pluck('id')->all(),
-            );
+            $subset = $paintings->slice($index * 4, 4);
+
+            if ($subset->isEmpty()) {
+                $subset = $paintings->take(4);
+            }
+
+            $exhibition->paintings()->syncWithoutDetaching($subset->pluck('id')->all());
         }
     }
 }

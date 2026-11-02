@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
-use Inertia\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -43,6 +43,8 @@ class HandleInertiaRequests extends Middleware
                     'username' => Auth::user()->name,
                     'email' => Auth::user()->email,
                     'is_admin' => (bool) Auth::user()->is_admin,
+                    'is_super_admin' => Auth::user()->isSuperAdmin(),
+                    'is_vendor' => Auth::user()->isVendor(),
                 ] : null,
             ],
             'flash' => [

@@ -36,6 +36,12 @@
                     Mi cuenta
                 </NavLink>
             </li>
+
+            <li v-if="$page.props.auth?.user?.is_super_admin">
+                <NavLink href="/cuenta-super-admin" :active="$page.component === 'Account/SuperAdmin'">
+                    Cuenta de ventas
+                </NavLink>
+            </li>
               <li>
         <NavLink href="/logout" method="post" as="button">
           Cerrar sesión

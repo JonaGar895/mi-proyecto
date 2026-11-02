@@ -163,4 +163,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Painting::class, 'sold_to_user_id');
     }
+
+    public function balanceTransactions(): HasMany
+    {
+        return $this->hasMany(BalanceTransaction::class);
+    }
 }
