@@ -17,21 +17,44 @@ html.dark {
 }
 
 html.dark body {
-    background-color: #030712;
+    background-color: #010409;
     color: #f3f4f6;
 }
 
-html.dark input,
-html.dark textarea,
-html.dark select {
-    background-color: #111827;
-    border-color: #374151;
-    color: #f9fafb;
+/*
+ * Campos de formulario en modo oscuro.
+ *
+ * Usamos una superficie un poco más clara que las tarjetas (bg-white → #111827)
+ * y un borde más visible para que los campos no se pierdan sobre el fondo.
+ */
+html.dark body input:where(
+        :not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(
+                [type='submit']
+            ):not([type='button']):not([type='reset']):not([type='image'])
+    ),
+html.dark body textarea,
+html.dark body select {
+    background-color: #374151;
+    border-color: #6b7280;
+    color: #ffffff;
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-    color: #6b7280;
+html.dark body input:where(
+        :not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(
+                [type='submit']
+            ):not([type='button']):not([type='reset']):not([type='image'])
+    ):focus,
+html.dark body textarea:focus,
+html.dark body select:focus {
+    border-color: #a5b4fc;
+    box-shadow: 0 0 0 3px rgb(129 140 248 / 0.35);
+    outline: none;
+}
+
+html.dark body input::placeholder,
+html.dark body textarea::placeholder {
+    color: #cbd5e1;
 }
 
 /*
@@ -42,23 +65,30 @@ html.dark textarea::placeholder {
  * toda la aplicación cambie de tema sin duplicar clases en cada componente.
  */
 html.dark .bg-white {
-    background-color: #111827;
+    background-color: #2b3a52;
+}
+
+/* Las tarjetas necesitan un borde sutil: las sombras no se ven sobre fondo oscuro. */
+html.dark .rounded-xl.bg-white {
+    box-shadow:
+        0 0 0 1px rgb(148 163 184 / 0.14),
+        0 10px 25px -18px rgb(0 0 0 / 0.9);
 }
 
 html.dark .bg-gray-50 {
-    background-color: #030712;
+    background-color: #0b1220;
 }
 
 html.dark .bg-gray-100 {
-    background-color: #1f2937;
+    background-color: #3e4c63;
 }
 
 html.dark .bg-gray-800 {
-    background-color: #374151;
+    background-color: #475569;
 }
 
 html.dark .bg-gray-900 {
-    background-color: #1f2937;
+    background-color: #1b2537;
 }
 
 html.dark .text-black,
@@ -80,28 +110,29 @@ html.dark .text-gray-500 {
 }
 
 html.dark .text-gray-400 {
-    color: #6b7280;
+    color: #9ca3af;
 }
 
 html.dark .border {
-    border-color: #374151;
+    border-color: #3b4a63;
 }
 
 html.dark .border-gray-300 {
-    border-color: #4b5563;
+    border-color: #5b6b82;
 }
 
 html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
 html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
-    border-color: #374151;
+    border-color: #3b4a63;
 }
 
 html.dark .ring-gray-100 {
-    --tw-ring-color: #1f2937;
+    --tw-ring-color: #3f4d63;
 }
 
-html.dark .hover\:bg-gray-50:hover {
-    background-color: #1f2937;
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover {
+    background-color: #334155;
 }
 
 html.dark .hover\:border-emerald-500:hover {
