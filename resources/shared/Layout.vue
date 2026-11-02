@@ -11,14 +11,14 @@
     <div class="min-h-screen bg-gray-50 transition-colors duration-300 dark:bg-gray-950">
         <header class="bg-white shadow-sm transition-colors duration-300 dark:border-b dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
             <div
-                class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4"
+                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8 2xl:max-w-[1500px]"
             >
-                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+                <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100 sm:text-xl">
                     🎨 Galería de Arte
                 </h1>
 
-                <div class="flex flex-wrap items-center gap-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                    <p class="hidden text-sm text-gray-600 dark:text-gray-300 2xl:block">
                         ¡Hola de nuevo, {{ userName }}!
                     </p>
 
@@ -31,7 +31,7 @@
 
         <div
             v-if="$page.props.flash?.success"
-            class="max-w-7xl mx-auto px-6 pt-4"
+            class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8 2xl:max-w-[1500px]"
         >
             <div class="rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900/40 dark:text-green-200">
                 {{ $page.props.flash.success }}
@@ -40,14 +40,14 @@
 
         <div
             v-if="$page.props.flash?.error"
-            class="max-w-7xl mx-auto px-6 pt-4"
+            class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8 2xl:max-w-[1500px]"
         >
             <div class="rounded-lg bg-red-100 px-4 py-2 text-red-800 dark:bg-red-900/40 dark:text-red-200">
                 {{ $page.props.flash.error }}
             </div>
         </div>
 
-        <main class="max-w-7xl mx-auto p-6">
+        <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8 2xl:max-w-[1500px]">
             <slot />
         </main>
     </div>

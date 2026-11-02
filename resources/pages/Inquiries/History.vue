@@ -3,7 +3,7 @@
 
     <Layout>
         <div class="mb-6">
-            <h1 class="text-4xl font-bold text-gray-800">Histórico de compras y ventas</h1>
+            <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Histórico de compras y ventas</h1>
             <p class="mt-2 text-gray-600">
                 Solo visible para administradores y super administrador. Muestra fecha/hora de solicitud, aceptación o rechazo.
             </p>
@@ -12,7 +12,88 @@
             </Link>
         </div>
 
-        <div class="rounded-xl bg-white shadow-sm overflow-x-auto">
+        <!-- Tarjetas para móvil y tablet -->
+        <div class="space-y-3 lg:hidden">
+            <article
+                v-for="item in history"
+                :key="item.id"
+                class="rounded-xl bg-white p-4 shadow-sm"
+            >
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-xs text-gray-400">#{{ item.id }}</p>
+                        <Link
+                            :href="`/cuadros/${item.painting?.id}`"
+                            class="font-medium text-gray-800 hover:underline"
+                        >
+                            {{ item.painting?.title }}
+                        </Link>
+                    </div>
+                    <span
+                        class="shrink-0 rounded-full px-2 py-1 text-xs"
+                        :class="statusClass(item.status)"
+                    >
+                        {{ statusLabel(item.status) }}
+                    </span>
+                </div>
+
+                <dl class="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Comprador</dt>
+                        <dd class="text-gray-800">{{ item.buyer?.name }}</dd>
+                        <dd class="break-words text-xs text-gray-500">{{ item.buyer?.email }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Vendedor</dt>
+                        <dd class="text-gray-800">{{ item.seller?.name }}</dd>
+                        <dd class="break-words text-xs text-gray-500">{{ item.seller?.email }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Precio</dt>
+                        <dd class="text-gray-800">{{ formatPrice(item.painting?.price) }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Fecha/Hora solicitud</dt>
+                        <dd class="text-gray-500">{{ item.created_at_formatted }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Aceptado/Rechazado</dt>
+                        <dd class="text-gray-500">
+                            <span v-if="item.status === 'approved' || item.status === 'closed' && item.approved_at_formatted">
+                                {{ item.approved_at_formatted }}
+                            </span>
+                            <span v-else-if="item.status === 'rejected' || item.status === 'declined'">
+                                {{ item.rejected_at_formatted }}
+                            </span>
+                            <span v-else>-</span>
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-xs uppercase tracking-wide text-gray-400">Gestionado por</dt>
+                        <dd class="text-gray-800">
+                            <span v-if="item.approved_by">{{ item.approved_by.name }}</span>
+                            <span v-else-if="item.rejected_by">{{ item.rejected_by.name }}</span>
+                            <span v-else>-</span>
+                        </dd>
+                    </div>
+                </dl>
+            </article>
+
+            <p
+                v-if="!history.length"
+                class="rounded-xl bg-white p-6 text-center text-sm text-gray-500 shadow-sm"
+            >
+                No hay registros en el histórico.
+            </p>
+        </div>
+
+        <!-- Tabla para escritorio -->
+        <div class="hidden overflow-x-auto rounded-xl bg-white shadow-sm lg:block">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>

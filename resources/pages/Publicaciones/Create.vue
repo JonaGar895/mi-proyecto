@@ -10,7 +10,7 @@
                 ← Volver a publicaciones
             </Link>
 
-            <h1 class="text-4xl font-bold text-gray-800">Nueva publicación</h1>
+            <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Nueva publicación</h1>
             <p class="mt-2 text-gray-600">
                 Comparte una noticia, un artículo o una reflexión sobre la
                 galería.
@@ -146,10 +146,10 @@
                     Publicar ahora (si lo desmarcas se guarda como borrador)
                 </label>
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button
                         type="submit"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
                         :disabled="form.processing"
                     >
                         {{ form.processing ? "Publicando..." : "Publicar" }}
@@ -157,7 +157,7 @@
 
                     <Link
                         href="/publicaciones"
-                        class="text-gray-600 hover:underline"
+                        class="text-center text-gray-600 hover:underline sm:text-left"
                     >
                         Cancelar
                     </Link>

@@ -13,7 +13,7 @@
             <Link
                 v-if="publication.painting"
                 :href="`/cuadros/${publication.painting.id}`"
-                class="flex h-48 items-center justify-center bg-gray-100 text-7xl transition hover:opacity-90"
+                class="flex h-40 items-center justify-center bg-gray-100 text-6xl transition hover:opacity-90 sm:h-48 sm:text-7xl"
                 :title="`Ver ${publication.painting.title}`"
             >
                 <img
@@ -25,28 +25,26 @@
                 <span v-else>{{ publication.painting.emoji }}</span>
             </Link>
 
-            <div class="p-8">
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-800">
+            <div class="p-5 sm:p-8">
+                <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                    <div class="min-w-0">
+                        <h1 class="break-words text-2xl font-bold text-gray-800 sm:text-4xl">
                             {{ publication.title }}
                         </h1>
 
-                        <p class="mt-2 text-sm text-gray-500">
-                            Por
-                            {{ publication.author?.name ?? "Anónimo" }}
-                            <span v-if="publication.date">
-                                · {{ publication.date }}
+                        <p class="mt-2 flex flex-wrap items-center gap-x-2 text-sm text-gray-500">
+                            <span>
+                                Por
+                                {{ publication.author?.name ?? "Anónimo" }}
                             </span>
-                            <span v-if="publication.category">
-                                · {{ publication.category.name }}
-                            </span>
+                            <span v-if="publication.date">· {{ publication.date }}</span>
+                            <span v-if="publication.category">· {{ publication.category.name }}</span>
                         </p>
                     </div>
 
                     <span
                         v-if="!publication.is_published"
-                        class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700"
+                        class="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700"
                     >
                         Borrador
                     </span>
@@ -54,12 +52,12 @@
 
                 <p
                     v-if="publication.summary"
-                    class="mt-5 text-lg text-gray-600"
+                    class="mt-5 text-base text-gray-600 sm:text-lg"
                 >
                     {{ publication.summary }}
                 </p>
 
-                <p class="mt-6 whitespace-pre-line leading-relaxed text-gray-700">
+                <p class="mt-6 whitespace-pre-line break-words leading-relaxed text-gray-700">
                     {{ publication.content }}
                 </p>
 
@@ -87,17 +85,17 @@
                     <span>💬 {{ publication.comments_count }} comentarios</span>
                 </div>
 
-                <div v-if="publication.can_edit" class="mt-6 flex items-center gap-4">
+                <div v-if="publication.can_edit" class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <Link
                         :href="`/publicaciones/${publication.id}/edit`"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
                     >
                         Editar
                     </Link>
 
                     <button
                         type="button"
-                        class="text-sm text-red-600 hover:underline"
+                        class="w-full text-sm text-red-600 hover:underline sm:w-auto"
                         @click="destroy"
                     >
                         Eliminar publicación
@@ -106,13 +104,13 @@
             </div>
         </article>
 
-        <section class="mt-12">
-            <h2 class="text-2xl font-bold text-gray-800">
+        <section class="mt-8 sm:mt-12">
+            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">
                 Comentarios ({{ publication.comments_count }})
             </h2>
 
             <form
-                class="mt-4 rounded-xl bg-white p-4 shadow-sm"
+                class="mt-4 rounded-xl bg-white p-4 shadow-sm sm:p-6"
                 @submit.prevent="submitComment"
             >
                 <textarea
@@ -130,7 +128,7 @@
 
                 <button
                     type="submit"
-                    class="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                    class="mt-3 w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
                     :disabled="commentForm.processing"
                 >
                     {{ commentForm.processing ? "Enviando..." : "Comentar" }}
@@ -143,7 +141,7 @@
                     :key="comment.id"
                     class="rounded-xl bg-white p-4 shadow-sm"
                 >
-                    <div class="flex items-center justify-between text-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
                         <span class="font-medium text-gray-800">
                             {{ comment.user.name }}
                         </span>
@@ -151,7 +149,7 @@
                             {{ comment.created_at }}
                         </span>
                     </div>
-                    <p class="mt-2 text-gray-700">{{ comment.body }}</p>
+                    <p class="mt-2 break-words text-gray-700">{{ comment.body }}</p>
                 </div>
 
                 <p v-if="!comments.length" class="text-gray-500">

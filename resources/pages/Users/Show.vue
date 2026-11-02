@@ -9,20 +9,20 @@
             ← Volver a la lista
         </Link>
 
-        <div class="mt-4 rounded-xl bg-white p-6 shadow-sm">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-800">
+        <div class="mt-4 rounded-xl bg-white p-4 shadow-sm sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                    <h1 class="break-words text-3xl font-bold text-gray-800 sm:text-4xl">
                         {{ user.name }}
                     </h1>
-                    <p class="mt-1 text-gray-600">{{ user.email }}</p>
+                    <p class="mt-1 break-words text-gray-600">{{ user.email }}</p>
                     <p class="mt-1 text-sm text-gray-400">ID {{ user.id }}</p>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <Link
                         :href="`/users/edit/${user.id}?from=view`"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
                     >
                         Editar
                     </Link>
@@ -30,7 +30,7 @@
                     <button
                         v-if="user.id !== $page.props.auth.user.id"
                         type="button"
-                        class="text-red-600 hover:underline"
+                        class="w-full text-center text-red-600 hover:underline sm:w-auto"
                         @click="deleteUser"
                     >
                         Eliminar

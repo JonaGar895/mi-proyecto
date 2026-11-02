@@ -10,7 +10,7 @@
                 ← Volver
             </Link>
 
-            <h1 class="text-4xl font-bold text-gray-800">Editar publicación</h1>
+            <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Editar publicación</h1>
             <p class="mt-2 text-gray-600">
                 Actualiza los datos de «{{ publication.title }}».
             </p>
@@ -145,10 +145,10 @@
                     Publicada (si lo desmarcas se guarda como borrador)
                 </label>
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button
                         type="submit"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
                         :disabled="form.processing"
                     >
                         {{ form.processing ? "Guardando..." : "Guardar cambios" }}
@@ -156,7 +156,7 @@
 
                     <Link
                         :href="`/publicaciones/${publication.id}`"
-                        class="text-gray-600 hover:underline"
+                        class="text-center text-gray-600 hover:underline sm:text-left"
                     >
                         Cancelar
                     </Link>

@@ -2,9 +2,9 @@
     <Head title="Usuarios" />
 
     <Layout>
-        <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800">Usuarios</h1>
+                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">Usuarios</h1>
 
                 <Link
                     v-if="$page.props.auth?.user?.is_admin"
@@ -24,7 +24,72 @@
             />
         </div>
 
-        <div class="overflow-x-auto rounded-xl bg-white shadow-sm">
+        <!-- Tarjetas para móvil y tablet -->
+        <div class="space-y-3 lg:hidden">
+            <article
+                v-for="user in users.data"
+                :key="user.id"
+                class="rounded-xl bg-white p-4 shadow-sm"
+            >
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <Link
+                            :href="`/users/view/${user.id}`"
+                            class="font-medium text-gray-800 hover:underline"
+                        >
+                            {{ user.name }}
+                        </Link>
+                        <p class="break-words text-sm text-gray-600">
+                            {{ user.email }}
+                        </p>
+                        <p class="mt-1 text-xs text-gray-400">ID {{ user.id }}</p>
+                    </div>
+
+                    <span
+                        class="shrink-0 rounded-full px-2 py-1 text-xs font-medium"
+                        :class="roleClass(user)"
+                    >
+                        {{ roleLabel(user) }}
+                    </span>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
+                    <Link
+                        :href="`/users/view/${user.id}`"
+                        class="text-blue-600 hover:underline"
+                    >
+                        Ver
+                    </Link>
+
+                    <Link
+                        v-if="$page.props.auth?.user?.is_admin || user.id === $page.props.auth?.user?.id"
+                        :href="`/users/edit/${user.id}?from=list`"
+                        class="text-amber-600 hover:underline"
+                    >
+                        Editar
+                    </Link>
+
+                    <button
+                        v-if="$page.props.auth?.user?.is_admin && user.id !== $page.props.auth.user.id"
+                        type="button"
+                        class="text-red-600 hover:underline"
+                        @click="deleteUser(user)"
+                    >
+                        Eliminar
+                    </button>
+                </div>
+            </article>
+
+            <p
+                v-if="users.data.length === 0"
+                class="rounded-xl bg-white p-6 text-gray-500 shadow-sm"
+            >
+                No se encontraron usuarios.
+            </p>
+        </div>
+
+        <!-- Tabla para escritorio -->
+        <div class="hidden overflow-x-auto rounded-xl bg-white shadow-sm lg:block">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -42,6 +107,11 @@
                             class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500"
                         >
                             Correo electrónico
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500"
+                        >
+                            Rol
                         </th>
                         <th
                             class="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500"
@@ -70,32 +140,14 @@
 
                         <td class="px-6 py-4">
                             <span
-                                v-if="user.is_admin && user.is_vendor"
-                                class="inline-flex items-center rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
+                                class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                :class="roleClass(user)"
                             >
-                                Admin / Vendedor
-                            </span>
-                            <span
-                                v-else-if="user.is_admin"
-                                class="inline-flex items-center rounded-full bg-indigo-100 px-2 py-1 text-xs font-medium text-indigo-700"
-                            >
-                                Administrador
-                            </span>
-                            <span
-                                v-else-if="user.is_vendor"
-                                class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700"
-                            >
-                                Vendedor
-                            </span>
-                            <span
-                                v-else
-                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
-                            >
-                                Usuario
+                                {{ roleLabel(user) }}
                             </span>
                         </td>
 
-                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                        <td class="whitespace-nowrap px-6 py-4 text-right">
                             <Link
                                 :href="`/users/view/${user.id}`"
                                 class="text-blue-600 hover:underline"
@@ -123,7 +175,7 @@
                     </tr>
 
                     <tr v-if="users.data.length === 0">
-                        <td colspan="4" class="px-6 py-4 text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-gray-500">
                             No se encontraron usuarios.
                         </td>
                     </tr>
@@ -153,6 +205,22 @@ const props = defineProps({
 });
 
 const search = ref(props.filters?.search ?? "");
+
+const roleLabel = (user) => {
+    if (user.is_admin && user.is_vendor) return "Admin / Vendedor";
+    if (user.is_admin) return "Administrador";
+    if (user.is_vendor) return "Vendedor";
+    return "Usuario";
+};
+
+const roleClass = (user) => {
+    if (user.is_admin && user.is_vendor) {
+        return "bg-purple-100 text-purple-700";
+    }
+    if (user.is_admin) return "bg-indigo-100 text-indigo-700";
+    if (user.is_vendor) return "bg-emerald-100 text-emerald-700";
+    return "bg-gray-100 text-gray-600";
+};
 
 watch(
     search,
