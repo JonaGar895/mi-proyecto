@@ -178,9 +178,9 @@
             <p class="mt-1 text-gray-600">Estado de las solicitudes enviadas.</p>
             <div v-if="myInquiries?.length" class="mt-4 space-y-3">
                 <div v-for="inq in myInquiries" :key="inq.id" class="rounded-xl bg-white p-4 shadow-sm">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <Link :href="`/cuadros/${inq.painting?.id}`" class="font-medium text-gray-800 hover:underline">{{ inq.painting?.title }}</Link>
-                        <span class="rounded-full px-2 py-1 text-xs" :class="inqStatusClass(inq.status)">{{ inqStatusLabel(inq.status) }}</span>
+                    <div class="flex flex-wrap items-start justify-between gap-2">
+                        <Link :href="`/cuadros/${inq.painting?.id}`" class="min-w-0 flex-1 break-words font-medium text-gray-800 hover:underline">{{ inq.painting?.title }}</Link>
+                        <span class="shrink-0 whitespace-nowrap rounded-full px-2 py-1 text-xs" :class="inqStatusClass(inq.status)">{{ inqStatusLabel(inq.status) }}</span>
                     </div>
                     <p class="text-sm text-gray-500">Vendedor: {{ inq.seller?.name }} · {{ inq.created_at }}</p>
                     <p v-if="inq.painting?.price" class="text-sm text-gray-600">{{ formatPrice(inq.painting.price) }}</p>

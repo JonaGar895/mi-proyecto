@@ -1,281 +1,689 @@
-# Galería de Cuadros
 
-Aplicación de galería de arte construida con **Laravel 12 + Inertia.js + Vue 3 + Tailwind CSS**, con base de datos **SQLite**.
+# 🎨 Galería de Cuadros
 
-Incluye usuarios, cuadros, categorías, favoritos, comentarios, publicaciones, exposiciones y un sistema de roles (administrador/usuario).
+Aplicación web de gestión y exposición de obras de arte desarrollada con **Laravel 12, Inertia.js, Vue 3 y Tailwind CSS**, utilizando SQLite como sistema de base de datos.
+
+La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones, interactuar mediante comentarios y favoritos, y administrar solicitudes de compra y venta.
+
+## 📋 Índice
+
+- [🎨 Galería de Cuadros](#-galería-de-cuadros)
+  - [📋 Índice](#-índice)
+  - [Descripción](#descripción)
+    - [Características principales](#características-principales)
+  - [Tecnologías](#tecnologías)
+  - [Requisitos](#requisitos)
+  - [Instalación](#instalación)
+    - [1. Clonar el repositorio](#1-clonar-el-repositorio)
+    - [2. Instalar dependencias](#2-instalar-dependencias)
+    - [3. Configurar el entorno](#3-configurar-el-entorno)
+    - [4. Generar la clave](#4-generar-la-clave)
+    - [5. Configurar SQLite](#5-configurar-sqlite)
+    - [6. Ejecutar migraciones](#6-ejecutar-migraciones)
+    - [7. Instalar dependencias frontend](#7-instalar-dependencias-frontend)
+    - [8. Compilar recursos](#8-compilar-recursos)
+  - [Configuración](#configuración)
+  - [Ejecución](#ejecución)
+    - [Opción 1: iniciar todos los servicios](#opción-1-iniciar-todos-los-servicios)
+    - [Opción 2: iniciar por separado](#opción-2-iniciar-por-separado)
+  - [Funcionalidades](#funcionalidades)
+    - [Gestión de usuarios](#gestión-de-usuarios)
+    - [Obras de arte](#obras-de-arte)
+    - [Favoritos](#favoritos)
+    - [Comentarios](#comentarios)
+    - [Publicaciones](#publicaciones)
+    - [Solicitudes de compra](#solicitudes-de-compra)
+  - [Roles y permisos](#roles-y-permisos)
+    - [Super administrador](#super-administrador)
+    - [Administrador](#administrador)
+    - [Usuario](#usuario)
+  - [Sistema de compras y ventas](#sistema-de-compras-y-ventas)
+    - [Proceso de compra](#proceso-de-compra)
+    - [Registro de operaciones](#registro-de-operaciones)
+  - [Gestión de saldo](#gestión-de-saldo)
+    - [Cuenta central de ventas](#cuenta-central-de-ventas)
+  - [Exposiciones](#exposiciones)
+  - [Base de datos](#base-de-datos)
+    - [Entidades principales](#entidades-principales)
+  - [Estructura del proyecto](#estructura-del-proyecto)
+  - [Rutas principales](#rutas-principales)
+  - [Tema claro y oscuro](#tema-claro-y-oscuro)
+  - [Persistencia de datos](#persistencia-de-datos)
+    - [Comandos de migración](#comandos-de-migración)
+  - [Copias de seguridad](#copias-de-seguridad)
+    - [Opciones](#opciones)
+    - [Restaurar una copia](#restaurar-una-copia)
+  - [Pruebas](#pruebas)
+  - [Seguridad](#seguridad)
+  - [Consideraciones finales](#consideraciones-finales)
+
+---
+
+## Descripción
+
+Galería de Cuadros es una aplicación web que ofrece un espacio digital para la publicación, consulta y gestión de obras de arte.
+
+Incluye herramientas para la interacción entre usuarios, la administración de contenidos y la gestión de compraventa de obras.
+
+### Características principales
+
+- Gestión de usuarios y perfiles.
+- Publicación y administración de obras.
+- Categorías artísticas.
+- Sistema de favoritos.
+- Comentarios en obras.
+- Publicaciones y artículos.
+- Comentarios en publicaciones.
+- Organización de exposiciones.
+- Solicitudes de compra.
+- Gestión de saldo virtual.
+- Administración de ventas.
+- Panel de administración.
+- Historial de operaciones.
+- Interfaz responsive.
+- Tema claro y oscuro.
+
+---
+
+## Tecnologías
+
+| Tecnología | Función |
+|---|---|
+| PHP 8.2+ | Backend |
+| Laravel 12 | Framework principal |
+| Inertia.js | Comunicación frontend/backend |
+| Vue 3 | Interfaz de usuario |
+| Tailwind CSS | Diseño y estilos |
+| SQLite | Base de datos |
+| Composer | Dependencias PHP |
+| Node.js 20+ | Entorno JavaScript |
+| npm | Dependencias frontend |
+| Vite | Compilación frontend |
+
+---
 
 ## Requisitos
 
-- PHP 8.2+
-- Composer
-- Node.js 20+ y npm
+Antes de instalar el proyecto es necesario disponer de:
+
+- PHP 8.2 o superior.
+- Composer.
+- Node.js 20 o superior.
+- npm.
+- Extensiones PHP necesarias para Laravel y SQLite.
+
+Comprobar las versiones:
+
+```bash
+php -v
+composer -V
+node -v
+npm -v
+```
+
+---
 
 ## Instalación
 
+### 1. Clonar el repositorio
+
+```bash
+git clone URL_DEL_REPOSITORIO
+```
+
+Acceder al proyecto:
+
+```bash
+cd galeria-cuadros
+```
+
+### 2. Instalar dependencias
+
 ```bash
 composer install
-cp .env.example .env        # en PowerShell: Copy-Item .env.example .env
+```
+
+### 3. Configurar el entorno
+
+Crear el archivo `.env`:
+
+```bash
+cp .env.example .env
+```
+
+En Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### 4. Generar la clave
+
+```bash
 php artisan key:generate
+```
+
+### 5. Configurar SQLite
+
+Crear el archivo de base de datos:
+
+```bash
+touch database/database.sqlite
+```
+
+En PowerShell:
+
+```powershell
+New-Item database/database.sqlite -ItemType File
+```
+
+Configurar en `.env`:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+### 6. Ejecutar migraciones
+
+```bash
 php artisan migrate
+```
+
+### 7. Instalar dependencias frontend
+
+```bash
 npm install
+```
+
+### 8. Compilar recursos
+
+```bash
 npm run build
 ```
 
-## Poblar la base de datos con datos de prueba
+---
 
-Para cargar datos demo en **todas las entidades** puedes ejecutar:
+## Configuración
 
-```bash
-php artisan db:seed
+El archivo `.env` contiene las variables de configuración del entorno.
+
+Variables principales:
+
+| Variable | Descripción |
+|---|---|
+| APP_NAME | Nombre de la aplicación |
+| APP_ENV | Entorno de ejecución |
+| APP_DEBUG | Modo depuración |
+| APP_URL | Dirección de la aplicación |
+| DB_CONNECTION | Sistema de base de datos |
+| DB_DATABASE | Ruta de la base de datos |
+| SESSION_DRIVER | Almacenamiento de sesiones |
+| SESSION_LIFETIME | Duración de las sesiones |
+
+En producción se recomienda:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
 ```
 
-Los seeders son **idempotentes**: puedes ejecutarlos varias veces sin duplicar los registros principales. Esto genera:
+El archivo `.env` no debe publicarse en GitHub.
 
-1. Usuarios demo con roles, saldo y credenciales conocidas (`UserSeeder`).
-2. La cuenta separada del super administrador (`AccountSeeder`).
-3. Categorías artísticas (`CategorySeeder`).
-4. Cuadros con precios, categorías y autores (`PaintingSeeder`).
-5. Exposiciones y sus obras (`ExhibitionSeeder`).
-6. Publicaciones y comentarios de publicaciones (`PublicationSeeder`).
-7. Favoritos de los usuarios demo (`FavoriteSeeder`).
-8. Comentarios de cuadros (`CommentSeeder`).
-9. Recargas iniciales y cargos de compras en el libro de movimientos de saldo (`BalanceTransactionSeeder`).
-10. Ventas demo reales con descuento al comprador y movimiento en la cuenta del super administrador (`SaleSeeder`).
-11. Solicitudes de compra en estados `pending`, `contacted`, `rejected` y `closed` (`InquirySeeder`).
+---
 
-### Usuarios de prueba
+## Ejecución
 
-| Email | Contraseña | Rol |
-|---|---|---|
-| `broderick14@example.org` | `password` | Super administrador (ID 1) |
-| `ana.admin@galeria.test` | `password` | Administradora |
-| `javier.vendedor@galeria.test` | `password` | Vendedor |
-| `lucia.vendedora@galeria.test` | `password` | Vendedora |
-| `juan@example.com` | `12345678` | Usuario / comprador |
-| `maria.compradora@galeria.test` | `password` | Usuario / compradora |
-| `carlos.coleccionista@galeria.test` | `password` | Usuario / comprador |
-| `sofia.visitante@galeria.test` | `password` | Usuario / compradora |
-
-> Los usuarios demo reciben un saldo inicial de `100000.00` al crearse. Si necesitas una base totalmente limpia para una demostración, puedes usar `php artisan migrate:fresh --seed` (**esto borra todos los datos actuales**).
-
-## Arrancar la aplicación
-
-Opción rápida (servidor + colas + logs + Vite a la vez):
+### Opción 1: iniciar todos los servicios
 
 ```bash
 composer dev
 ```
 
-O en dos terminales:
+### Opción 2: iniciar por separado
+
+Terminal 1:
 
 ```bash
-# Terminal 1
 php artisan serve
+```
 
-# Terminal 2
+Terminal 2:
+
+```bash
 npm run dev
 ```
 
-La app queda en <http://127.0.0.1:8000>.
+La aplicación estará disponible en:
 
-## Autenticación
+http://127.0.0.1:8000
 
-- Solo existe **inicio de sesión** (`/login`). No hay registro público.
-- Las credenciales se validan contra la base de datos.
-- Las sesiones se guardan en la base de datos (`SESSION_DRIVER=database`), por lo que no se cierran al reiniciar el servidor.
-- La sesión caduca tras `SESSION_LIFETIME` minutos de inactividad (120 por defecto).
-- Cierre de sesión mediante `POST /logout`.
+---
 
-## Tema claro y oscuro
+## Funcionalidades
 
-La interfaz incluye un botón circular con un icono de luna/sol en la cabecera (y en la pantalla de login):
+### Gestión de usuarios
 
-- En modo claro muestra 🌙 y permite activar el modo oscuro.
-- En modo oscuro muestra ☀️ y permite volver al modo claro.
-- La preferencia se guarda en `localStorage` (`theme`) y se aplica antes de montar Vue para evitar parpadeos.
-- El tema oscuro afecta a todas las páginas mediante la variante `dark` de Tailwind CSS v4 y las adaptaciones globales de `resources/css/app.css`.
+- Inicio de sesión.
+- Gestión de perfiles.
+- Edición de información personal.
+- Administración de usuarios.
+- Estadísticas personales.
 
-## Persistencia de los datos
+La aplicación utiliza autenticación y no dispone de registro público según su configuración actual.
 
-Los datos **ya se guardan de forma permanente** en un único archivo:
+### Obras de arte
 
-```
-database/database.sqlite
-```
+- Publicación de obras.
+- Edición de obras propias.
+- Eliminación de obras autorizadas.
+- Consulta de detalles.
+- Clasificación por categorías.
+- Búsqueda y filtros.
+- Visualización del estado de venta.
 
-Cada cambio (usuarios, cuadros, comentarios, favoritos, exposiciones y sesiones) se escribe ahí al instante. Apagar `php artisan serve`, cerrar Vite, reiniciar el PC o volver a arrancar la app **no borra nada**: al iniciar se lee el mismo archivo.
+### Favoritos
 
-Las sesiones también viven en la base de datos (`SESSION_DRIVER=database`), así que reiniciar el servidor no cierra la sesión; esta caduca tras `SESSION_LIFETIME` minutos de inactividad (120 por defecto).
+Permite guardar obras de arte para consultarlas posteriormente.
 
-### Qué sí borra los datos
+### Comentarios
 
-| Comando | Efecto |
+Permite interactuar con las obras mediante comentarios y gestionar los comentarios asociados a las publicaciones.
+
+### Publicaciones
+
+- Crear artículos.
+- Editar publicaciones propias.
+- Eliminar publicaciones autorizadas.
+- Clasificar contenido.
+- Relacionar publicaciones con obras.
+- Consultar publicaciones publicadas.
+
+### Solicitudes de compra
+
+Los usuarios pueden enviar solicitudes para adquirir obras.
+
+Estados disponibles:
+
+| Estado | Descripción |
 |---|---|
-| `php artisan migrate` | Seguro: solo aplica migraciones nuevas |
-| `php artisan test` | Seguro: usa una BD SQLite en memoria (`:memory:`) |
-| `composer setup` | Seguro: usa `migrate --force`, no `fresh` |
-| `php artisan migrate:fresh` | **Borra todas las tablas y datos** |
-| `php artisan migrate:refresh` | **Borra todas las tablas y datos** |
-| `php artisan db:wipe` | **Borra todas las tablas** |
-| Borrar `database/database.sqlite` | **Borra la base de datos** |
+| pending | Pendiente de aprobación |
+| contacted | Contactado |
+| approved | Aprobado |
+| rejected | Rechazado |
+| declined | Rechazado |
+| closed | Cerrado |
 
-Regla: para conservar los datos usa siempre `php artisan migrate`, nunca `fresh`, `refresh` ni `db:wipe`.
+Los administradores pueden revisar, aprobar o rechazar las solicitudes.
 
-## Copias de seguridad
-
-Crear una copia (se guarda en `database/backups/` con fecha y hora):
-
-```bash
-composer db:backup
-# o directamente:
-php artisan db:backup
-```
-
-Por defecto conserva las **10 copias más recientes** y elimina las antiguas. Para cambiar cuántas se guardan:
-
-```bash
-php artisan db:backup --keep=30   # conservar 30
-php artisan db:backup --keep=0    # no borrar nunca ninguna
-```
-
-La carpeta `database/backups/` sí se versiona en Git, así que puedes recuperar los datos desde el repositorio.
-
-### Restaurar una copia
-
-1. Para el servidor (`Ctrl+C` en `php artisan serve`).
-2. Copia el backup elegido sobre la base actual:
-
-```powershell
-Copy-Item database\backups\database-2026-10-26_11-06-45.sqlite database\database.sqlite -Force
-```
-
-3. Vuelve a arrancar la app.
-
-## Tests
-
-```bash
-composer test
-# o
-php artisan test
-```
-
-## Estructura de datos
-
-```
-users
- ├──< paintings          (user_id = artista/publicador)
- ├──< comments           (user_id + painting_id)
- ├──< favorites          (user_id + painting_id, N:M)
- ├──< publications       (user_id = autor)
- ├──< publication_comments (user_id + publication_id)
- └──< paintings >──< exhibitions   (N:M)
-
-users
- └── name, email, password, stripe_token (nullable), phone (nullable), is_admin (bool), timestamps
-
-accounts
- ├── user_id → users (titular: super administrador, nullable)
- └── name, type (super_admin), balance
-
-account_transactions
- ├── account_id → accounts
- ├── inquiry_id → inquiries (opcional)
- ├── painting_id → paintings (opcional)
- ├── buyer_id / seller_id → users (opcional)
- └── type (sale_income), amount, description
-
-paintings
- ├── user_id     → users
- ├── category_id → categories (nullable)
- └── title, description, year, technique, emoji (default 🖼️), image_url, price, is_public (default true)
-
-publications
- ├── user_id     → users        (autor)
- ├── category_id → categories   (opcional)
- ├── painting_id → paintings    (obra relacionada, opcional)
- └── title, slug, summary, content, is_published, published_at
-
-publication_comments
- ├── user_id        → users
- └── publication_id → publications
-```
+---
 
 ## Roles y permisos
 
-La aplicación cuenta con dos roles:
+La aplicación dispone de tres niveles de acceso:
 
-| Rol | Cómo se identifica | Privilegios |
-|---|---|---|
-| **Super administrador** | `users.id = 1` y `users.is_admin = true` | Todo lo de administrador y, además, es el titular de la **cuenta de ventas** donde se ingresan los importes de las obras vendidas. |
-| **Administrador** | `users.is_admin = true` | Puede crear/editar/eliminar cualquier usuario (excepto a sí mismo al eliminar), eliminar cualquier obra, ver cualquier perfil de usuario y aprobar/rechazar solicitudes de venta. |
-| **Usuario** | `users.is_admin = false` | Puede gestionar su propio perfil, publicar obras, añadir favoritos/comentarios, crear/editar/eliminar sus propias publicaciones. Solo puede ver su propio perfil a menos que sea administrador. |
+| Rol | Permisos |
+|---|---|
+| Super administrador | Gestión administrativa completa y cuenta central de ventas. |
+| Administrador | Gestión de usuarios, obras y solicitudes de compra. |
+| Usuario | Gestión del perfil, obras propias, favoritos, comentarios y publicaciones propias. |
 
-La autorización se gestiona mediante **Policies** (`app/Policies/UserPolicy.php`). Las rutas de usuarios están protegidas con `can()` en las rutas web. Los administradores también pueden eliminar cualquier pintura desde el detalle de la obra.
+### Super administrador
 
-## Añadir saldo (recarga)
+- Dispone de privilegios administrativos.
+- Gestiona la cuenta central de ventas.
+- Consulta el historial de ingresos.
+- Administra las operaciones de compraventa.
 
-Cada usuario puede añadir saldo desde **`/mi-cuenta`**:
+### Administrador
 
-1. Se introduce un importe entre `1` y `100000` €.
-2. El importe se suma a `users.balance` dentro de una transacción.
-3. Se guarda un movimiento de tipo `deposit` en `balance_transactions` con el saldo resultante.
-4. La página muestra los últimos movimientos (recargas y compras) con su importe y saldo posterior.
+- Gestiona usuarios.
+- Consulta perfiles.
+- Elimina obras.
+- Revisa solicitudes de compra.
+- Aprueba o rechaza operaciones.
+- Consulta el histórico de compras y ventas.
 
-La recarga es **simulada**, pensada para la demo: no interviene ninguna pasarela de pago real.
+### Usuario
 
-Además, cada compra completada registra un movimiento de tipo `purchase` en `balance_transactions`, de modo que el usuario puede consultar en qué se ha gastado el saldo.
+- Gestiona su perfil.
+- Publica obras.
+- Edita sus propias obras.
+- Añade favoritos.
+- Comenta obras.
+- Crea y gestiona sus publicaciones.
 
-## Ventas y cuenta del super administrador
+La autorización se implementa mediante Policies y controles de acceso en las rutas de Laravel.
 
-Cuando un administrador **aprueba una solicitud de compra** (o marca la venta como realizada):
+---
 
-1. Se comprueba que el comprador tenga saldo suficiente.
-2. Se **descuenta el precio de la obra** del saldo personal del comprador (`users.balance`).
-3. El mismo importe se **ingresa en una cuenta separada del super administrador** (`accounts`, tipo `super_admin`), que es independiente de su saldo personal.
-4. Se guarda un movimiento en `account_transactions` para dejar constancia de la venta.
-5. La obra queda marcada como vendida y las demás solicitudes se cierran.
+## Sistema de compras y ventas
 
-Todo el proceso se ejecuta dentro de una transacción de base de datos (`app/Services/SaleService.php`), por lo que el descuento y el ingreso se realizan juntos o no se realizan.
+La aplicación incorpora un sistema de compraventa mediante solicitudes y aprobación administrativa.
 
-El super administrador puede consultar esa cuenta en **`/cuenta-super-admin`**, donde ve el saldo acumulado, los ingresos totales y el historial de movimientos.
+### Proceso de compra
+
+1. El comprador envía una solicitud.
+2. La solicitud queda pendiente de aprobación.
+3. Un administrador revisa la operación.
+4. Se comprueba que el comprador dispone de saldo suficiente.
+5. Se descuenta el importe de la cuenta del comprador.
+6. Se ingresa el importe en la cuenta independiente del super administrador.
+7. La obra queda marcada como vendida.
+8. Las demás solicitudes relacionadas se actualizan o cierran.
+
+### Registro de operaciones
+
+Las operaciones se gestionan mediante:
+
+```text
+app/Services/SaleService.php
+```
+
+El proceso utiliza transacciones de base de datos para mantener la consistencia de los movimientos.
+
+---
+
+## Gestión de saldo
+
+Cada usuario dispone de un saldo virtual que puede consultar desde su apartado personal.
+
+Funcionalidades:
+
+- Consulta de saldo.
+- Recarga de saldo.
+- Historial de recargas.
+- Registro de compras.
+- Consulta de movimientos.
+
+Los movimientos se almacenan en:
+
+```text
+balance_transactions
+```
+
+### Cuenta central de ventas
+
+Los ingresos de las ventas se registran en una cuenta independiente.
+
+Tablas utilizadas:
+
+```text
+accounts
+account_transactions
+```
+
+El panel administrativo permite consultar el saldo acumulado y el historial de movimientos.
+
+**Importante:** el saldo es una simulación interna. No existe integración con una pasarela de pago real.
+
+---
 
 ## Exposiciones
 
-- Las **exposiciones** (`exhibitions`) agrupan obras de arte mediante una tabla pivot `exhibition_painting` (N:M).
-- En el detalle de una pintura (`/cuadros/{painting}`) se muestran las exposiciones en las que participa la obra, con sus fechas de inicio y fin.
-- Las exposiciones se cargan desde los seeders (`ExhibitionSeeder`) para datos de prueba.
+El sistema permite organizar obras mediante exposiciones.
+
+Características:
+
+- Creación de exposiciones.
+- Asociación de obras.
+- Gestión de fechas.
+- Consulta de exposiciones relacionadas con cada obra.
+
+La relación entre exposiciones y obras utiliza una relación muchos a muchos (N:M).
+
+Tabla intermedia:
+
+```text
+exhibition_painting
+```
+
+---
+
+## Base de datos
+
+El proyecto utiliza SQLite.
+
+Ubicación:
+
+```text
+database/database.sqlite
+```
+
+### Entidades principales
+
+| Tabla | Descripción |
+|---|---|
+| users | Usuarios |
+| paintings | Obras de arte |
+| categories | Categorías |
+| favorites | Favoritos |
+| comments | Comentarios de obras |
+| publications | Publicaciones |
+| publication_comments | Comentarios de publicaciones |
+| exhibitions | Exposiciones |
+| exhibition_painting | Relación entre exposiciones y obras |
+| inquiries | Solicitudes de compra |
+| accounts | Cuentas administrativas |
+| account_transactions | Movimientos de cuentas |
+| balance_transactions | Movimientos de saldo |
+
+Las relaciones se gestionan mediante Eloquent ORM.
+
+---
+
+## Estructura del proyecto
+
+```text
+galeria-cuadros/
+│
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   └── Middleware/
+│   ├── Models/
+│   ├── Policies/
+│   └── Services/
+│
+├── bootstrap/
+├── config/
+│
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   ├── seeders/
+│   └── database.sqlite
+│
+├── public/
+│
+├── resources/
+│   ├── css/
+│   ├── js/
+│   │   ├── Components/
+│   │   ├── Layouts/
+│   │   └── Pages/
+│   └── views/
+│
+├── routes/
+│   └── web.php
+│
+├── tests/
+│
+├── .env.example
+├── composer.json
+├── package.json
+├── vite.config.js
+└── README.md
+```
+
+---
 
 ## Rutas principales
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Inicio con las últimas obras públicas y últimas publicaciones publicadas |
-| `/cuadros` | Galería con búsqueda, filtro por categoría y favoritos. Paginado (9 por página). |
-| `/cuadros/create` | Publicar una obra (autenticado) |
-| `/cuadros/{painting}` | Detalle de la obra, exposiciones, comentarios, opción de favorito |
-| `/cuadros/{painting}` (DELETE) | Eliminar obra (solo dueño o administrador) |
-| `/publicaciones` | Blog con búsqueda y filtro por categoría (solo publicaciones publicadas) |
-| `/publicaciones/create` | Nueva publicación (autenticado) |
-| `/publicaciones/{publication}` | Detalle y comentarios de la publicación |
+| `/` | Página principal |
+| `/login` | Inicio de sesión |
+| `/cuadros` | Galería de obras |
+| `/cuadros/create` | Crear una obra |
+| `/cuadros/{painting}` | Detalle de una obra |
+| `/publicaciones` | Listado de publicaciones |
+| `/publicaciones/create` | Crear publicación |
+| `/publicaciones/{publication}` | Detalle de publicación |
 | `/publicaciones/{publication}/edit` | Editar publicación |
-| `/publicaciones/{publication}` (PUT/POST) | Actualizar publicación |
-| `/publicaciones/{publication}` (DELETE) | Eliminar publicación |
-| `/users/list` | Listado de usuarios (protegido por política) |
-| `/users/view/{user}` | Detalle de un usuario (propio o administrador) |
-| `/users/create` | Crear usuario (solo administrador) |
-| `/users/edit/{user}` | Editar usuario (propio o administrador) |
-| `/users/delete/{user}` | Eliminar usuario (solo administrador, no puede eliminarse a sí mismo) |
-| `/settings` | Ajustes y estadísticas del usuario (obras, favoritos, comentarios, publicaciones) |
-| `/mi-cuenta` | Saldo, formulario de recarga, movimientos, compras y solicitudes del usuario |
-| `/mi-cuenta/saldo` (POST) | Añadir saldo a la cuenta del usuario autenticado |
-| `/cuenta-super-admin` | Saldo e histórico de la cuenta de ventas (solo super administrador, ID 1) |
-| `/inquiries` | Solicitudes de compra recibidas/enviadas; panel de aprobación para administradores |
-| `/inquiries/history` | Histórico de compras y ventas (solo administradores) |
+| `/users/list` | Listado de usuarios |
+| `/users/view/{user}` | Consultar perfil |
+| `/users/create` | Crear usuario |
+| `/users/edit/{user}` | Editar usuario |
+| `/settings` | Ajustes y estadísticas |
+| `/mi-cuenta` | Gestión del saldo |
+| `/mi-cuenta/saldo` | Recarga de saldo |
+| `/cuenta-super-admin` | Cuenta central de ventas |
+| `/inquiries` | Solicitudes de compra |
+| `/inquiries/history` | Histórico de operaciones |
 
-## Nota sobre el repositorio
+Las rutas están protegidas mediante autenticación y autorización según el rol correspondiente.
 
-`database/database.sqlite` está ignorado por Git, pero las copias de `database/backups/*.sqlite` sí se versionan. Si clonas el proyecto en otro equipo, puedes restaurar la copia más reciente con:
+---
+
+## Tema claro y oscuro
+
+La aplicación dispone de una interfaz con tema claro y oscuro.
+
+Características:
+
+- Cambio de tema desde la cabecera.
+- Iconos de sol y luna.
+- Preferencia guardada en `localStorage`.
+- Aplicación del tema antes de montar Vue.
+- Adaptación de los componentes mediante Tailwind CSS.
+
+---
+
+## Persistencia de datos
+
+La base de datos SQLite se encuentra en:
+
+```text
+database/database.sqlite
+```
+
+Los datos se almacenan de forma persistente y no se eliminan al reiniciar el servidor.
+
+### Comandos de migración
+
+| Comando | Efecto |
+|---|---|
+| `php artisan migrate` | Ejecuta migraciones pendientes. |
+| `php artisan migrate:status` | Consulta migraciones. |
+| `php artisan migrate:fresh` | Elimina y recrea todas las tablas. |
+| `php artisan migrate:refresh` | Revierte y vuelve a ejecutar migraciones. |
+| `php artisan db:wipe` | Elimina todas las tablas. |
+
+**Advertencia:** los comandos `migrate:fresh`, `migrate:refresh` y `db:wipe` pueden provocar la pérdida de datos.
+
+Para conservar los datos existentes utiliza:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## Copias de seguridad
+
+El proyecto dispone de un comando para generar copias de seguridad:
+
+```bash
+php artisan db:backup
+```
+
+También se puede ejecutar:
+
+```bash
+composer db:backup
+```
+
+### Opciones
+
+Conservar 30 copias:
+
+```bash
+php artisan db:backup --keep=30
+```
+
+Conservar todas las copias:
+
+```bash
+php artisan db:backup --keep=0
+```
+
+Las copias se almacenan en:
+
+```text
+database/backups/
+```
+
+### Restaurar una copia
+
+Detener los servicios y restaurar el archivo de respaldo:
 
 ```powershell
-Copy-Item database\backups\database-AAA-MM-DD_HH-mm-ss.sqlite database\database.sqlite -Force
+Copy-Item "database/backups/COPIA.sqlite" "database/database.sqlite" -Force
 ```
+
+Se recomienda almacenar las copias fuera del repositorio y protegerlas adecuadamente.
+
+---
+
+## Pruebas
+
+Ejecutar las pruebas automatizadas:
+
+```bash
+php artisan test
+```
+
+O utilizar:
+
+```bash
+composer test
+```
+
+---
+
+## Seguridad
+
+Para proteger el proyecto:
+
+- No publicar archivos `.env`.
+- No incluir contraseñas en el repositorio.
+- No publicar tokens privados.
+- Mantener las dependencias actualizadas.
+- Utilizar HTTPS en producción.
+- Desactivar `APP_DEBUG` en producción.
+- Proteger las rutas mediante autenticación y autorización.
+- Validar los datos recibidos desde formularios.
+- Proteger las copias de seguridad.
+- Evitar publicar bases de datos que contengan información personal.
+
+Los datos de prueba deben generarse mediante seeders y no deben contener credenciales reales.
+
+---
+
+## Consideraciones finales
+
+- Backend desarrollado con Laravel 12.
+- Frontend desarrollado con Vue 3 e Inertia.js.
+- Diseño mediante Tailwind CSS.
+- Almacenamiento mediante SQLite.
+- Sistema de roles y permisos.
+- Gestión de obras y exposiciones.
+- Sistema interno de solicitudes y ventas.
+- Gestión de saldo virtual simulado.
+- Interfaz adaptada a dispositivos móviles, tablets y ordenadores.
+
+---
+
+**Galería de Cuadros**  
+Aplicación web para la gestión, publicación y compraventa de obras de arte.
