@@ -68,11 +68,20 @@ html.dark .bg-white {
     background-color: #2b3a52;
 }
 
-/* Las tarjetas necesitan un borde sutil: las sombras no se ven sobre fondo oscuro. */
+/*
+ * Bordes de tarjetas.
+ *
+ * Las sombras por sí solas no bastan para despegar las tarjetas del fondo,
+ * sobre todo en modo oscuro. Un borde real y visible en ambos temas mejora
+ * la separación sin cambiar la estructura de cada vista.
+ */
+.rounded-xl.bg-white {
+    border: 1px solid #d1d5db;
+}
+
 html.dark .rounded-xl.bg-white {
-    box-shadow:
-        0 0 0 1px rgb(148 163 184 / 0.14),
-        0 10px 25px -18px rgb(0 0 0 / 0.9);
+    border-color: #54657f;
+    box-shadow: 0 10px 25px -18px rgb(0 0 0 / 0.9);
 }
 
 html.dark .bg-gray-50 {

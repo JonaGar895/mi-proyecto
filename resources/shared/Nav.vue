@@ -17,7 +17,7 @@
         <!-- Botón de menú para móvil y tablet -->
         <button
             type="button"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition duration-200 ease-out hover:bg-gray-50 active:scale-90 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:focus:ring-offset-gray-900 xl:hidden"
+            class="inline-flex h-10 w-10 touch-manipulation items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition duration-200 ease-out hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 active:scale-90 active:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-indigo-400/50 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-200 dark:active:bg-indigo-500/30 dark:focus:ring-offset-gray-900 xl:hidden"
             :aria-expanded="open"
             aria-controls="mobile-menu"
             :aria-label="open ? 'Cerrar menú' : 'Abrir menú'"
@@ -54,11 +54,11 @@
                 id="mobile-menu"
                 class="absolute right-0 top-full z-50 mt-3 w-64 origin-top-right rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 xl:hidden"
             >
-                <ul class="flex list-none flex-col gap-1" @click="open = false">
+                <ul class="flex list-none flex-col gap-1" @click="closeMenu">
                     <li
                         v-for="(item, index) in items"
                         :key="item.href"
-                        class="menu-item"
+                        class="menu-item touch-manipulation"
                         :style="{ '--menu-index': index }"
                     >
                         <NavLink
@@ -77,12 +77,49 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import NavLink from "./NavLink.vue";
 
 const page = usePage();
 const open = ref(false);
+let closeTimer = null;
+
+function clearCloseTimer() {
+    if (closeTimer !== null) {
+        clearTimeout(closeTimer);
+        closeTimer = null;
+    }
+}
+
+/**
+ * En pantallas táctiles no existe el hover: dejamos el menú abierto unos
+ * milisegundos para que se aprecie el sombreado del enlace al pulsarlo.
+ */
+function closeMenu() {
+    clearCloseTimer();
+    closeTimer = setTimeout(() => {
+        open.value = false;
+        closeTimer = null;
+    }, 140);
+}
+
+/** Al pasar de móvil/tablet a escritorio el desplegable deja de ser visible. */
+function handleResize() {
+    if (window.innerWidth >= 1280) {
+        clearCloseTimer();
+        open.value = false;
+    }
+}
+
+onMounted(() => {
+    window.addEventListener("resize", handleResize);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", handleResize);
+    clearCloseTimer();
+});
 
 const items = computed(() => {
     const links = [
@@ -143,6 +180,7 @@ const items = computed(() => {
 watch(
     () => page.url,
     () => {
+        clearCloseTimer();
         open.value = false;
     },
 );

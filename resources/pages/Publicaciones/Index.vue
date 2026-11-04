@@ -45,7 +45,7 @@
             <article
                 v-for="publication in publications.data"
                 :key="publication.id"
-                class="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100"
+                class="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
             >
                 <Link :href="`/publicaciones/${publication.id}`" class="block">
                     <div

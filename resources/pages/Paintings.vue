@@ -49,7 +49,7 @@
             <article
                 v-for="painting in paintings.data"
                 :key="painting.id"
-                class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100"
+                class="overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
             >
                 <Link :href="`/cuadros/${painting.id}`" class="block">
                     <div
