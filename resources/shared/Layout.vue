@@ -18,10 +18,6 @@
                 </h1>
 
                 <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-                    <p class="hidden text-sm text-gray-600 dark:text-gray-300 2xl:block">
-                        ¡Hola de nuevo, {{ userName }}!
-                    </p>
-
                     <Nav />
 
                     <ThemeToggle />
@@ -63,16 +59,6 @@ export default {
         Head,
         Nav,
         ThemeToggle,
-    },
-    computed: {
-        userName() {
-            return (
-                this.$page.props.auth?.user?.name ??
-                this.$page.props.auth?.user?.username ??
-                this.$page.props.auth?.user?.email ??
-                "Usuario"
-            );
-        },
     },
 };
 </script>

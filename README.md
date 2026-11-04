@@ -47,6 +47,7 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Entidades principales](#entidades-principales)
   - [Estructura del proyecto](#estructura-del-proyecto)
   - [Rutas principales](#rutas-principales)
+  - [Navegación y cabecera](#navegación-y-cabecera)
   - [Tema claro y oscuro](#tema-claro-y-oscuro)
   - [Persistencia de datos](#persistencia-de-datos)
     - [Comandos de migración](#comandos-de-migración)
@@ -82,6 +83,8 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Historial de operaciones.
 - Interfaz responsive.
 - Tema claro y oscuro.
+- Preferencia de tema guardada por usuario.
+- Navegación adaptable con menú animado en móvil y tablet.
 
 ---
 
@@ -498,11 +501,19 @@ galeria-cuadros/
 │
 ├── resources/
 │   ├── css/
+│   │   └── app.css
 │   ├── js/
-│   │   ├── Components/
-│   │   ├── Layouts/
-│   │   └── Pages/
+│   │   ├── app.js
+│   │   ├── bootstrap.js
+│   │   └── theme.js
+│   ├── shared/
+│   │   ├── Layout.vue
+│   │   ├── Nav.vue
+│   │   ├── NavLink.vue
+│   │   └── ThemeToggle.vue
+│   ├── pages/
 │   └── views/
+│       └── app.blade.php
 │
 ├── routes/
 │   └── web.php
@@ -546,17 +557,50 @@ Las rutas están protegidas mediante autenticación y autorización según el ro
 
 ---
 
+## Navegación y cabecera
+
+La cabecera forma parte del layout compartido y se adapta al tamaño de pantalla.
+
+Características:
+
+- La cabecera ocupa todo el ancho de la ventana; el espaciado horizontal se aplica al contenido interno.
+- En escritorio (a partir del breakpoint `xl`) los enlaces se muestran en una barra horizontal.
+- En móvil y tablet se muestra un botón que despliega la navegación.
+- El desplegable aparece con una transición de opacidad, escala y desplazamiento.
+- Los enlaces internos entran de forma escalonada.
+- El botón y los enlaces tienen respuesta visual al presionarlos.
+- Las animaciones se desactivan si el usuario configura `prefers-reduced-motion`.
+
+El componente de navegación se encuentra en:
+
+```text
+resources/shared/Nav.vue
+```
+
+---
+
 ## Tema claro y oscuro
 
 La aplicación dispone de una interfaz con tema claro y oscuro.
 
 Características:
 
-- Cambio de tema desde la cabecera.
+- Cambio de tema desde la cabecera y desde la pantalla de inicio de sesión.
 - Iconos de sol y luna.
-- Preferencia guardada en `localStorage`.
-- Aplicación del tema antes de montar Vue.
+- Preferencia guardada por usuario en `localStorage`.
+- Clave de almacenamiento independiente por cuenta y otra para invitados.
+- La preferencia se aplica antes de montar Vue, evitando parpadeos al cargar.
+- El tema se actualiza al iniciar sesión, cerrar sesión o navegar entre páginas.
+- Las preferencias existentes se conservan mediante una migración automática de la clave anterior.
 - Adaptación de los componentes mediante Tailwind CSS.
+
+La lógica del tema se centraliza en:
+
+```text
+resources/js/theme.js
+```
+
+La preferencia se guarda en el navegador, por lo que no se comparte entre dispositivos.
 
 ---
 
