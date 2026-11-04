@@ -17,7 +17,7 @@
         <!-- Botón de menú para móvil y tablet -->
         <button
             type="button"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900 xl:hidden"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition duration-200 ease-out hover:bg-gray-50 active:scale-90 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:focus:ring-offset-gray-900 xl:hidden"
             :aria-expanded="open"
             aria-controls="mobile-menu"
             :aria-label="open ? 'Cerrar menú' : 'Abrir menú'"
@@ -48,24 +48,31 @@
         </button>
 
         <!-- Menú desplegable en móvil y tablet -->
-        <div
-            v-if="open"
-            id="mobile-menu"
-            class="absolute right-0 top-full z-50 mt-3 w-64 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 xl:hidden"
-        >
-            <ul class="flex list-none flex-col gap-1" @click="open = false">
-                <li v-for="item in items" :key="item.href">
-                    <NavLink
-                        :href="item.href"
-                        :active="item.active"
-                        :method="item.method"
-                        :as="item.as"
+        <Transition name="menu">
+            <div
+                v-if="open"
+                id="mobile-menu"
+                class="absolute right-0 top-full z-50 mt-3 w-64 origin-top-right rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 xl:hidden"
+            >
+                <ul class="flex list-none flex-col gap-1" @click="open = false">
+                    <li
+                        v-for="(item, index) in items"
+                        :key="item.href"
+                        class="menu-item"
+                        :style="{ '--menu-index': index }"
                     >
-                        {{ item.label }}
-                    </NavLink>
-                </li>
-            </ul>
-        </div>
+                        <NavLink
+                            :href="item.href"
+                            :active="item.active"
+                            :method="item.method"
+                            :as="item.as"
+                        >
+                            {{ item.label }}
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </Transition>
     </nav>
 </template>
 
@@ -140,3 +147,51 @@ watch(
     },
 );
 </script>
+
+<style scoped>
+/* Apertura y cierre del menú móvil. */
+.menu-enter-active {
+    transition:
+        opacity 180ms ease-out,
+        transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-leave-active {
+    transition:
+        opacity 120ms ease-in,
+        transform 120ms ease-in;
+}
+
+.menu-enter-from,
+.menu-leave-to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+}
+
+/* Entrada escalonada de cada enlace. */
+.menu-enter-active .menu-item {
+    transition:
+        opacity 200ms ease-out,
+        transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--menu-index) * 35ms);
+}
+
+.menu-enter-from .menu-item {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-enter-active,
+    .menu-leave-active,
+    .menu-enter-active .menu-item {
+        transition: none;
+    }
+
+    .menu-enter-from,
+    .menu-leave-to,
+    .menu-enter-from .menu-item {
+        transform: none;
+    }
+}
+</style>

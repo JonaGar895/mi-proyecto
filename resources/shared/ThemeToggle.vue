@@ -12,22 +12,15 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
+import { applyTheme, isDark, saveTheme } from "../js/theme";
 
-const isDark = ref(
-    typeof document !== "undefined" &&
-        document.documentElement.classList.contains("dark"),
-);
+const page = usePage();
 
 const toggleTheme = () => {
-    isDark.value = !isDark.value;
+    const theme = isDark.value ? "light" : "dark";
 
-    if (isDark.value) {
-        document.documentElement.classList.add("dark");
-    } else {
-        document.documentElement.classList.remove("dark");
-    }
-
-    localStorage.setItem("theme", isDark.value ? "dark" : "light");
+    applyTheme(theme);
+    saveTheme(page.props.auth?.user?.id ?? null, theme);
 };
 </script>

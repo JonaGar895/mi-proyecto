@@ -6,9 +6,20 @@
     <script>
         (() => {
             try {
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.documentElement.classList.add('dark');
+                const userId = @json(auth()->id());
+                const key = userId ? `theme:user:${userId}` : 'theme:guest';
+
+                let theme = localStorage.getItem(key);
+
+                // Si venimos de la versión anterior (clave global "theme"),
+                // la preferencia existente se asigna al usuario actual una sola vez.
+                if (!theme && localStorage.getItem('theme')) {
+                    theme = localStorage.getItem('theme');
+                    localStorage.setItem(key, theme);
+                    localStorage.removeItem('theme');
                 }
+
+                document.documentElement.classList.toggle('dark', theme === 'dark');
             } catch (error) {
                 // Si el navegador bloquea localStorage, se mantiene el tema claro.
             }
@@ -20,7 +31,7 @@
 </head>
 
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-    <section class="px-8">
+    <section>
         @inertia
     </section>
 </body>

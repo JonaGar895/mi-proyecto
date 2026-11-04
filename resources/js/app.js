@@ -3,8 +3,17 @@ import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
-import { createInertiaApp, Link, Head } from '@inertiajs/vue3';
+import { createInertiaApp, Link, Head, router } from '@inertiajs/vue3';
 import Layout from '../shared/Layout.vue';
+import { applyTheme, getTheme } from './theme';
+
+// Al iniciar sesión, cerrar sesión o navegar, aplicamos el tema del usuario
+// que corresponde a la página actual.
+router.on('navigate', (event) => {
+    const userId = event.detail.page.props.auth?.user?.id ?? null;
+
+    applyTheme(getTheme(userId));
+});
 
 createInertiaApp({
     resolve: async (name) => {
