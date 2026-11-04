@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => Auth::user()->id,
                     'username' => Auth::user()->name,
                     'email' => Auth::user()->email,
+                    'theme' => Auth::user()->theme,
                     'is_admin' => (bool) Auth::user()->is_admin,
                     'is_super_admin' => Auth::user()->isSuperAdmin(),
                     'is_vendor' => Auth::user()->isVendor(),

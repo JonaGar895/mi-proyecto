@@ -1,9 +1,8 @@
 import { ref } from "vue";
 
 /**
- * El tema vive en localStorage, pero con una clave distinta por usuario.
- * Así cada cuenta conserva su preferencia en el mismo equipo y un usuario
- * nuevo no hereda el tema del anterior.
+ * Caché local del tema por usuario. La preferencia real se guarda en la
+ * base de datos; localStorage evita el parpadeo inicial y respalda a invitados.
  */
 export function themeKey(userId) {
     return userId ? `theme:user:${userId}` : "theme:guest";
@@ -32,6 +31,19 @@ export function getTheme(userId) {
     } catch {
         return "light";
     }
+}
+
+/**
+ * La base de datos es la fuente principal; localStorage solo evita el
+ * parpadeo inicial y sirve de respaldo si el usuario aún no tiene tema.
+ */
+export function resolveTheme(serverTheme, userId) {
+    if (serverTheme === "dark" || serverTheme === "light") {
+        saveTheme(userId, serverTheme);
+        return serverTheme;
+    }
+
+    return getTheme(userId);
 }
 
 export function saveTheme(userId, theme) {

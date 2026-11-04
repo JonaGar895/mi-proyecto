@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/setting', '/mi-cuenta');
     Route::get('/settings', [UserController::class, 'settings'])->name('settings');
     Route::get('/mi-cuenta', [UserController::class, 'settings'])->name('account');
+    Route::post('/mi-cuenta/tema', [UserController::class, 'updateTheme'])->name('theme.update');
     Route::post('/mi-cuenta/saldo', [WalletController::class, 'deposit'])->name('wallet.deposit');
 
     // Cuenta separada del super administrador (dinero de las ventas)

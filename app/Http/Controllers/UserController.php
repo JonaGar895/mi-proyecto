@@ -114,6 +114,19 @@ class UserController extends Controller
         ]);
     }
 
+    public function updateTheme(Request $request)
+    {
+        $validated = $request->validate([
+            'theme' => ['required', 'in:light,dark'],
+        ]);
+
+        $request->user()->update([
+            'theme' => $validated['theme'],
+        ]);
+
+        return response()->noContent();
+    }
+
     public function list(Request $request)
     {
         Gate::authorize('viewAny', User::class);

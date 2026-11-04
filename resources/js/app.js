@@ -5,14 +5,15 @@ import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp, Link, Head, router } from '@inertiajs/vue3';
 import Layout from '../shared/Layout.vue';
-import { applyTheme, getTheme } from './theme';
+import { applyTheme, resolveTheme } from './theme';
 
 // Al iniciar sesión, cerrar sesión o navegar, aplicamos el tema del usuario
-// que corresponde a la página actual.
+// que corresponde a la página actual. La base de datos manda sobre la caché.
 router.on('navigate', (event) => {
-    const userId = event.detail.page.props.auth?.user?.id ?? null;
+    const user = event.detail.page.props.auth?.user;
+    const userId = user?.id ?? null;
 
-    applyTheme(getTheme(userId));
+    applyTheme(resolveTheme(user?.theme, userId));
 });
 
 createInertiaApp({

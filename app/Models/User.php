@@ -24,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'theme',
         'stripe_token',
         'balance',
         'is_admin',

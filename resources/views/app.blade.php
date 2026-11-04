@@ -7,15 +7,21 @@
         (() => {
             try {
                 const userId = @json(auth()->id());
+                const userTheme = @json(auth()->user()?->theme);
                 const key = userId ? `theme:user:${userId}` : 'theme:guest';
+                const legacyTheme = localStorage.getItem('theme');
 
-                let theme = localStorage.getItem(key);
+                // La base de datos es la fuente principal. La caché local solo
+                // se usa cuando la cuenta todavía no tiene un tema guardado.
+                const theme = userTheme || localStorage.getItem(key) || legacyTheme || 'light';
 
-                // Si venimos de la versión anterior (clave global "theme"),
-                // la preferencia existente se asigna al usuario actual una sola vez.
-                if (!theme && localStorage.getItem('theme')) {
-                    theme = localStorage.getItem('theme');
-                    localStorage.setItem(key, theme);
+                if (userTheme) {
+                    localStorage.setItem(key, userTheme);
+                } else if (!localStorage.getItem(key) && legacyTheme) {
+                    localStorage.setItem(key, legacyTheme);
+                }
+
+                if (legacyTheme) {
                     localStorage.removeItem('theme');
                 }
 

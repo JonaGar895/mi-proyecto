@@ -457,7 +457,7 @@ database/database.sqlite
 
 | Tabla | Descripción |
 |---|---|
-| users | Usuarios |
+| users | Usuarios y su preferencia de tema |
 | paintings | Obras de arte |
 | categories | Categorías |
 | favorites | Favoritos |
@@ -548,6 +548,7 @@ galeria-cuadros/
 | `/users/edit/{user}` | Editar usuario |
 | `/settings` | Ajustes y estadísticas |
 | `/mi-cuenta` | Gestión del saldo |
+| `/mi-cuenta/tema` | Guardar la preferencia de tema |
 | `/mi-cuenta/saldo` | Recarga de saldo |
 | `/cuenta-super-admin` | Cuenta central de ventas |
 | `/inquiries` | Solicitudes de compra |
@@ -587,10 +588,11 @@ Características:
 
 - Cambio de tema desde la cabecera y desde la pantalla de inicio de sesión.
 - Iconos de sol y luna.
-- Preferencia guardada por usuario en `localStorage`.
-- Clave de almacenamiento independiente por cuenta y otra para invitados.
-- La preferencia se aplica antes de montar Vue, evitando parpadeos al cargar.
-- El tema se actualiza al iniciar sesión, cerrar sesión o navegar entre páginas.
+- Preferencia guardada por usuario en la base de datos.
+- `localStorage` se utiliza como caché para aplicar el tema antes de montar Vue y evitar parpadeos.
+- La preferencia se mantiene al iniciar sesión, cerrar sesión o navegar entre páginas.
+- El tema se comparte entre navegadores y dispositivos de la misma cuenta.
+- Los invitados conservan su preferencia solo en el navegador actual.
 - Las preferencias existentes se conservan mediante una migración automática de la clave anterior.
 - Adaptación de los componentes mediante Tailwind CSS.
 
@@ -600,7 +602,7 @@ La lógica del tema se centraliza en:
 resources/js/theme.js
 ```
 
-La preferencia se guarda en el navegador, por lo que no se comparte entre dispositivos.
+La preferencia se guarda en la columna `theme` de la tabla `users` mediante la ruta `POST /mi-cuenta/tema`.
 
 ---
 
