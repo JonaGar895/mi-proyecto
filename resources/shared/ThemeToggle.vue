@@ -13,10 +13,20 @@
 
 <script setup>
 import axios from "axios";
+import { onMounted } from "vue";
 import { usePage } from "@inertiajs/vue3";
-import { applyTheme, isDark, saveTheme } from "../js/theme";
+import { applyTheme, isDark, resolveTheme, saveTheme } from "../js/theme";
 
 const page = usePage();
+
+onMounted(() => {
+    const user = page.props.auth?.user;
+
+    if (user) {
+        // Al entrar o recargar, aplicamos el tema guardado en la cuenta.
+        applyTheme(resolveTheme(user.theme, user.id));
+    }
+});
 
 const toggleTheme = () => {
     const theme = isDark.value ? "light" : "dark";
