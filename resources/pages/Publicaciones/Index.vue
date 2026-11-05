@@ -52,9 +52,9 @@
                         class="flex h-40 items-center justify-center bg-gray-100 text-5xl"
                     >
                         <img
-                            v-if="publication.painting?.image_url"
-                            :src="publication.painting.image_url"
-                            :alt="publication.painting.title"
+                            v-if="imageFor(publication)"
+                            :src="imageFor(publication)"
+                            :alt="publication.title"
                             class="h-full w-full object-cover"
                         />
                         <span v-else>📰</span>
@@ -161,4 +161,7 @@ const applyFilters = debounce(() => {
 }, 300);
 
 watch([search, category], applyFilters);
+
+const imageFor = (publication) =>
+    publication.image_url || publication.painting?.image_url || null;
 </script>

@@ -10,20 +10,31 @@
         </Link>
 
         <article class="mt-4 overflow-hidden rounded-xl bg-white shadow-sm">
-            <Link
-                v-if="publication.painting"
-                :href="`/cuadros/${publication.painting.id}`"
-                class="flex h-40 items-center justify-center bg-gray-100 text-6xl transition hover:opacity-90 sm:h-48 sm:text-7xl"
-                :title="`Ver ${publication.painting.title}`"
+            <div
+                v-if="publicationImage || publication.painting"
+                class="flex h-40 items-center justify-center bg-gray-100 text-6xl sm:h-48 sm:text-7xl"
             >
+                <Link
+                    v-if="publication.painting"
+                    :href="`/cuadros/${publication.painting.id}`"
+                    class="flex h-full w-full items-center justify-center transition hover:opacity-90"
+                    :title="`Ver ${publication.painting.title}`"
+                >
+                    <img
+                        v-if="publicationImage"
+                        :src="publicationImage"
+                        :alt="publication.title"
+                        class="h-full w-full object-cover"
+                    />
+                    <span v-else>{{ publication.painting.emoji }}</span>
+                </Link>
                 <img
-                    v-if="publication.painting.image_url"
-                    :src="publication.painting.image_url"
-                    :alt="publication.painting.title"
+                    v-else
+                    :src="publicationImage"
+                    :alt="publication.title"
                     class="h-full w-full object-cover"
                 />
-                <span v-else>{{ publication.painting.emoji }}</span>
-            </Link>
+            </div>
 
             <div class="p-5 sm:p-8">
                 <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
@@ -72,7 +83,13 @@
                         :href="`/cuadros/${publication.painting.id}`"
                         class="mt-2 flex items-center gap-3 hover:underline"
                     >
-                        <span class="text-3xl">
+                        <img
+                            v-if="publication.painting.image_url"
+                            :src="publication.painting.image_url"
+                            :alt="publication.painting.title"
+                            class="h-12 w-12 rounded-md object-cover"
+                        />
+                        <span v-else class="text-3xl">
                             {{ publication.painting.emoji }}
                         </span>
                         <span class="font-medium text-gray-800">
@@ -161,6 +178,7 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { Head, Link, router, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -173,6 +191,10 @@ const props = defineProps({
         default: () => [],
     },
 });
+
+const publicationImage = computed(
+    () => props.publication.image_url || props.publication.painting?.image_url || null,
+);
 
 const commentForm = useForm({
     body: "",

@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Painting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -46,6 +48,56 @@ class PaintingTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $category->id,
         ]);
+    }
+
+    public function test_paintings_with_duplicate_title_or_description_are_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        Painting::factory()->create([
+            'title' => 'Título original',
+            'description' => 'Descripción original',
+        ]);
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'título original',
+                'description' => 'Otra descripción',
+            ])
+            ->assertSessionHasErrors('title');
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Otro título',
+                'description' => 'descripción original',
+            ])
+            ->assertSessionHasErrors('description');
+
+        $this->assertDatabaseCount('paintings', 1);
+    }
+
+    public function test_painting_with_a_duplicate_image_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $image = UploadedFile::fake()->image('obra.jpg', 800, 600);
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Primera obra',
+                'image' => $image,
+            ])
+            ->assertRedirect(route('paintings.index'));
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Segunda obra',
+                'image' => $image,
+            ])
+            ->assertSessionHasErrors('image');
+
+        $this->assertDatabaseCount('paintings', 1);
     }
 
     public function test_user_can_favorite_a_painting(): void

@@ -84,19 +84,31 @@
                     v-for="publication in latestPublications"
                     :key="publication.id"
                     :href="`/publicaciones/${publication.id}`"
-                    class="rounded-xl bg-white p-5 shadow-sm hover:shadow-md"
+                    class="overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
-                    <p
-                        class="text-xs uppercase tracking-wide text-indigo-600"
+                    <div
+                        v-if="publication.image_url"
+                        class="flex h-32 items-center justify-center bg-gray-100"
                     >
-                        {{ publication.category || "General" }}
-                    </p>
-                    <p class="mt-2 font-medium text-gray-800">
-                        {{ publication.title }}
-                    </p>
-                    <p class="mt-1 text-sm text-gray-500">
-                        {{ publication.author || "Anónimo" }}
-                    </p>
+                        <img
+                            :src="publication.image_url"
+                            :alt="publication.title"
+                            class="h-full w-full object-cover"
+                        />
+                    </div>
+                    <div class="p-5">
+                        <p
+                            class="text-xs uppercase tracking-wide text-indigo-600"
+                        >
+                            {{ publication.category || "General" }}
+                        </p>
+                        <p class="mt-2 font-medium text-gray-800">
+                            {{ publication.title }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ publication.author || "Anónimo" }}
+                        </p>
+                    </div>
                 </Link>
             </div>
         </section>

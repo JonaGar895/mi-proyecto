@@ -10,6 +10,7 @@ use App\Http\Controllers\WalletController;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -43,7 +44,7 @@ Route::middleware('auth')->group(function () {
                     'id' => $painting->id,
                     'title' => $painting->title,
                     'emoji' => $painting->emoji,
-                    'image_url' => $painting->image_url,
+                    'image_url' => ImageService::url($painting->image_path, $painting->image_url),
                     'artist' => $painting->user?->name,
                 ]),
             'latestPublications' => Publication::query()
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
                     'id' => $publication->id,
                     'title' => $publication->title,
                     'summary' => $publication->summary,
+                    'image_url' => ImageService::url($publication->image_path),
                     'author' => $publication->user?->name,
                     'category' => $publication->category?->name,
                 ]),

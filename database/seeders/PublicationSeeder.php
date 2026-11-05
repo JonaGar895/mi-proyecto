@@ -7,6 +7,7 @@ use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\PublicationComment;
 use App\Models\User;
+use App\Support\DemoImage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -70,6 +71,20 @@ class PublicationSeeder extends Seeder
         }
 
         $categories = Category::query()->orderBy('name')->get();
+
+        // Rellenamos con imágenes las publicaciones que ya existían sin una.
+        Publication::query()
+            ->whereNull('image_path')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Publication $publication) {
+                $image = DemoImage::make(
+                    'publicacion-'.$publication->id.'-'.$publication->title,
+                    'demo/publications',
+                );
+
+                $publication->forceFill($image)->save();
+            });
 
         $created = 0;
         $comments = 0;
@@ -136,6 +151,9 @@ class PublicationSeeder extends Seeder
             $category,
         );
 
+        $title = $this->uniqueTitle($title);
+        $summary = $this->uniqueSummary($summary);
+
         $intro = $this->pick($data['intro'], $seed + 2);
         $focus = $this->pick($data['focus'], $seed + 3);
         $closing = $this->pick(self::CLOSINGS, $seed + 4);
@@ -154,13 +172,21 @@ class PublicationSeeder extends Seeder
             ? now()->subDays(random_int(5, 330))->subMinutes(random_int(0, 1439))
             : now()->subDays(random_int(1, 120));
 
+        $content = $this->uniqueContent(implode("\n\n", [$intro, $focus, $closing]));
+        $image = DemoImage::make(
+            'publicacion-'.$user->id.'-'.$variant.'-'.$title,
+            'demo/publications',
+        );
+
         $publication = Publication::create([
             'user_id' => $user->id,
             'category_id' => $category?->id,
             'painting_id' => $painting?->id,
+            'image_path' => $image['image_path'],
+            'image_hash' => $image['image_hash'],
             'title' => $title,
             'summary' => $summary,
-            'content' => implode("\n\n", [$intro, $focus, $closing]),
+            'content' => $content,
             'is_published' => $isPublished,
             'published_at' => $isPublished ? $date : null,
             'created_at' => $date,
@@ -208,6 +234,54 @@ class PublicationSeeder extends Seeder
     private function pick(array $items, int $seed): string
     {
         return $items[$seed % count($items)];
+    }
+
+    /** Evita que la demo genere títulos repetidos. */
+    private function uniqueTitle(string $title): string
+    {
+        $base = $title;
+        $suffix = 2;
+
+        while (Publication::query()
+            ->whereRaw('LOWER(title) = ?', [mb_strtolower($title)])
+            ->exists()) {
+            $title = $base.' ('.$suffix.')';
+            $suffix++;
+        }
+
+        return $title;
+    }
+
+    /** Evita que la demo genere resúmenes repetidos. */
+    private function uniqueSummary(string $summary): string
+    {
+        $base = $summary;
+        $suffix = 2;
+
+        while (Publication::query()
+            ->whereRaw('LOWER(summary) = ?', [mb_strtolower($summary)])
+            ->exists()) {
+            $summary = $base.' ('.$suffix.')';
+            $suffix++;
+        }
+
+        return $summary;
+    }
+
+    /** Evita que la demo genere contenidos repetidos. */
+    private function uniqueContent(string $content): string
+    {
+        $base = $content;
+        $suffix = 2;
+
+        while (Publication::query()
+            ->whereRaw('LOWER(content) = ?', [mb_strtolower($content)])
+            ->exists()) {
+            $content = $base."\n\n(Nota del autor: edición {$suffix}.)";
+            $suffix++;
+        }
+
+        return $content;
     }
 
     private function replacePlaceholders(string $text, ?Painting $painting, ?Category $category): string

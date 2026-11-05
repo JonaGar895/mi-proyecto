@@ -44,6 +44,9 @@
                     >
                         {{ form.errors.description }}
                     </p>
+                    <p class="mt-1 text-xs text-gray-500">
+                        No se permiten obras con el mismo título, descripción o imagen.
+                    </p>
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
@@ -118,45 +121,37 @@
                         </p>
                     </div>
 
-                    <div>
+                    <div class="sm:col-span-2">
                         <label
-                            for="emoji"
+                            for="image"
                             class="mb-1 block text-sm font-medium text-gray-700"
                         >
-                            Emoji
+                            Imagen de la obra
                         </label>
                         <input
-                            id="emoji"
-                            v-model="form.emoji"
-                            type="text"
-                            maxlength="16"
-                            class="w-full rounded-lg border px-3 py-2"
+                            id="image"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            class="w-full cursor-pointer rounded-lg border px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700"
+                            @change="onImageChange"
                         />
-                        <p v-if="form.errors.emoji" class="mt-1 text-xs text-red-600">
-                            {{ form.errors.emoji }}
+                        <p class="mt-1 text-xs text-gray-500">
+                            JPG, PNG, WEBP o GIF. Tamaño máximo: 5 MB.
                         </p>
-                    </div>
+                        <p v-if="form.errors.image" class="mt-1 text-xs text-red-600">
+                            {{ form.errors.image }}
+                        </p>
 
-                    <div>
-                        <label
-                            for="image_url"
-                            class="mb-1 block text-sm font-medium text-gray-700"
+                        <div
+                            v-if="preview"
+                            class="mt-3 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
                         >
-                            URL de la imagen
-                        </label>
-                        <input
-                            id="image_url"
-                            v-model="form.image_url"
-                            type="url"
-                            placeholder="https://..."
-                            class="w-full rounded-lg border px-3 py-2"
-                        />
-                        <p
-                            v-if="form.errors.image_url"
-                            class="mt-1 text-xs text-red-600"
-                        >
-                            {{ form.errors.image_url }}
-                        </p>
+                            <img
+                                :src="preview"
+                                alt="Vista previa de la imagen"
+                                class="h-48 w-full object-cover"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -204,6 +199,7 @@
 </template>
 
 <script setup>
+import { onBeforeUnmount, ref } from "vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 
 defineProps({
@@ -219,13 +215,37 @@ const form = useForm({
     category_id: "",
     year: "",
     technique: "",
-    emoji: "🖼️",
-    image_url: "",
+    image: null,
     price: "",
     is_public: true,
 });
 
+const preview = ref(null);
+
+function onImageChange(event) {
+    const file = event.target.files?.[0] ?? null;
+
+    if (preview.value) {
+        URL.revokeObjectURL(preview.value);
+        preview.value = null;
+    }
+
+    form.image = file;
+
+    if (file) {
+        preview.value = URL.createObjectURL(file);
+    }
+}
+
 const submit = () => {
-    form.post("/cuadros");
+    form.post("/cuadros", {
+        forceFormData: true,
+    });
 };
+
+onBeforeUnmount(() => {
+    if (preview.value) {
+        URL.revokeObjectURL(preview.value);
+    }
+});
 </script>

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Painting;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
 
 class PaintingController extends Controller
@@ -56,13 +58,19 @@ class PaintingController extends Controller
     public function store(Request $request)
     {
         $attributes = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:5000'],
+            'title' => ['required', 'string', 'max:255', $this->uniqueTitleRule()],
+            'description' => ['nullable', 'string', 'max:5000', $this->uniqueDescriptionRule()],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'year' => ['nullable', 'integer', 'min:1000', 'max:'.date('Y')],
             'technique' => ['nullable', 'string', 'max:255'],
             'emoji' => ['nullable', 'string', 'max:16'],
-            'image_url' => ['nullable', 'url', 'max:2048'],
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp,gif',
+                'max:5120',
+                $this->uniqueImageRule(),
+            ],
             'price' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
             'is_public' => ['boolean'],
         ]);
@@ -72,6 +80,15 @@ class PaintingController extends Controller
         $attributes['is_public'] = $request->has('is_public')
             ? $request->boolean('is_public')
             : true;
+
+        if ($request->hasFile('image')) {
+            $attributes = array_merge(
+                $attributes,
+                ImageService::store($request->file('image'), 'paintings'),
+            );
+        }
+
+        unset($attributes['image']);
 
         Painting::create($attributes);
 
@@ -149,6 +166,7 @@ class PaintingController extends Controller
         $user = $request->user();
         abort_unless($painting->user_id === $user->id || $user->isAdmin(), 403);
 
+        ImageService::delete($painting->image_path);
         $painting->delete();
 
         return redirect()
@@ -189,6 +207,54 @@ class PaintingController extends Controller
         return back()->with('success', 'Comentario añadido.');
     }
 
+    /** Rechaza obras con un título ya existente (sin distinguir mayúsculas). */
+    private function uniqueTitleRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            $exists = Painting::query()
+                ->whereRaw('LOWER(title) = ?', [mb_strtolower(trim((string) $value))])
+                ->exists();
+
+            if ($exists) {
+                $fail('Ya existe una obra con ese título. No se permiten obras duplicadas.');
+            }
+        };
+    }
+
+    /** Rechaza obras con una descripción ya existente. */
+    private function uniqueDescriptionRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            $description = trim((string) $value);
+
+            if ($description === '') {
+                return;
+            }
+
+            $exists = Painting::query()
+                ->whereRaw('LOWER(description) = ?', [mb_strtolower($description)])
+                ->exists();
+
+            if ($exists) {
+                $fail('Ya existe una obra con esa descripción. No se permiten obras duplicadas.');
+            }
+        };
+    }
+
+    /** Rechaza imágenes cuyo contenido ya esté registrado en otra obra. */
+    private function uniqueImageRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if (! $value instanceof UploadedFile) {
+                return;
+            }
+
+            if (Painting::query()->where('image_hash', ImageService::hash($value))->exists()) {
+                $fail('Ya existe una obra con esta misma imagen. No se permiten imágenes duplicadas.');
+            }
+        };
+    }
+
     private function paintingData(Painting $painting): array
     {
         return [
@@ -200,7 +266,7 @@ class PaintingController extends Controller
             'status' => $painting->status ?? 'available',
             'sold_at' => $painting->sold_at?->toDateString(),
             'emoji' => $painting->emoji,
-            'image_url' => $painting->image_url,
+            'image_url' => ImageService::url($painting->image_path, $painting->image_url),
             'price' => $painting->price,
             'is_public' => $painting->is_public,
             'artist' => $painting->user ? [

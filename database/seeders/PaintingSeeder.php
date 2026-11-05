@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Painting;
 use App\Models\User;
+use App\Support\DemoImage;
 use Illuminate\Database\Seeder;
 
 class PaintingSeeder extends Seeder
@@ -58,6 +59,10 @@ class PaintingSeeder extends Seeder
                 }
             }
 
+            $image = $painting->image_path
+                ? null
+                : DemoImage::make($title, 'demo/paintings');
+
             $painting->fill([
                 'category_id' => $categoryIds[$categorySlug] ?? $categories->random()->id,
                 'description' => $painting->description ?? fake()->paragraph(3),
@@ -67,6 +72,11 @@ class PaintingSeeder extends Seeder
                 'price' => $painting->price ?? $price,
                 'is_public' => true,
             ]);
+
+            if ($image) {
+                $painting->image_path = $image['image_path'];
+                $painting->image_hash = $image['image_hash'];
+            }
 
             $painting->save();
 
@@ -88,5 +98,18 @@ class PaintingSeeder extends Seeder
                 );
             }
         }
+
+        // Cualquier obra que ya existiera sin imagen recibe también una demo.
+        Painting::query()
+            ->whereNull('image_path')
+            ->get()
+            ->each(function (Painting $painting) {
+                $image = DemoImage::make(
+                    $painting->title.'-'.$painting->id,
+                    'demo/paintings',
+                );
+
+                $painting->forceFill($image)->save();
+            });
     }
 }

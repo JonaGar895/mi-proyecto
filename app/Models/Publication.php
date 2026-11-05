@@ -15,6 +15,8 @@ class Publication extends Model
         'user_id',
         'category_id',
         'painting_id',
+        'image_path',
+        'image_hash',
         'title',
         'summary',
         'content',

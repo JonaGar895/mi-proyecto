@@ -21,6 +21,8 @@ class Painting extends Model
         'technique',
         'emoji',
         'image_url',
+        'image_path',
+        'image_hash',
         'price',
         'is_public',
         'status',
