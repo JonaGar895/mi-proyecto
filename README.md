@@ -32,6 +32,8 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Favoritos](#favoritos)
     - [Comentarios](#comentarios)
     - [Publicaciones](#publicaciones)
+    - [Imágenes de obras y publicaciones](#imágenes-de-obras-y-publicaciones)
+    - [Validación anti-duplicados](#validación-anti-duplicados)
     - [Solicitudes de compra](#solicitudes-de-compra)
   - [Roles y permisos](#roles-y-permisos)
     - [Super administrador](#super-administrador)
@@ -45,6 +47,7 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
   - [Exposiciones](#exposiciones)
   - [Base de datos](#base-de-datos)
     - [Entidades principales](#entidades-principales)
+    - [Imágenes en la base de datos](#imágenes-en-la-base-de-datos)
   - [Estructura del proyecto](#estructura-del-proyecto)
   - [Rutas principales](#rutas-principales)
   - [Navegación y cabecera](#navegación-y-cabecera)
@@ -85,6 +88,9 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Tema claro y oscuro.
 - Preferencia de tema guardada por usuario.
 - Navegación adaptable con menú animado en móvil y tablet.
+- Subida de imágenes para obras y publicaciones con vista previa.
+- Validación de títulos, descripciones, contenidos e imágenes duplicadas.
+- Imágenes de demostración generadas automáticamente por los seeders.
 
 ---
 
@@ -193,6 +199,18 @@ DB_DATABASE=database/database.sqlite
 php artisan migrate
 ```
 
+Crear el enlace para las imágenes subidas:
+
+```bash
+php artisan storage:link
+```
+
+Opcionalmente, cargar los datos de demostración (incluyen imágenes generadas automáticamente):
+
+```bash
+php artisan db:seed
+```
+
 ### 7. Instalar dependencias frontend
 
 ```bash
@@ -223,6 +241,9 @@ Variables principales:
 | DB_DATABASE | Ruta de la base de datos |
 | SESSION_DRIVER | Almacenamiento de sesiones |
 | SESSION_LIFETIME | Duración de las sesiones |
+| FILESYSTEM_DISK | Disco de almacenamiento por defecto |
+
+Las imágenes se guardan siempre en el disco `public`, independientemente de `FILESYSTEM_DISK`.
 
 En producción se recomienda:
 
@@ -301,6 +322,59 @@ Permite interactuar con las obras mediante comentarios y gestionar los comentari
 - Clasificar contenido.
 - Relacionar publicaciones con obras.
 - Consultar publicaciones publicadas.
+- Añadir o reemplazar la imagen de la publicación.
+
+### Imágenes de obras y publicaciones
+
+Tanto las obras como las publicaciones permiten subir una imagen desde el formulario de creación. En el caso de las publicaciones, la imagen también puede reemplazarse al editarlas.
+
+Características:
+
+- Formatos admitidos: **JPG, JPEG, PNG, WEBP y GIF**.
+- Tamaño máximo: **5 MB**.
+- Vista previa de la imagen seleccionada antes de guardar.
+- Si no se sube imagen, la obra o publicación conserva su emoji o su imagen anterior.
+- Al reemplazar una imagen se elimina el archivo anterior.
+- Al borrar una obra o publicación se elimina también su archivo de imagen.
+
+Las imágenes se almacenan en el disco público de Laravel:
+
+```text
+storage/app/public/paintings/
+storage/app/public/publications/
+storage/app/public/demo/
+```
+
+Para que las imágenes sean accesibles desde el navegador es necesario crear el enlace simbólico:
+
+```bash
+php artisan storage:link
+```
+
+El enlace genera `public/storage`, que apunta a `storage/app/public`.
+
+La gestión de archivos se centraliza en:
+
+```text
+app/Services/ImageService.php
+```
+
+### Validación anti-duplicados
+
+Antes de guardar un registro se comprueba que no exista otro con los mismos datos. La comparación no distingue entre mayúsculas y minúsculas y se aplica también al editar.
+
+| Entidad | Campos únicos |
+|---|---|
+| Obras | `title`, `description` e imagen (`image_hash`) |
+| Publicaciones | `title`, `summary`, `content` e imagen (`image_hash`) |
+
+- El título, la descripción o el resumen vacíos no se consideran duplicados.
+- En las ediciones se excluye el propio registro de la comprobación.
+- La imagen se identifica mediante un hash **SHA-256** de su contenido, por lo que dos archivos distintos con la misma imagen también se detectan.
+- La base de datos mantiene un índice único sobre `image_hash` como protección adicional.
+- Cuando hay un duplicado, el formulario muestra un mensaje de error y no se crea el registro.
+
+Los seeders también generan títulos, resúmenes y contenidos únicos para que los datos de demostración respeten estas reglas.
 
 ### Solicitudes de compra
 
@@ -458,11 +532,11 @@ database/database.sqlite
 | Tabla | Descripción |
 |---|---|
 | users | Usuarios y su preferencia de tema |
-| paintings | Obras de arte |
+| paintings | Obras de arte (incluye `image_path` e `image_hash`) |
 | categories | Categorías |
 | favorites | Favoritos |
 | comments | Comentarios de obras |
-| publications | Publicaciones |
+| publications | Publicaciones (incluye `image_path` e `image_hash`) |
 | publication_comments | Comentarios de publicaciones |
 | exhibitions | Exposiciones |
 | exhibition_painting | Relación entre exposiciones y obras |
@@ -472,6 +546,23 @@ database/database.sqlite
 | balance_transactions | Movimientos de saldo |
 
 Las relaciones se gestionan mediante Eloquent ORM.
+
+### Imágenes en la base de datos
+
+Las tablas `paintings` y `publications` incorporan dos columnas para gestionar las imágenes:
+
+| Columna | Descripción |
+|---|---|
+| `image_path` | Ruta relativa del archivo dentro de `storage/app/public` |
+| `image_hash` | Hash SHA-256 del contenido, con índice único |
+
+La migración que añade estas columnas es:
+
+```text
+database/migrations/2026_11_05_000001_add_images_to_paintings_and_publications.php
+```
+
+Los archivos de imagen no se guardan en el repositorio: se generan al subirlos o al ejecutar los seeders.
 
 ---
 
@@ -486,7 +577,8 @@ galeria-cuadros/
 │   │   └── Middleware/
 │   ├── Models/
 │   ├── Policies/
-│   └── Services/
+│   ├── Services/
+│   └── Support/
 │
 ├── bootstrap/
 ├── config/
@@ -517,6 +609,13 @@ galeria-cuadros/
 │
 ├── routes/
 │   └── web.php
+│
+├── storage/
+│   └── app/
+│       └── public/
+│           ├── paintings/
+│           ├── publications/
+│           └── demo/
 │
 ├── tests/
 │
@@ -697,6 +796,8 @@ O utilizar:
 composer test
 ```
 
+Las pruebas cubren, entre otras áreas, autenticación, autorización, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen títulos, descripciones, resúmenes, contenidos e imágenes duplicadas.
+
 ---
 
 ## Seguridad
@@ -729,6 +830,7 @@ Los datos de prueba deben generarse mediante seeders y no deben contener credenc
 - Sistema interno de solicitudes y ventas.
 - Gestión de saldo virtual simulado.
 - Interfaz adaptada a dispositivos móviles, tablets y ordenadores.
+- Subida de imágenes y protección frente a registros duplicados.
 
 ---
 
