@@ -12,7 +12,6 @@
             </Link>
         </div>
 
-        <!-- Tarjetas para móvil y tablet -->
         <div class="space-y-3 lg:hidden">
             <article
                 v-for="item in history"
@@ -92,7 +91,6 @@
             </p>
         </div>
 
-        <!-- Tabla para escritorio -->
         <div class="hidden overflow-x-auto rounded-xl bg-white shadow-sm lg:block">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">

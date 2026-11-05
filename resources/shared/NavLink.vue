@@ -35,7 +35,6 @@ export default {
 </script>
 
 <style scoped>
-/* Barra indicadora del enlace de la página actual. */
 .nav-link--active::before {
     content: '';
     position: absolute;

@@ -35,7 +35,6 @@
                 </div>
             </div>
 
-            <!-- Tarjetas para móvil y tablet -->
             <div v-if="transactions.data.length" class="mt-4 space-y-3 lg:hidden">
                 <article
                     v-for="tx in transactions.data"
@@ -72,7 +71,6 @@
                 </article>
             </div>
 
-            <!-- Tabla para escritorio -->
             <div v-if="transactions.data.length" class="mt-4 hidden overflow-x-auto lg:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">

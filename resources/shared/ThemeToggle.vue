@@ -40,7 +40,6 @@ onMounted(() => {
     const user = page.props.auth?.user;
 
     if (user) {
-        // Al entrar o recargar, aplicamos el tema guardado en la cuenta.
         applyTheme(resolveTheme(user.theme, user.id));
     }
 });
@@ -53,9 +52,7 @@ const toggleTheme = () => {
     saveTheme(userId, theme);
 
     if (userId) {
-        // Persistimos la preferencia para que se mantenga en otros navegadores.
         axios.post("/mi-cuenta/tema", { theme }).catch(() => {
-            // Si falla la petición, el tema elegido se mantiene en este navegador.
         });
     }
 };

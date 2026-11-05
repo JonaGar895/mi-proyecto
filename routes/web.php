@@ -15,7 +15,6 @@ use App\Services\ImageService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Login: solo para usuarios que no han iniciado sesión
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])
         ->name('login');
@@ -24,15 +23,12 @@ Route::middleware('guest')->group(function () {
         ->name('login.store');
 });
 
-// Logout
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-// Rutas protegidas
 Route::middleware('auth')->group(function () {
 
-    // Página principal
     Route::get('/', function () {
         return Inertia::render('Home', [
             'featuredPaintings' => Painting::query()
@@ -65,7 +61,6 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('home');
 
-    // Galería de cuadros
     Route::get('/cuadros', [PaintingController::class, 'index'])->name('paintings.index');
     Route::get('/cuadros/create', [PaintingController::class, 'create'])->name('paintings.create');
     Route::post('/cuadros', [PaintingController::class, 'store'])->name('paintings.store');
@@ -74,7 +69,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/cuadros/{painting}/favorite', [PaintingController::class, 'favorite'])->name('paintings.favorite');
     Route::post('/cuadros/{painting}/comments', [PaintingController::class, 'comment'])->name('paintings.comments.store');
 
-    // Publicaciones (blog de la galería)
     Route::get('/publicaciones', [PublicationController::class, 'index'])->name('publications.index');
     Route::get('/publicaciones/create', [PublicationController::class, 'create'])->name('publications.create');
     Route::post('/publicaciones', [PublicationController::class, 'store'])->name('publications.store');
@@ -84,7 +78,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/publicaciones/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
     Route::post('/publicaciones/{publication}/comments', [PublicationController::class, 'comment'])->name('publications.comments.store');
 
-    // Usuarios
     Route::redirect('/users', '/users/list')->name('users.index');
     Route::get('/users/list', [UserController::class, 'list'])
         ->can('viewAny', User::class)
@@ -114,24 +107,20 @@ Route::middleware('auth')->group(function () {
         ->can('delete', 'user')
         ->name('users.delete');
 
-    // Gestión de archivos e imágenes (solo administradores)
     Route::get('/admin/archivos', [FileManagementController::class, 'index'])
         ->name('files.index');
 
     Route::post('/admin/archivos/limpiar', [FileManagementController::class, 'clean'])
         ->name('files.clean');
 
-    // Mi cuenta
     Route::redirect('/setting', '/mi-cuenta');
     Route::get('/settings', [UserController::class, 'settings'])->name('settings');
     Route::get('/mi-cuenta', [UserController::class, 'settings'])->name('account');
     Route::post('/mi-cuenta/tema', [UserController::class, 'updateTheme'])->name('theme.update');
     Route::post('/mi-cuenta/saldo', [WalletController::class, 'deposit'])->name('wallet.deposit');
 
-    // Cuenta separada del super administrador (dinero de las ventas)
     Route::get('/cuenta-super-admin', [AccountController::class, 'show'])->name('super-admin.account');
 
-    // Solicitudes / Compra de pinturas
     Route::post('/cuadros/{painting}/inquiries', [InquiryController::class, 'store'])->name('paintings.inquiries.store');
     Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
     Route::get('/inquiries/history', [InquiryController::class, 'history'])->name('inquiries.history');

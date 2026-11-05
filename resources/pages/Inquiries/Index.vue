@@ -3,7 +3,6 @@
     <Head title="Solicitudes" />
 
     <Layout>
-        <!-- ENCABEZADO -->
         <div class="mb-6 flex min-w-0 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
             <div class="min-w-0 flex-1">
                 <h1 class="break-words text-3xl font-bold text-gray-800 sm:text-4xl">
@@ -29,7 +28,6 @@
             </Link>
         </div>
 
-        <!-- VISTA ADMINISTRADOR -->
         <div v-if="isAdminView" class="min-w-0 w-full">
             <section class="w-full min-w-0 overflow-hidden rounded-xl bg-white p-3 shadow-sm sm:p-6">
 
@@ -78,7 +76,6 @@
                                 </p>
                             </div>
 
-                            <!-- ETIQUETA DE ESTADO -->
                             <div class="w-full min-w-0 sm:w-auto sm:shrink-0">
                                 <span
                                     class="inline-flex max-w-full whitespace-normal break-words rounded-full px-3 py-1 text-xs"
@@ -89,7 +86,6 @@
                             </div>
                         </div>
 
-                        <!-- MENSAJE -->
                         <p
                             v-if="inq.message"
                             class="mt-3 min-w-0 break-words rounded-lg bg-gray-50 p-3 text-sm text-gray-700"
@@ -97,7 +93,6 @@
                             {{ inq.message }}
                         </p>
 
-                        <!-- APROBACIÓN -->
                         <div
                             v-if="inq.approved_by"
                             class="mt-2 break-words text-xs text-emerald-700"
@@ -108,7 +103,6 @@
                             </span>
                         </div>
 
-                        <!-- RECHAZO -->
                         <div
                             v-if="inq.rejected_by"
                             class="mt-2 break-words text-xs text-red-700"
@@ -119,7 +113,6 @@
                             </span>
                         </div>
 
-                        <!-- BOTONES -->
                         <div class="mt-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap">
 
                             <button
@@ -160,13 +153,12 @@
             </section>
         </div>
 
-        <!-- VISTA USUARIO -->
+
         <div
             v-else
             class="grid min-w-0 w-full grid-cols-1 gap-4 lg:grid-cols-2 xl:gap-6"
         >
 
-            <!-- RECIBIDAS -->
             <section class="w-full min-w-0 overflow-hidden rounded-xl bg-white p-3 shadow-sm sm:p-6">
 
                 <h2 class="break-words text-xl font-semibold text-gray-800">
@@ -236,7 +228,6 @@
                 </p>
             </section>
 
-            <!-- ENVIADAS -->
             <section class="w-full min-w-0 overflow-hidden rounded-xl bg-white p-3 shadow-sm sm:p-6">
 
                 <h2 class="break-words text-xl font-semibold text-gray-800">
@@ -347,7 +338,6 @@ const props = defineProps({
     isAdminView: { type: Boolean, default: false },
 });
 
-// FORMATO DE PRECIO
 const formatPrice = (price) => {
     const value = Number(price);
 
@@ -359,7 +349,6 @@ const formatPrice = (price) => {
     }).format(value);
 };
 
-// ETIQUETAS DE ESTADO
 const statusLabel = (status) => {
     const map = {
         pending: "Pendiente de aprobación",
@@ -373,7 +362,6 @@ const statusLabel = (status) => {
     return map[status] || status;
 };
 
-// COLORES DE ESTADO
 const statusClass = (status) => {
     const map = {
         pending: "bg-amber-100 text-amber-700",
@@ -387,7 +375,7 @@ const statusClass = (status) => {
     return map[status] || "bg-gray-100 text-gray-600";
 };
 
-// ACTUALIZAR ESTADO
+
 const updateStatus = (inq, status) => {
     router.post(
         `/inquiries/${inq.id}/status`,
@@ -396,7 +384,6 @@ const updateStatus = (inq, status) => {
     );
 };
 
-// APROBAR SOLICITUD
 const approveInquiry = (inq) => {
     if (
         confirm(
@@ -411,7 +398,6 @@ const approveInquiry = (inq) => {
     }
 };
 
-// RECHAZAR SOLICITUD
 const rejectInquiry = (inq) => {
     if (confirm("¿Rechazar esta solicitud de compra?")) {
         router.post(
@@ -422,7 +408,6 @@ const rejectInquiry = (inq) => {
     }
 };
 
-// MARCAR COMO VENDIDA
 const markSold = (inq) => {
     if (
         confirm(
