@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,25 @@ class Publication extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::updating(function (Publication $publication): void {
+            if (! $publication->isDirty('image_path')) {
+                return;
+            }
+
+            $previous = $publication->getOriginal('image_path');
+
+            if ($previous && $previous !== $publication->image_path) {
+                ImageService::delete($previous);
+            }
+        });
+
+        static::deleting(function (Publication $publication): void {
+            ImageService::delete($publication->image_path);
+        });
     }
 
     public function user(): BelongsTo

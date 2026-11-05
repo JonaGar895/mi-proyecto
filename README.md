@@ -34,6 +34,7 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Publicaciones](#publicaciones)
     - [Imágenes de obras y publicaciones](#imágenes-de-obras-y-publicaciones)
     - [Validación anti-duplicados](#validación-anti-duplicados)
+    - [Gestión de archivos](#gestión-de-archivos)
     - [Solicitudes de compra](#solicitudes-de-compra)
   - [Roles y permisos](#roles-y-permisos)
     - [Super administrador](#super-administrador)
@@ -91,6 +92,7 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Subida de imágenes para obras y publicaciones con vista previa.
 - Validación de títulos, descripciones, contenidos e imágenes duplicadas.
 - Imágenes de demostración generadas automáticamente por los seeders.
+- Panel de gestión de archivos para administradores.
 
 ---
 
@@ -336,6 +338,7 @@ Características:
 - Si no se sube imagen, la obra o publicación conserva su emoji o su imagen anterior.
 - Al reemplazar una imagen se elimina el archivo anterior.
 - Al borrar una obra o publicación se elimina también su archivo de imagen.
+- Cada archivo se nombra con el hash **SHA-256** de su contenido, por lo que dos subidas idénticas comparten la misma ruta física.
 
 Las imágenes se almacenan en el disco público de Laravel:
 
@@ -371,10 +374,57 @@ Antes de guardar un registro se comprueba que no exista otro con los mismos dato
 - El título, la descripción o el resumen vacíos no se consideran duplicados.
 - En las ediciones se excluye el propio registro de la comprobación.
 - La imagen se identifica mediante un hash **SHA-256** de su contenido, por lo que dos archivos distintos con la misma imagen también se detectan.
+- La comprobación de imágenes se realiza de forma conjunta entre obras y publicaciones: una misma imagen no puede registrarse dos veces.
 - La base de datos mantiene un índice único sobre `image_hash` como protección adicional.
 - Cuando hay un duplicado, el formulario muestra un mensaje de error y no se crea el registro.
 
 Los seeders también generan títulos, resúmenes y contenidos únicos para que los datos de demostración respeten estas reglas.
+
+### Gestión de archivos
+
+Los administradores disponen de una página para revisar el estado de las imágenes y los registros duplicados:
+
+```text
+/admin/archivos
+```
+
+La página muestra:
+
+- Número y tamaño de los archivos.
+- Archivos referenciados, huérfanos y duplicados.
+- Registros con referencias a archivos inexistentes.
+- Grupos de registros duplicados exactos.
+- Títulos repetidos con contenido distinto (conflictos para revisión manual).
+
+Acciones disponibles:
+
+| Acción | Efecto |
+|---|---|
+| Limpieza segura | Fusiona registros duplicados exactos y elimina archivos duplicados y huérfanos. |
+| Eliminar títulos repetidos | Además fusiona los registros que comparten título aunque el contenido sea distinto, conservando el más antiguo. |
+
+En ambos casos los comentarios de los registros eliminados se trasladan al registro conservado.
+
+Las mismas tareas pueden ejecutarse desde la consola:
+
+```bash
+# Ver el informe sin modificar nada
+php artisan gallery:clean --dry-run
+
+# Limpieza segura
+php artisan gallery:clean
+
+# Incluir títulos repetidos con contenido distinto
+php artisan gallery:clean --strict
+```
+
+La lógica se centraliza en:
+
+```text
+app/Services/FileManager.php
+app/Console/Commands/CleanGallery.php
+app/Http/Controllers/FileManagementController.php
+```
 
 ### Solicitudes de compra
 
@@ -572,6 +622,8 @@ Los archivos de imagen no se guardan en el repositorio: se generan al subirlos o
 galeria-cuadros/
 │
 ├── app/
+│   ├── Console/
+│   │   └── Commands/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   └── Middleware/
@@ -645,6 +697,7 @@ galeria-cuadros/
 | `/users/view/{user}` | Consultar perfil |
 | `/users/create` | Crear usuario |
 | `/users/edit/{user}` | Editar usuario |
+| `/admin/archivos` | Gestión de archivos e imágenes (solo administradores) |
 | `/settings` | Ajustes y estadísticas |
 | `/mi-cuenta` | Gestión del saldo |
 | `/mi-cuenta/tema` | Guardar la preferencia de tema |
@@ -796,7 +849,7 @@ O utilizar:
 composer test
 ```
 
-Las pruebas cubren, entre otras áreas, autenticación, autorización, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen títulos, descripciones, resúmenes, contenidos e imágenes duplicadas.
+Las pruebas cubren, entre otras áreas, autenticación, autorización, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen títulos, descripciones, resúmenes, contenidos e imágenes duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
 
 ---
 

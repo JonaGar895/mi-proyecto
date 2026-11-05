@@ -166,7 +166,6 @@ class PaintingController extends Controller
         $user = $request->user();
         abort_unless($painting->user_id === $user->id || $user->isAdmin(), 403);
 
-        ImageService::delete($painting->image_path);
         $painting->delete();
 
         return redirect()
@@ -241,7 +240,7 @@ class PaintingController extends Controller
         };
     }
 
-    /** Rechaza imágenes cuyo contenido ya esté registrado en otra obra. */
+    /** Rechaza imágenes cuyo contenido ya esté registrado en obras o publicaciones. */
     private function uniqueImageRule(): \Closure
     {
         return function (string $attribute, mixed $value, \Closure $fail): void {
@@ -249,8 +248,8 @@ class PaintingController extends Controller
                 return;
             }
 
-            if (Painting::query()->where('image_hash', ImageService::hash($value))->exists()) {
-                $fail('Ya existe una obra con esta misma imagen. No se permiten imágenes duplicadas.');
+            if (ImageService::hashExists(ImageService::hash($value))) {
+                $fail('Ya existe un registro con esta misma imagen. No se permiten imágenes duplicadas.');
             }
         };
     }

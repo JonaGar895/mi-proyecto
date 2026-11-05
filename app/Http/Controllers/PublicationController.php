@@ -156,9 +156,10 @@ class PublicationController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $newImage = ImageService::store($request->file('image'), 'publications');
-            ImageService::delete($publication->image_path);
-            $attributes = array_merge($attributes, $newImage);
+            $attributes = array_merge(
+                $attributes,
+                ImageService::store($request->file('image'), 'publications'),
+            );
         }
 
         unset($attributes['image']);
@@ -175,7 +176,6 @@ class PublicationController extends Controller
         $user = $request->user();
         abort_unless($publication->user_id === $user->id || $user->isAdmin(), 403);
 
-        ImageService::delete($publication->image_path);
         $publication->delete();
 
         return redirect()
@@ -294,7 +294,7 @@ class PublicationController extends Controller
         };
     }
 
-    /** Rechaza imágenes cuyo contenido ya esté registrado en otra publicación. */
+    /** Rechaza imágenes cuyo contenido ya esté registrado en obras o publicaciones. */
     private function uniqueImageRule(?Publication $publication): \Closure
     {
         return function (string $attribute, mixed $value, \Closure $fail) use ($publication): void {
@@ -302,13 +302,8 @@ class PublicationController extends Controller
                 return;
             }
 
-            $exists = Publication::query()
-                ->where('image_hash', ImageService::hash($value))
-                ->when($publication, fn ($query) => $query->whereKeyNot($publication->id))
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una publicación con esta misma imagen. No se permiten imágenes duplicadas.');
+            if (ImageService::hashExists(ImageService::hash($value), null, $publication)) {
+                $fail('Ya existe un registro con esta misma imagen. No se permiten imágenes duplicadas.');
             }
         };
     }

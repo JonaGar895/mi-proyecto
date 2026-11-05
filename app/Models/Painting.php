@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ class Painting extends Model
 {
     use HasFactory;
 
+    /** @var list<string> */
     protected $fillable = [
         'user_id',
         'category_id',
@@ -38,6 +40,25 @@ class Painting extends Model
             'is_public' => 'boolean',
             'sold_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::updating(function (Painting $painting): void {
+            if (! $painting->isDirty('image_path')) {
+                return;
+            }
+
+            $previous = $painting->getOriginal('image_path');
+
+            if ($previous && $previous !== $painting->image_path) {
+                ImageService::delete($previous);
+            }
+        });
+
+        static::deleting(function (Painting $painting): void {
+            ImageService::delete($painting->image_path);
+        });
     }
 
     public function user(): BelongsTo

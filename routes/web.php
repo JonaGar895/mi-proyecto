@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PaintingController;
 use App\Http\Controllers\PublicationController;
@@ -85,7 +86,6 @@ Route::middleware('auth')->group(function () {
 
     // Usuarios
     Route::redirect('/users', '/users/list')->name('users.index');
-
     Route::get('/users/list', [UserController::class, 'list'])
         ->can('viewAny', User::class)
         ->name('users.list');
@@ -113,6 +113,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/users/delete/{user}', [UserController::class, 'delete'])
         ->can('delete', 'user')
         ->name('users.delete');
+
+    // Gestión de archivos e imágenes (solo administradores)
+    Route::get('/admin/archivos', [FileManagementController::class, 'index'])
+        ->name('files.index');
+
+    Route::post('/admin/archivos/limpiar', [FileManagementController::class, 'clean'])
+        ->name('files.clean');
 
     // Mi cuenta
     Route::redirect('/setting', '/mi-cuenta');

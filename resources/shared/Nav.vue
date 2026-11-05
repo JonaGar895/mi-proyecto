@@ -263,6 +263,14 @@ const items = computed(() => {
         },
     ];
 
+    if (page.props.auth?.user?.is_admin) {
+        links.push({
+            href: "/admin/archivos",
+            label: "Archivos",
+            active: page.component === "Admin/Files",
+        });
+    }
+
     if (page.props.auth?.user?.is_super_admin) {
         links.push({
             href: "/cuenta-super-admin",
