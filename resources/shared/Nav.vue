@@ -21,7 +21,7 @@
             :aria-expanded="open"
             aria-controls="mobile-menu"
             :aria-label="open ? 'Cerrar menú' : 'Abrir menú'"
-            @click="open = !open"
+            @click="toggleMenu"
         >
             <svg
                 v-if="!open"
@@ -47,49 +47,115 @@
             </svg>
         </button>
 
-        <!-- Menú desplegable en móvil y tablet -->
-        <Transition name="menu">
-            <div
-                v-if="open"
-                id="mobile-menu"
-                class="absolute right-0 top-full z-50 mt-3 w-64 origin-top-right rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 xl:hidden"
-            >
-                <ul class="flex list-none flex-col gap-1" @click="closeMenu">
-                    <li
-                        v-for="(item, index) in items"
-                        :key="item.href"
-                        class="menu-item touch-manipulation"
-                        :style="{ '--menu-index': index }"
+        <!-- Menú lateral deslizante para móvil y tablet -->
+        <Teleport to="body">
+            <Transition name="drawer-backdrop">
+                <div
+                    v-if="open"
+                    class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm xl:hidden"
+                    aria-hidden="true"
+                    @click="closeMenuImmediate"
+                ></div>
+            </Transition>
+
+            <Transition name="drawer">
+                <aside
+                    v-if="open"
+                    id="mobile-menu"
+                    ref="drawerPanel"
+                    class="fixed inset-y-0 right-0 z-50 flex w-72 max-w-[85vw] flex-col border-l border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900 xl:hidden"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="mobile-menu-title"
+                >
+                    <div
+                        class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700"
                     >
-                        <NavLink
-                            :href="item.href"
-                            :active="item.active"
-                            :method="item.method"
-                            :as="item.as"
+                        <p
+                            id="mobile-menu-title"
+                            class="text-base font-semibold text-gray-900 dark:text-gray-100"
                         >
-                            {{ item.label }}
-                        </NavLink>
-                    </li>
-                </ul>
-            </div>
-        </Transition>
+                            Menú
+                        </p>
+
+                        <button
+                            ref="closeButton"
+                            type="button"
+                            class="inline-flex h-9 w-9 touch-manipulation items-center justify-center rounded-full text-gray-500 transition duration-150 ease-out hover:bg-gray-100 hover:text-gray-700 active:scale-90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 dark:focus:ring-offset-gray-900"
+                            aria-label="Cerrar menú"
+                            @click="closeMenuImmediate"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <ul class="flex flex-1 list-none flex-col gap-1 overflow-y-auto p-3" @click="closeMenu">
+                        <li
+                            v-for="(item, index) in items"
+                            :key="item.href"
+                            class="drawer-item touch-manipulation"
+                            :style="{ '--menu-index': index }"
+                        >
+                            <NavLink
+                                :href="item.href"
+                                :active="item.active"
+                                :method="item.method"
+                                :as="item.as"
+                            >
+                                {{ item.label }}
+                            </NavLink>
+                        </li>
+                    </ul>
+
+                    <div class="border-t border-gray-200 p-3 dark:border-gray-700">
+                        <ThemeToggle variant="menu" />
+                    </div>
+                </aside>
+            </Transition>
+        </Teleport>
     </nav>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import NavLink from "./NavLink.vue";
+import ThemeToggle from "./ThemeToggle.vue";
 
 const page = usePage();
 const open = ref(false);
+const drawerPanel = ref(null);
+const closeButton = ref(null);
 let closeTimer = null;
+let previousOverflow = "";
 
 function clearCloseTimer() {
     if (closeTimer !== null) {
         clearTimeout(closeTimer);
         closeTimer = null;
     }
+}
+
+function toggleMenu() {
+    open.value = !open.value;
+}
+
+function closeMenuImmediate() {
+    clearCloseTimer();
+    open.value = false;
 }
 
 /**
@@ -104,21 +170,59 @@ function closeMenu() {
     }, 140);
 }
 
-/** Al pasar de móvil/tablet a escritorio el desplegable deja de ser visible. */
+/** Atrapa el foco dentro del panel mientras el menú lateral está abierto. */
+function handleKeydown(event) {
+    if (!open.value) {
+        return;
+    }
+
+    if (event.key === "Escape") {
+        event.preventDefault();
+        closeMenuImmediate();
+        return;
+    }
+
+    if (event.key !== "Tab" || !drawerPanel.value) {
+        return;
+    }
+
+    const focusable = drawerPanel.value.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+
+    if (focusable.length === 0) {
+        return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
+/** Al pasar de móvil/tablet a escritorio el panel lateral deja de ser visible. */
 function handleResize() {
     if (window.innerWidth >= 1280) {
-        clearCloseTimer();
-        open.value = false;
+        closeMenuImmediate();
     }
 }
 
 onMounted(() => {
     window.addEventListener("resize", handleResize);
+    document.addEventListener("keydown", handleKeydown);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);
+    document.removeEventListener("keydown", handleKeydown);
     clearCloseTimer();
+    document.body.style.overflow = previousOverflow;
 });
 
 const items = computed(() => {
@@ -177,58 +281,83 @@ const items = computed(() => {
     return links;
 });
 
+watch(open, async (isOpen) => {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    if (isOpen) {
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        await nextTick();
+        closeButton.value?.focus();
+    } else {
+        document.body.style.overflow = previousOverflow;
+    }
+});
+
 watch(
     () => page.url,
     () => {
-        clearCloseTimer();
-        open.value = false;
+        closeMenuImmediate();
     },
 );
 </script>
 
 <style scoped>
-/* Apertura y cierre del menú móvil. */
-.menu-enter-active {
-    transition:
-        opacity 180ms ease-out,
-        transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+/* Fondo oscurecido del menú lateral. */
+.drawer-backdrop-enter-active {
+    transition: opacity 250ms ease-out;
 }
 
-.menu-leave-active {
-    transition:
-        opacity 120ms ease-in,
-        transform 120ms ease-in;
+.drawer-backdrop-leave-active {
+    transition: opacity 200ms ease-in;
 }
 
-.menu-enter-from,
-.menu-leave-to {
+.drawer-backdrop-enter-from,
+.drawer-backdrop-leave-to {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+}
+
+/* Deslizamiento del panel lateral. */
+.drawer-enter-active {
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-leave-active {
+    transition: transform 220ms ease-in;
+}
+
+.drawer-enter-from,
+.drawer-leave-to {
+    transform: translateX(100%);
 }
 
 /* Entrada escalonada de cada enlace. */
-.menu-enter-active .menu-item {
+.drawer-enter-active .drawer-item {
     transition:
-        opacity 200ms ease-out,
-        transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+        opacity 220ms ease-out,
+        transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: calc(var(--menu-index) * 35ms);
 }
 
-.menu-enter-from .menu-item {
+.drawer-enter-from .drawer-item {
     opacity: 0;
-    transform: translateX(10px);
+    transform: translateX(16px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .menu-enter-active,
-    .menu-leave-active,
-    .menu-enter-active .menu-item {
+    .drawer-backdrop-enter-active,
+    .drawer-backdrop-leave-active,
+    .drawer-enter-active,
+    .drawer-leave-active,
+    .drawer-enter-active .drawer-item {
         transition: none;
     }
 
-    .menu-enter-from,
-    .menu-leave-to,
-    .menu-enter-from .menu-item {
+    .drawer-enter-from,
+    .drawer-leave-to,
+    .drawer-enter-from .drawer-item {
         transform: none;
     }
 }

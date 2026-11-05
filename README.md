@@ -570,6 +570,7 @@ Características:
 - El desplegable aparece con una transición de opacidad, escala y desplazamiento.
 - Los enlaces internos entran de forma escalonada.
 - El botón y los enlaces tienen respuesta visual al presionarlos.
+- En móvil y tablet el menú incluye la opción para cambiar entre tema claro y oscuro.
 - Las animaciones se desactivan si el usuario configura `prefers-reduced-motion`.
 
 El componente de navegación se encuentra en:
