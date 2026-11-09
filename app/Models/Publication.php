@@ -18,6 +18,8 @@ class Publication extends Model
         'painting_id',
         'image_path',
         'image_hash',
+        'image_phash',
+        'image_dhash',
         'title',
         'summary',
         'content',

@@ -33,6 +33,7 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Comentarios](#comentarios)
     - [Publicaciones](#publicaciones)
     - [Imágenes de obras y publicaciones](#imágenes-de-obras-y-publicaciones)
+    - [Detección de imágenes duplicadas](#detección-de-imágenes-duplicadas)
     - [Validación anti-duplicados](#validación-anti-duplicados)
     - [Gestión de archivos](#gestión-de-archivos)
     - [Solicitudes de compra](#solicitudes-de-compra)
@@ -90,7 +91,7 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Preferencia de tema guardada por usuario.
 - Navegación adaptable con menú animado en móvil y tablet.
 - Subida de imágenes para obras y publicaciones con vista previa.
-- Validación de títulos, descripciones, contenidos e imágenes duplicadas.
+- Validación anti-duplicados en usuarios, obras, publicaciones, comentarios y demás registros.
 - Imágenes de demostración generadas automáticamente por los seeders.
 - Panel de gestión de archivos para administradores.
 
@@ -339,6 +340,7 @@ Características:
 - Al reemplazar una imagen se elimina el archivo anterior.
 - Al borrar una obra o publicación se elimina también su archivo de imagen.
 - Cada archivo se nombra con el hash **SHA-256** de su contenido, por lo que dos subidas idénticas comparten la misma ruta física.
+- También se calculan las huellas perceptuales **pHash** y **dHash**, que detectan la misma imagen aunque esté redimensionada o recomprimida.
 
 Las imágenes se almacenan en el disco público de Laravel:
 
@@ -356,29 +358,62 @@ php artisan storage:link
 
 El enlace genera `public/storage`, que apunta a `storage/app/public`.
 
+Para calcular las huellas perceptuales de las imágenes que ya existían:
+
+```bash
+php artisan images:fingerprint
+```
+
 La gestión de archivos se centraliza en:
 
 ```text
 app/Services/ImageService.php
 ```
 
+### Detección de imágenes duplicadas
+
+Cada imagen se compara en dos niveles antes de guardarla:
+
+| Nivel | Método | Qué detecta |
+|---|---|---|
+| Exacto | SHA-256 | Archivos idénticos byte a byte |
+| Aproximado | pHash y dHash | Imágenes redimensionadas, recomprimidas o con otro formato |
+
+- pHash y dHash generan huellas de 64 bits que se comparan mediante la **distancia de Hamming**.
+- Se considera casi duplicada cuando cualquiera de las dos distancias está dentro del umbral configurado.
+- La comparación es conjunta entre obras y publicaciones.
+- Las imágenes de un solo color se validan solo por SHA-256, porque el hash perceptual no las distingue.
+- No se detectan recortes, rotaciones ni cambios de perspectiva. Para esos casos harían falta métodos adicionales como ORB; SSIM y CLIP tampoco están implementados.
+- Los umbrales se configuran en `.env`:
+
+```env
+IMAGE_PHASH_MAX_DISTANCE=5
+IMAGE_DHASH_MAX_DISTANCE=5
+```
+
 ### Validación anti-duplicados
 
-Antes de guardar un registro se comprueba que no exista otro con los mismos datos. La comparación no distingue entre mayúsculas y minúsculas y se aplica también al editar.
+Antes de guardar o editar un registro se comprueba que no exista otro equivalente. La regla reutilizable `App\Rules\UniqueNormalized` compara el texto ignorando mayúsculas/minúsculas, espacios sobrantes y tildes.
 
-| Entidad | Campos únicos |
+| Entidad | Restricción |
 |---|---|
-| Obras | `title`, `description` e imagen (`image_hash`) |
-| Publicaciones | `title`, `summary`, `content` e imagen (`image_hash`) |
+| Usuarios | `name` y `email` únicos |
+| Obras | `title` y `description` únicos; imagen idéntica o casi duplicada |
+| Publicaciones | `title`, `summary` y `content` únicos; imagen idéntica o casi duplicada |
+| Comentarios de obras | un usuario no puede repetir el mismo comentario en la misma obra |
+| Comentarios de publicaciones | un usuario no puede repetir el mismo comentario en la misma publicación |
+| Categorías | `name` único |
+| Exposiciones | `title` único |
+| Favoritos | un usuario solo puede guardar una obra una vez |
+| Solicitudes de compra | un comprador solo puede solicitar una obra una vez |
+| Cuenta del super administrador | solo puede existir una cuenta de cada tipo |
+| Ingresos por venta | cada solicitud de compra genera un único ingreso |
 
-- El título, la descripción o el resumen vacíos no se consideran duplicados.
-- En las ediciones se excluye el propio registro de la comprobación.
-- La imagen se identifica mediante un hash **SHA-256** de su contenido, por lo que dos archivos distintos con la misma imagen también se detectan.
-- La comprobación de imágenes se realiza de forma conjunta entre obras y publicaciones: una misma imagen no puede registrarse dos veces.
-- La base de datos mantiene un índice único sobre `image_hash` como protección adicional.
-- Cuando hay un duplicado, el formulario muestra un mensaje de error y no se crea el registro.
-
-Los seeders también generan títulos, resúmenes y contenidos únicos para que los datos de demostración respeten estas reglas.
+- Los campos opcionales vacíos no se consideran duplicados.
+- Al editar se excluye el propio registro.
+- Las imágenes se validan por su hash **SHA-256** (idénticas) y por **pHash/dHash** (casi duplicadas), de forma conjunta entre obras y publicaciones.
+- La base de datos refuerza las restricciones con índices únicos.
+- Si se detecta un duplicado, se muestra un error y no se guarda el registro.
 
 ### Gestión de archivos
 
@@ -582,11 +617,11 @@ database/database.sqlite
 | Tabla | Descripción |
 |---|---|
 | users | Usuarios y su preferencia de tema |
-| paintings | Obras de arte (incluye `image_path` e `image_hash`) |
+| paintings | Obras de arte (incluye `image_path`, `image_hash`, `image_phash` e `image_dhash`) |
 | categories | Categorías |
 | favorites | Favoritos |
 | comments | Comentarios de obras |
-| publications | Publicaciones (incluye `image_path` e `image_hash`) |
+| publications | Publicaciones (incluye `image_path`, `image_hash`, `image_phash` e `image_dhash`) |
 | publication_comments | Comentarios de publicaciones |
 | exhibitions | Exposiciones |
 | exhibition_painting | Relación entre exposiciones y obras |
@@ -599,17 +634,20 @@ Las relaciones se gestionan mediante Eloquent ORM.
 
 ### Imágenes en la base de datos
 
-Las tablas `paintings` y `publications` incorporan dos columnas para gestionar las imágenes:
+Las tablas `paintings` y `publications` incorporan cuatro columnas para gestionar las imágenes:
 
 | Columna | Descripción |
 |---|---|
 | `image_path` | Ruta relativa del archivo dentro de `storage/app/public` |
 | `image_hash` | Hash SHA-256 del contenido, con índice único |
+| `image_phash` | Huella perceptual pHash de 64 bits |
+| `image_dhash` | Huella perceptual dHash de 64 bits |
 
-La migración que añade estas columnas es:
+Las migraciones que añaden estas columnas son:
 
 ```text
 database/migrations/2026_11_05_000001_add_images_to_paintings_and_publications.php
+database/migrations/2026_11_09_000002_add_perceptual_hashes_to_paintings_and_publications.php
 ```
 
 Los archivos de imagen no se guardan en el repositorio: se generan al subirlos o al ejecutar los seeders.
@@ -849,7 +887,7 @@ O utilizar:
 composer test
 ```
 
-Las pruebas cubren, entre otras áreas, autenticación, autorización, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen títulos, descripciones, resúmenes, contenidos e imágenes duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
+Las pruebas cubren, entre otras áreas, autenticación, autorización, usuarios, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen nombres, correos, títulos, descripciones, resúmenes, contenidos, comentarios e imágenes duplicadas o casi duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
 
 ---
 

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Services\ImageService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -14,10 +15,15 @@ use Illuminate\Support\Str;
 class DemoImage
 {
     /**
-     * Crea (o reutiliza) una imagen PNG/JPG y devuelve su ruta y hash.
+     * Crea (o reutiliza) una imagen PNG/JPG y devuelve su ruta y hashes.
      *
      * @param  list<string>  $palette
-     * @return array{image_path: string, image_hash: string}
+     * @return array{
+     *     image_path: string,
+     *     image_hash: string,
+     *     image_phash: string|null,
+     *     image_dhash: string|null
+     * }
      */
     public static function make(string $key, string $directory, array $palette = []): array
     {
@@ -30,9 +36,13 @@ class DemoImage
             $disk->put($path, self::render($key, $palette));
         }
 
+        $fingerprints = ImageService::perceptualHashes($disk->path($path));
+
         return [
             'image_path' => $path,
             'image_hash' => hash('sha256', $disk->get($path)),
+            'image_phash' => $fingerprints['phash'],
+            'image_dhash' => $fingerprints['dhash'],
         ];
     }
 

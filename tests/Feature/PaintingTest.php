@@ -9,10 +9,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\CreatesUploadedImages;
 use Tests\TestCase;
 
 class PaintingTest extends TestCase
 {
+    use CreatesUploadedImages;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -73,6 +75,13 @@ class PaintingTest extends TestCase
             ])
             ->assertSessionHasErrors('description');
 
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => '  titulo   original ',
+                'description' => 'Descripción diferente',
+            ])
+            ->assertSessionHasErrors('title');
+
         $this->assertDatabaseCount('paintings', 1);
     }
 
@@ -98,6 +107,52 @@ class PaintingTest extends TestCase
             ->assertSessionHasErrors('image');
 
         $this->assertDatabaseCount('paintings', 1);
+    }
+
+    public function test_painting_with_a_near_duplicate_image_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Obra original',
+                'image' => $this->patternedImage('original.png'),
+            ])
+            ->assertRedirect(route('paintings.index'));
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Obra casi igual',
+                'image' => $this->resizedPatternedImage('copia.png'),
+            ])
+            ->assertSessionHasErrors('image');
+
+        $this->assertDatabaseCount('paintings', 1);
+    }
+
+    public function test_solid_color_images_are_not_treated_as_near_duplicates(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Obra negra',
+                'image' => $this->solidColorImage('negra.png', 200, 200, [0, 0, 0]),
+            ])
+            ->assertRedirect(route('paintings.index'));
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Obra blanca',
+                'image' => $this->solidColorImage('blanca.png', 200, 200, [255, 255, 255]),
+            ])
+            ->assertRedirect(route('paintings.index'));
+
+        $this->assertDatabaseCount('paintings', 2);
     }
 
     public function test_user_can_favorite_a_painting(): void
@@ -131,6 +186,26 @@ class PaintingTest extends TestCase
             'painting_id' => $painting->id,
             'body' => 'Me encanta esta obra.',
         ]);
+    }
+
+    public function test_a_user_cannot_repeat_the_same_comment_on_the_same_painting(): void
+    {
+        $user = User::factory()->create();
+        $painting = Painting::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('paintings.comments.store', $painting), [
+                'body' => 'Me encanta esta obra.',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($user)
+            ->post(route('paintings.comments.store', $painting), [
+                'body' => '  me   ENCANTA esta obra. ',
+            ])
+            ->assertSessionHasErrors('body');
+
+        $this->assertDatabaseCount('comments', 1);
     }
 
     public function test_gallery_and_detail_pages_render_paintings(): void

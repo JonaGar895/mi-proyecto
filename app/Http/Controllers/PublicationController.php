@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Painting;
 use App\Models\Publication;
+use App\Models\PublicationComment;
+use App\Rules\UniqueNormalized;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -192,12 +194,25 @@ class PublicationController extends Controller
         );
 
         $attributes = $request->validate([
-            'body' => ['required', 'string', 'max:1000'],
+            'body' => [
+                'required',
+                'string',
+                'max:1000',
+                new UniqueNormalized(
+                    PublicationComment::class,
+                    'body',
+                    scopes: [
+                        'user_id' => $user->id,
+                        'publication_id' => $publication->id,
+                    ],
+                    message: 'Ya has publicado este mismo comentario en esta publicación.',
+                ),
+            ],
         ]);
 
         $publication->comments()->create([
             'user_id' => $user->id,
-            'body' => $attributes['body'],
+            'body' => trim($attributes['body']),
         ]);
 
         return back()->with('success', 'Comentario añadido.');
@@ -205,24 +220,39 @@ class PublicationController extends Controller
 
     private function validatePublication(Request $request, ?Publication $publication = null): array
     {
-        return $request->validate([
+        $attributes = $request->validate([
             'title' => [
                 'required',
                 'string',
                 'max:255',
-                $this->uniqueTitleRule($publication),
+                new UniqueNormalized(
+                    Publication::class,
+                    'title',
+                    $publication,
+                    message: 'Ya existe una publicación con ese título. No se permiten publicaciones duplicadas.',
+                ),
             ],
             'summary' => [
                 'nullable',
                 'string',
                 'max:500',
-                $this->uniqueSummaryRule($publication),
+                new UniqueNormalized(
+                    Publication::class,
+                    'summary',
+                    $publication,
+                    message: 'Ya existe una publicación con ese resumen. No se permiten publicaciones duplicadas.',
+                ),
             ],
             'content' => [
                 'required',
                 'string',
                 'max:20000',
-                $this->uniqueContentRule($publication),
+                new UniqueNormalized(
+                    Publication::class,
+                    'content',
+                    $publication,
+                    message: 'Ya existe una publicación con ese contenido. No se permiten publicaciones duplicadas.',
+                ),
             ],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'painting_id' => ['nullable', 'integer', 'exists:paintings,id'],
@@ -235,66 +265,20 @@ class PublicationController extends Controller
             ],
             'is_published' => ['boolean'],
         ]);
+
+        $attributes['title'] = trim($attributes['title']);
+        $attributes['content'] = trim($attributes['content']);
+
+        if (array_key_exists('summary', $attributes)) {
+            $attributes['summary'] = filled($attributes['summary'])
+                ? trim($attributes['summary'])
+                : null;
+        }
+
+        return $attributes;
     }
 
-    /** Rechaza publicaciones con un título ya existente. */
-    private function uniqueTitleRule(?Publication $publication): \Closure
-    {
-        return function (string $attribute, mixed $value, \Closure $fail) use ($publication): void {
-            $exists = Publication::query()
-                ->whereRaw('LOWER(title) = ?', [mb_strtolower(trim((string) $value))])
-                ->when($publication, fn ($query) => $query->whereKeyNot($publication->id))
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una publicación con ese título. No se permiten publicaciones duplicadas.');
-            }
-        };
-    }
-
-    /** Rechaza publicaciones con un resumen ya existente. */
-    private function uniqueSummaryRule(?Publication $publication): \Closure
-    {
-        return function (string $attribute, mixed $value, \Closure $fail) use ($publication): void {
-            $summary = trim((string) $value);
-
-            if ($summary === '') {
-                return;
-            }
-
-            $exists = Publication::query()
-                ->whereRaw('LOWER(summary) = ?', [mb_strtolower($summary)])
-                ->when($publication, fn ($query) => $query->whereKeyNot($publication->id))
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una publicación con ese resumen. No se permiten publicaciones duplicadas.');
-            }
-        };
-    }
-
-    /** Rechaza publicaciones con un contenido ya existente. */
-    private function uniqueContentRule(?Publication $publication): \Closure
-    {
-        return function (string $attribute, mixed $value, \Closure $fail) use ($publication): void {
-            $content = trim((string) $value);
-
-            if ($content === '') {
-                return;
-            }
-
-            $exists = Publication::query()
-                ->whereRaw('LOWER(content) = ?', [mb_strtolower($content)])
-                ->when($publication, fn ($query) => $query->whereKeyNot($publication->id))
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una publicación con ese contenido. No se permiten publicaciones duplicadas.');
-            }
-        };
-    }
-
-    /** Rechaza imágenes cuyo contenido ya esté registrado en obras o publicaciones. */
+    /** Rechaza imágenes idénticas o muy parecidas ya registradas en obras o publicaciones. */
     private function uniqueImageRule(?Publication $publication): \Closure
     {
         return function (string $attribute, mixed $value, \Closure $fail) use ($publication): void {
@@ -304,6 +288,14 @@ class PublicationController extends Controller
 
             if (ImageService::hashExists(ImageService::hash($value), null, $publication)) {
                 $fail('Ya existe un registro con esta misma imagen. No se permiten imágenes duplicadas.');
+
+                return;
+            }
+
+            $fingerprints = ImageService::perceptualHashes($value->getRealPath());
+
+            if (ImageService::nearDuplicateExists($fingerprints['phash'], $fingerprints['dhash'], null, $publication)) {
+                $fail('Ya existe una imagen muy similar registrada. No se permiten imágenes duplicadas.');
             }
         };
     }

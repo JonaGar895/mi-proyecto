@@ -184,6 +184,8 @@ class PublicationSeeder extends Seeder
             'painting_id' => $painting?->id,
             'image_path' => $image['image_path'],
             'image_hash' => $image['image_hash'],
+            'image_phash' => $image['image_phash'],
+            'image_dhash' => $image['image_dhash'],
             'title' => $title,
             'summary' => $summary,
             'content' => $content,

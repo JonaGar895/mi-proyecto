@@ -25,6 +25,8 @@ class Painting extends Model
         'image_url',
         'image_path',
         'image_hash',
+        'image_phash',
+        'image_dhash',
         'price',
         'is_public',
         'status',

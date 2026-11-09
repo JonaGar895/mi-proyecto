@@ -74,8 +74,7 @@ class PaintingSeeder extends Seeder
             ]);
 
             if ($image) {
-                $painting->image_path = $image['image_path'];
-                $painting->image_hash = $image['image_hash'];
+                $painting->forceFill($image);
             }
 
             $painting->save();

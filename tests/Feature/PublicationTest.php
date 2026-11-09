@@ -10,10 +10,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\CreatesUploadedImages;
 use Tests\TestCase;
 
 class PublicationTest extends TestCase
 {
+    use CreatesUploadedImages;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -93,6 +95,14 @@ class PublicationTest extends TestCase
             ])
             ->assertSessionHasErrors('content');
 
+        $this->actingAs($user)
+            ->post('/publicaciones', [
+                'title' => ' titulo   original ',
+                'summary' => 'Otro resumen distinto',
+                'content' => 'Otro contenido distinto',
+            ])
+            ->assertSessionHasErrors('title');
+
         $this->assertDatabaseCount('publications', 1);
     }
 
@@ -120,6 +130,55 @@ class PublicationTest extends TestCase
             ->assertSessionHasErrors('image');
 
         $this->assertDatabaseCount('publications', 1);
+    }
+
+    public function test_publication_with_a_near_duplicate_image_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/publicaciones', [
+                'title' => 'Primera publicación',
+                'content' => 'Contenido de la primera publicación.',
+                'image' => $this->patternedImage('original.png'),
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($user)
+            ->post('/publicaciones', [
+                'title' => 'Segunda publicación',
+                'content' => 'Contenido de la segunda publicación.',
+                'image' => $this->resizedPatternedImage('copia.png'),
+            ])
+            ->assertSessionHasErrors('image');
+
+        $this->assertDatabaseCount('publications', 1);
+    }
+
+    public function test_publication_image_similar_to_a_painting_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/cuadros', [
+                'title' => 'Obra con imagen',
+                'image' => $this->patternedImage('obra.png'),
+            ])
+            ->assertRedirect(route('paintings.index'));
+
+        $this->actingAs($user)
+            ->post('/publicaciones', [
+                'title' => 'Publicación con imagen similar',
+                'content' => 'Contenido distinto para la publicación.',
+                'image' => $this->resizedPatternedImage('noticia.png'),
+            ])
+            ->assertSessionHasErrors('image');
+
+        $this->assertDatabaseCount('publications', 0);
     }
 
     public function test_index_renders_publications_with_their_relations(): void
@@ -187,6 +246,25 @@ class PublicationTest extends TestCase
         ]);
     }
 
+    public function test_editing_a_publication_does_not_treat_its_own_data_as_a_duplicate(): void
+    {
+        $user = User::factory()->create();
+        $publication = Publication::factory()->for($user)->create([
+            'title' => 'Mi título',
+            'content' => 'Mi contenido',
+        ]);
+
+        $this->actingAs($user)
+            ->put(route('publications.update', $publication), [
+                'title' => 'MI TÍTULO',
+                'content' => 'mi  contenido',
+                'is_published' => true,
+            ])
+            ->assertRedirect(route('publications.show', $publication));
+
+        $this->assertDatabaseCount('publications', 1);
+    }
+
     public function test_non_owner_cannot_edit_delete_or_update_a_publication(): void
     {
         $owner = User::factory()->create();
@@ -239,6 +317,26 @@ class PublicationTest extends TestCase
             'publication_id' => $publication->id,
             'body' => 'Muy interesante.',
         ]);
+    }
+
+    public function test_a_user_cannot_repeat_the_same_comment_on_the_same_publication(): void
+    {
+        $user = User::factory()->create();
+        $publication = Publication::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('publications.comments.store', $publication), [
+                'body' => 'Muy interesante.',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($user)
+            ->post(route('publications.comments.store', $publication), [
+                'body' => 'muy   INTERESANTE. ',
+            ])
+            ->assertSessionHasErrors('body');
+
+        $this->assertDatabaseCount('publication_comments', 1);
     }
 
     public function test_drafts_are_only_visible_to_their_author(): void

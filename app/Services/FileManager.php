@@ -507,9 +507,15 @@ class FileManager
                             continue;
                         }
 
-                        $hash = hash_file('sha256', $disk->path($record->image_path));
+                        $path = $disk->path($record->image_path);
+                        $hash = hash_file('sha256', $path);
+                        $fingerprints = ImageService::perceptualHashes($path);
 
-                        if ($record->image_hash === $hash) {
+                        $changed = $record->image_hash !== $hash
+                            || $record->image_phash !== $fingerprints['phash']
+                            || $record->image_dhash !== $fingerprints['dhash'];
+
+                        if (! $changed) {
                             continue;
                         }
 
@@ -520,7 +526,11 @@ class FileManager
                             continue;
                         }
 
-                        $record->forceFill(['image_hash' => $hash])->saveQuietly();
+                        $record->forceFill([
+                            'image_hash' => $hash,
+                            'image_phash' => $fingerprints['phash'],
+                            'image_dhash' => $fingerprints['dhash'],
+                        ])->saveQuietly();
                         $synced++;
                     }
                 });

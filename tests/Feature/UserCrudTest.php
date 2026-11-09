@@ -163,4 +163,63 @@ class UserCrudTest extends TestCase
             ])
             ->assertSessionHasErrors('email');
     }
+
+    public function test_email_must_be_unique_ignoring_case_when_creating_a_user(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        User::factory()->create(['email' => 'repetido@example.com']);
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'Otro usuario',
+                'email' => 'REPETIDO@EXAMPLE.COM',
+                'password' => 'password123',
+            ])
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_name_must_be_unique_when_creating_a_user(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        User::factory()->create(['name' => 'María Artista']);
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'maria  artista',
+                'email' => 'nueva@example.com',
+                'password' => 'password123',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->assertDatabaseMissing('users', ['email' => 'nueva@example.com']);
+    }
+
+    public function test_updating_a_user_cannot_duplicate_another_users_data(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        User::factory()->create(['name' => 'Ana', 'email' => 'ana@example.com']);
+        $user = User::factory()->create(['name' => 'Luis', 'email' => 'luis@example.com']);
+
+        $this->actingAs($admin)
+            ->post(route('users.update', $user), [
+                'name' => 'ANA',
+                'email' => 'luis@example.com',
+                'password' => '',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->actingAs($admin)
+            ->post(route('users.update', $user), [
+                'name' => 'Luis',
+                'email' => 'ANA@example.com',
+                'password' => '',
+            ])
+            ->assertSessionHasErrors('email');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Luis',
+            'email' => 'luis@example.com',
+        ]);
+    }
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Painting;
+use App\Rules\UniqueNormalized;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -58,8 +60,26 @@ class PaintingController extends Controller
     public function store(Request $request)
     {
         $attributes = $request->validate([
-            'title' => ['required', 'string', 'max:255', $this->uniqueTitleRule()],
-            'description' => ['nullable', 'string', 'max:5000', $this->uniqueDescriptionRule()],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                new UniqueNormalized(
+                    Painting::class,
+                    'title',
+                    message: 'Ya existe una obra con ese título. No se permiten obras duplicadas.',
+                ),
+            ],
+            'description' => [
+                'nullable',
+                'string',
+                'max:5000',
+                new UniqueNormalized(
+                    Painting::class,
+                    'description',
+                    message: 'Ya existe una obra con esa descripción. No se permiten obras duplicadas.',
+                ),
+            ],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'year' => ['nullable', 'integer', 'min:1000', 'max:'.date('Y')],
             'technique' => ['nullable', 'string', 'max:255'],
@@ -75,6 +95,10 @@ class PaintingController extends Controller
             'is_public' => ['boolean'],
         ]);
 
+        $attributes['title'] = trim($attributes['title']);
+        $attributes['description'] = filled($attributes['description'] ?? null)
+            ? trim($attributes['description'])
+            : null;
         $attributes['user_id'] = $request->user()->id;
         $attributes['emoji'] = $attributes['emoji'] ?? '🖼️';
         $attributes['is_public'] = $request->has('is_public')
@@ -195,52 +219,31 @@ class PaintingController extends Controller
         );
 
         $attributes = $request->validate([
-            'body' => ['required', 'string', 'max:1000'],
+            'body' => [
+                'required',
+                'string',
+                'max:1000',
+                new UniqueNormalized(
+                    Comment::class,
+                    'body',
+                    scopes: [
+                        'user_id' => $user->id,
+                        'painting_id' => $painting->id,
+                    ],
+                    message: 'Ya has publicado este mismo comentario en esta obra.',
+                ),
+            ],
         ]);
 
         $painting->comments()->create([
             'user_id' => $user->id,
-            'body' => $attributes['body'],
+            'body' => trim($attributes['body']),
         ]);
 
         return back()->with('success', 'Comentario añadido.');
     }
 
-    /** Rechaza obras con un título ya existente (sin distinguir mayúsculas). */
-    private function uniqueTitleRule(): \Closure
-    {
-        return function (string $attribute, mixed $value, \Closure $fail): void {
-            $exists = Painting::query()
-                ->whereRaw('LOWER(title) = ?', [mb_strtolower(trim((string) $value))])
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una obra con ese título. No se permiten obras duplicadas.');
-            }
-        };
-    }
-
-    /** Rechaza obras con una descripción ya existente. */
-    private function uniqueDescriptionRule(): \Closure
-    {
-        return function (string $attribute, mixed $value, \Closure $fail): void {
-            $description = trim((string) $value);
-
-            if ($description === '') {
-                return;
-            }
-
-            $exists = Painting::query()
-                ->whereRaw('LOWER(description) = ?', [mb_strtolower($description)])
-                ->exists();
-
-            if ($exists) {
-                $fail('Ya existe una obra con esa descripción. No se permiten obras duplicadas.');
-            }
-        };
-    }
-
-    /** Rechaza imágenes cuyo contenido ya esté registrado en obras o publicaciones. */
+    /** Rechaza imágenes idénticas o muy parecidas ya registradas en obras o publicaciones. */
     private function uniqueImageRule(): \Closure
     {
         return function (string $attribute, mixed $value, \Closure $fail): void {
@@ -250,6 +253,14 @@ class PaintingController extends Controller
 
             if (ImageService::hashExists(ImageService::hash($value))) {
                 $fail('Ya existe un registro con esta misma imagen. No se permiten imágenes duplicadas.');
+
+                return;
+            }
+
+            $fingerprints = ImageService::perceptualHashes($value->getRealPath());
+
+            if (ImageService::nearDuplicateExists($fingerprints['phash'], $fingerprints['dhash'])) {
+                $fail('Ya existe una imagen muy similar registrada. No se permiten imágenes duplicadas.');
             }
         };
     }

@@ -8,9 +8,10 @@ use App\Models\Inquiry;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\User;
+use App\Rules\UniqueNormalized;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -195,17 +196,33 @@ class UserController extends Controller
         Gate::authorize('create', User::class);
 
         $attributes = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                new UniqueNormalized(
+                    User::class,
+                    'name',
+                    message: 'Ya existe un usuario con ese nombre. No se permiten usuarios duplicados.',
+                ),
+            ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email'),
+                new UniqueNormalized(
+                    User::class,
+                    'email',
+                    message: 'Ya existe un usuario con ese correo electrónico. No se permiten usuarios duplicados.',
+                ),
             ],
             'password' => ['required', 'string', 'min:8'],
             'is_admin' => ['nullable', 'boolean'],
             'is_vendor' => ['nullable', 'boolean'],
         ]);
+
+        $attributes['name'] = trim($attributes['name']);
+        $attributes['email'] = Str::lower(trim($attributes['email']));
 
         if (! $request->user()->isAdmin()) {
             unset($attributes['is_admin']);
@@ -242,17 +259,35 @@ class UserController extends Controller
         Gate::authorize('update', $user);
 
         $attributes = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                new UniqueNormalized(
+                    User::class,
+                    'name',
+                    $user,
+                    message: 'Ya existe un usuario con ese nombre. No se permiten usuarios duplicados.',
+                ),
+            ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
+                new UniqueNormalized(
+                    User::class,
+                    'email',
+                    $user,
+                    message: 'Ya existe un usuario con ese correo electrónico. No se permiten usuarios duplicados.',
+                ),
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
             'is_vendor' => ['nullable', 'boolean'],
         ]);
+
+        $attributes['name'] = trim($attributes['name']);
+        $attributes['email'] = Str::lower(trim($attributes['email']));
 
         if (blank($attributes['password'] ?? null)) {
             unset($attributes['password']);
