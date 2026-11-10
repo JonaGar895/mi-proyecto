@@ -36,7 +36,6 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Imágenes de obras y publicaciones](#imágenes-de-obras-y-publicaciones)
     - [Detección de imágenes duplicadas](#detección-de-imágenes-duplicadas)
     - [Validación anti-duplicados](#validación-anti-duplicados)
-    - [Gestión de archivos](#gestión-de-archivos)
     - [Solicitudes de compra](#solicitudes-de-compra)
     - [Notificaciones](#notificaciones)
   - [Roles y permisos](#roles-y-permisos)
@@ -97,7 +96,6 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Subida de imágenes para obras y publicaciones con vista previa.
 - Validación anti-duplicados en usuarios, obras, publicaciones, comentarios y demás registros.
 - Imágenes de demostración generadas automáticamente por los seeders.
-- Panel de gestión de archivos para administradores.
 
 ---
 
@@ -459,52 +457,6 @@ Antes de guardar o editar un registro se comprueba que no exista otro equivalent
 - La base de datos refuerza las restricciones con índices únicos.
 - Si se detecta un duplicado, se muestra un error y no se guarda el registro.
 
-### Gestión de archivos
-
-Los administradores disponen de una página para revisar el estado de las imágenes y los registros duplicados:
-
-```text
-/admin/archivos
-```
-
-La página muestra:
-
-- Número y tamaño de los archivos.
-- Archivos referenciados, huérfanos y duplicados.
-- Registros con referencias a archivos inexistentes.
-- Grupos de registros duplicados exactos.
-- Títulos repetidos con contenido distinto (conflictos para revisión manual).
-
-Acciones disponibles:
-
-| Acción | Efecto |
-|---|---|
-| Limpieza segura | Fusiona registros duplicados exactos y elimina archivos duplicados y huérfanos. |
-| Eliminar títulos repetidos | Además fusiona los registros que comparten título aunque el contenido sea distinto, conservando el más antiguo. |
-
-En ambos casos los comentarios de los registros eliminados se trasladan al registro conservado.
-
-Las mismas tareas pueden ejecutarse desde la consola:
-
-```bash
-# Ver el informe sin modificar nada
-php artisan gallery:clean --dry-run
-
-# Limpieza segura
-php artisan gallery:clean
-
-# Incluir títulos repetidos con contenido distinto
-php artisan gallery:clean --strict
-```
-
-La lógica se centraliza en:
-
-```text
-app/Services/FileManager.php
-app/Console/Commands/CleanGallery.php
-app/Http/Controllers/FileManagementController.php
-```
-
 ### Solicitudes de compra
 
 Los usuarios pueden enviar solicitudes para adquirir obras.
@@ -845,7 +797,6 @@ galeria-cuadros/
 | `/users/create` | Crear usuario |
 | `/users/edit/{user}` | Editar usuario |
 | `/admin` | Panel de administración con métricas (solo administradores) |
-| `/admin/archivos` | Gestión de archivos e imágenes (solo administradores) |
 | `/settings` | Ajustes y estadísticas |
 | `/mi-cuenta` | Gestión del saldo |
 | `/mi-cuenta/tema` | Guardar la preferencia de tema |
@@ -997,7 +948,7 @@ O utilizar:
 composer test
 ```
 
-Las pruebas cubren, entre otras áreas, autenticación, autorización, usuarios, obras (incluida su edición y la página «Mis obras»), publicaciones, favoritos, comentarios y sus respuestas, valoraciones, notificaciones, exposiciones, solicitudes de compra y el panel de administración. También verifican que se rechacen nombres, correos, títulos, descripciones, resúmenes, contenidos, comentarios e imágenes duplicadas o casi duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
+Las pruebas cubren, entre otras áreas, autenticación, autorización, usuarios, obras (incluida su edición y la página «Mis obras»), publicaciones, favoritos, comentarios y sus respuestas, valoraciones, notificaciones, exposiciones, solicitudes de compra y el panel de administración. También verifican que se rechacen nombres, correos, títulos, descripciones, resúmenes, contenidos, comentarios e imágenes duplicadas o casi duplicadas.
 
 ### Colección de Postman
 

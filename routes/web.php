@@ -4,7 +4,6 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExhibitionController;
-use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaintingController;
@@ -151,12 +150,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/users/delete/{user}', [UserController::class, 'delete'])
         ->can('delete', 'user')
         ->name('users.delete');
-
-    Route::get('/admin/archivos', [FileManagementController::class, 'index'])
-        ->name('files.index');
-
-    Route::post('/admin/archivos/limpiar', [FileManagementController::class, 'clean'])
-        ->name('files.clean');
 
     Route::redirect('/setting', '/mi-cuenta');
     Route::get('/settings', [UserController::class, 'settings'])->name('settings');
