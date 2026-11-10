@@ -38,7 +38,14 @@
                 v-for="notification in notifications.data"
                 :key="notification.id"
                 class="rounded-xl bg-white p-4 shadow-sm transition sm:p-5"
-                :class="{ 'ring-2 ring-blue-500 ring-offset-2': notification.unread }"
+                :class="[
+                    { 'ring-2 ring-blue-500 ring-offset-2': notification.unread },
+                    notification.url ? 'cursor-pointer hover:shadow-md' : '',
+                ]"
+                :role="notification.url ? 'link' : undefined"
+                :tabindex="notification.url ? 0 : undefined"
+                @click="open(notification)"
+                @keydown.enter="open(notification)"
             >
                 <div class="flex items-start gap-3">
                     <span class="text-2xl leading-none">{{ notification.icon }}</span>
@@ -64,19 +71,11 @@
                         </p>
 
                         <div class="mt-2 flex flex-wrap items-center gap-4 text-sm">
-                            <Link
-                                v-if="notification.url"
-                                :href="notification.url"
-                                class="text-blue-600 hover:underline"
-                            >
-                                Ver
-                            </Link>
-
                             <button
                                 v-if="notification.unread"
                                 type="button"
                                 class="text-gray-500 hover:underline"
-                                @click="markRead(notification)"
+                                @click.stop="markRead(notification)"
                             >
                                 Marcar como leída
                             </button>
@@ -84,7 +83,7 @@
                             <button
                                 type="button"
                                 class="inline-flex items-center gap-1 text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400"
-                                @click="deleteNotification(notification)"
+                                @click.stop="deleteNotification(notification)"
                             >
                                 <svg
                                     class="h-4 w-4"
@@ -124,7 +123,7 @@
 </template>
 
 <script setup>
-import { Head, Link, router, useForm } from "@inertiajs/vue3";
+import { Head, router, useForm } from "@inertiajs/vue3";
 import Pagination from "../../shared/Pagination.vue";
 
 defineProps({
@@ -135,6 +134,14 @@ defineProps({
 });
 
 const form = useForm({});
+
+const open = (notification) => {
+    if (!notification.url) {
+        return;
+    }
+
+    router.get(notification.url);
+};
 
 const markRead = (notification) => {
     router.post(`/notificaciones/${notification.id}/leer`, {}, {
