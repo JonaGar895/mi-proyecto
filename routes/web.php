@@ -118,7 +118,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notificaciones/leer-todas', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notificaciones/borrar-todas', [NotificationController::class, 'destroyAll'])->name('notifications.delete-all');
     Route::post('/notificaciones/{id}/leer', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::delete('/notificaciones/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
 

@@ -215,4 +215,81 @@ class NotificationTest extends TestCase
 
         $this->assertSame(1, $owner->unreadNotifications()->count());
     }
+
+    public function test_users_can_delete_their_notifications(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($visitor)
+            ->post(route('paintings.comments.store', $painting), ['body' => 'Hola.']);
+
+        $notification = $owner->notifications()->first();
+        $this->assertNotNull($notification);
+
+        $this->actingAs($owner)
+            ->delete(route('notifications.destroy', $notification->id))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('notifications', ['id' => $notification->id]);
+    }
+
+    public function test_users_cannot_delete_someone_elses_notification(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($visitor)
+            ->post(route('paintings.comments.store', $painting), ['body' => 'Hola.']);
+
+        $notification = $owner->notifications()->first();
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('notifications.destroy', $notification->id))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('notifications', ['id' => $notification->id]);
+    }
+
+    public function test_users_can_delete_all_their_notifications_at_once(): void
+    {
+        $owner = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('paintings.comments.store', $painting), ['body' => 'Primer comentario.']);
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('paintings.favorite', $painting));
+
+        $this->assertSame(2, $owner->notifications()->count());
+
+        $this->actingAs($owner)
+            ->post(route('notifications.delete-all'))
+            ->assertRedirect();
+
+        $this->assertSame(0, $owner->notifications()->count());
+    }
+
+    public function test_deleting_all_notifications_does_not_affect_other_users(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+        $otherPainting = Painting::factory()->create(['user_id' => $other->id]);
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('paintings.comments.store', $painting), ['body' => 'Comentario para el dueño.']);
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('paintings.comments.store', $otherPainting), ['body' => 'Comentario para el otro.']);
+
+        $this->actingAs($owner)
+            ->post(route('notifications.delete-all'));
+
+        $this->assertSame(0, $owner->notifications()->count());
+        $this->assertSame(1, $other->notifications()->count());
+    }
 }

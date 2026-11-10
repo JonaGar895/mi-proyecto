@@ -56,4 +56,25 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Notificaciones marcadas como leídas.');
     }
+
+    public function destroy(Request $request, string $notification)
+    {
+        $user = $request->user();
+
+        /** @var DatabaseNotification|null $notification */
+        $notification = $user->notifications()->whereKey($notification)->first();
+
+        abort_unless($notification !== null, 404);
+
+        $notification->delete();
+
+        return back()->with('success', 'Notificación eliminada.');
+    }
+
+    public function destroyAll(Request $request)
+    {
+        $request->user()->notifications()->delete();
+
+        return back()->with('success', 'Notificaciones eliminadas.');
+    }
 }

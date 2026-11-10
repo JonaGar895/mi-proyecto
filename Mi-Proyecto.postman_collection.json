@@ -1535,6 +1535,64 @@
             "description": "Marcar todas las notificaciones como leídas | Auth: Auth Session (cookie) | Middleware: web, auth"
           },
           "response": []
+        },
+        {
+          "name": "notifications.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notificaciones/{notification}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones",
+                "{notification}"
+              ]
+            },
+            "description": "Eliminar una notificación propia | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "notifications.delete-all",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notificaciones/borrar-todas",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones",
+                "borrar-todas"
+              ]
+            },
+            "description": "Eliminar todas las notificaciones del usuario autenticado | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
         }
       ]
     },

@@ -491,6 +491,7 @@ Características:
 - La campana de la cabecera muestra el número de notificaciones sin leer.
 - La página `/notificaciones` muestra el listado paginado con acceso directo al contenido relacionado.
 - Las notificaciones se pueden marcar como leídas de forma individual o todas a la vez.
+- Las notificaciones se pueden eliminar de forma individual o todas a la vez.
 - No se envían auto-avisos: el autor de la acción nunca recibe notificación por ella.
 
 Las notificaciones se implementan con el canal `database` de Laravel y se envían mediante la cola de trabajos:
