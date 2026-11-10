@@ -493,10 +493,21 @@ Características:
 - Las notificaciones se pueden marcar como leídas de forma individual o todas a la vez.
 - No se envían auto-avisos: el autor de la acción nunca recibe notificación por ella.
 
-Las notificaciones se implementan con el canal `database` de Laravel:
+Las notificaciones se implementan con el canal `database` de Laravel y se envían mediante la cola de trabajos:
 
 ```text
 app/Notifications/
+```
+
+Sobre el procesamiento de la cola:
+
+- En desarrollo local, `.env.example` configura `QUEUE_CONNECTION=sync`, de modo que las notificaciones se entregan al instante sin necesidad de un worker.
+- Si cambias a `QUEUE_CONNECTION=database` (u otro driver de cola), las notificaciones quedarán pendientes hasta que se procesen.
+- El comando `composer dev` ya lanza un worker de la cola junto al servidor y a Vite.
+- Si arrancas los servicios por separado con `QUEUE_CONNECTION=database`, ejecuta también:
+
+```bash
+php artisan queue:work
 ```
 
 ---
