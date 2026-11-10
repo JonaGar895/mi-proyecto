@@ -31,12 +31,14 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
     - [Obras de arte](#obras-de-arte)
     - [Favoritos](#favoritos)
     - [Comentarios](#comentarios)
+    - [Valoraciones de obras](#valoraciones-de-obras)
     - [Publicaciones](#publicaciones)
     - [Imágenes de obras y publicaciones](#imágenes-de-obras-y-publicaciones)
     - [Detección de imágenes duplicadas](#detección-de-imágenes-duplicadas)
     - [Validación anti-duplicados](#validación-anti-duplicados)
     - [Gestión de archivos](#gestión-de-archivos)
     - [Solicitudes de compra](#solicitudes-de-compra)
+    - [Notificaciones](#notificaciones)
   - [Roles y permisos](#roles-y-permisos)
     - [Super administrador](#super-administrador)
     - [Administrador](#administrador)
@@ -47,6 +49,7 @@ La plataforma permite publicar obras, gestionar usuarios, organizar exposiciones
   - [Gestión de saldo](#gestión-de-saldo)
     - [Cuenta central de ventas](#cuenta-central-de-ventas)
   - [Exposiciones](#exposiciones)
+  - [Panel de administración](#panel-de-administración)
   - [Base de datos](#base-de-datos)
     - [Entidades principales](#entidades-principales)
     - [Imágenes en la base de datos](#imágenes-en-la-base-de-datos)
@@ -77,14 +80,15 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Publicación y administración de obras.
 - Categorías artísticas.
 - Sistema de favoritos.
-- Comentarios en obras.
+- Comentarios en obras y publicaciones con respuestas.
 - Publicaciones y artículos.
-- Comentarios en publicaciones.
+- Valoraciones de obras con estrellas.
 - Organización de exposiciones.
 - Solicitudes de compra.
+- Notificaciones internas de actividad.
 - Gestión de saldo virtual.
 - Administración de ventas.
-- Panel de administración.
+- Panel de administración con métricas.
 - Historial de operaciones.
 - Interfaz responsive.
 - Tema claro y oscuro.
@@ -302,12 +306,21 @@ La aplicación utiliza autenticación y no dispone de registro público según s
 ### Obras de arte
 
 - Publicación de obras.
-- Edición de obras propias.
+- Edición de obras propias, incluido el reemplazo de la imagen.
+- Página «Mis obras» para gestionar las obras propias.
 - Eliminación de obras autorizadas.
 - Consulta de detalles.
 - Clasificación por categorías.
-- Búsqueda y filtros.
-- Visualización del estado de venta.
+- Búsqueda, filtros avanzados y ordenación.
+- Visualización del estado de venta y de la valoración media.
+- Las obras vendidas no se pueden editar.
+
+La galería de obras (`/cuadros`) admite:
+
+- Búsqueda por título y descripción.
+- Filtro por categoría, técnica, estado y año.
+- Filtro por rango de precio (mínimo y máximo).
+- Ordenación por fecha (más recientes o más antiguas), número de favoritos, número de comentarios, valoración media o precio (ascendente o descendente).
 
 ### Favoritos
 
@@ -315,7 +328,37 @@ Permite guardar obras de arte para consultarlas posteriormente.
 
 ### Comentarios
 
-Permite interactuar con las obras mediante comentarios y gestionar los comentarios asociados a las publicaciones.
+Permite interactuar con las obras y publicaciones mediante comentarios.
+
+Características:
+
+- Creación de comentarios en obras y publicaciones.
+- Respuestas a comentarios con **un solo nivel de anidación**.
+- Las respuestas deben pertenecer a la misma obra o publicación que el comentario original.
+- Edición y eliminación de los comentarios propios.
+- Los administradores pueden moderar (editar o eliminar) cualquier comentario.
+- Al eliminar un comentario también se eliminan sus respuestas.
+- Un usuario no puede repetir el mismo comentario en la misma obra o publicación.
+
+### Valoraciones de obras
+
+Los usuarios pueden valorar las obras con una puntuación de 1 a 5 estrellas.
+
+Características:
+
+- Cada usuario solo puede emitir **una valoración por obra**; al volver a valorar se actualiza la anterior.
+- El propietario no puede valorar sus propias obras.
+- La valoración media y el número de votos se muestran en la galería y en el detalle de cada obra.
+- La portada destaca la obra mejor valorada.
+- La galería permite ordenar las obras por mejor valoración.
+
+Tabla utilizada:
+
+```text
+ratings
+```
+
+La restricción de una valoración por usuario y obra se garantiza mediante un índice único en la base de datos.
 
 ### Publicaciones
 
@@ -329,7 +372,7 @@ Permite interactuar con las obras mediante comentarios y gestionar los comentari
 
 ### Imágenes de obras y publicaciones
 
-Tanto las obras como las publicaciones permiten subir una imagen desde el formulario de creación. En el caso de las publicaciones, la imagen también puede reemplazarse al editarlas.
+Tanto las obras como las publicaciones permiten subir una imagen desde el formulario de creación. En ambos casos la imagen también puede reemplazarse al editarlas.
 
 Características:
 
@@ -406,6 +449,7 @@ Antes de guardar o editar un registro se comprueba que no exista otro equivalent
 | Exposiciones | `title` único |
 | Favoritos | un usuario solo puede guardar una obra una vez |
 | Solicitudes de compra | un comprador solo puede solicitar una obra una vez |
+| Valoraciones | un usuario solo puede valorar cada obra una vez |
 | Cuenta del super administrador | solo puede existir una cuenta de cada tipo |
 | Ingresos por venta | cada solicitud de compra genera un único ingreso |
 
@@ -478,6 +522,31 @@ Estados disponibles:
 
 Los administradores pueden revisar, aprobar o rechazar las solicitudes.
 
+### Notificaciones
+
+La aplicación incorpora un sistema interno de notificaciones que se almacenan en la base de datos y se consultan desde la web.
+
+Se genera una notificación cuando:
+
+- Un usuario comenta una obra o publicación de otro usuario.
+- Un usuario responde a un comentario ajeno.
+- Un usuario añade una obra de otro usuario a favoritos.
+- Un comprador envía una solicitud de compra al vendedor.
+- Un administrador cambia el estado de una solicitud de compra.
+
+Características:
+
+- La campana de la cabecera muestra el número de notificaciones sin leer.
+- La página `/notificaciones` muestra el listado paginado con acceso directo al contenido relacionado.
+- Las notificaciones se pueden marcar como leídas de forma individual o todas a la vez.
+- No se envían auto-avisos: el autor de la acción nunca recibe notificación por ella.
+
+Las notificaciones se implementan con el canal `database` de Laravel:
+
+```text
+app/Notifications/
+```
+
 ---
 
 ## Roles y permisos
@@ -502,18 +571,22 @@ La aplicación dispone de tres niveles de acceso:
 - Gestiona usuarios.
 - Consulta perfiles.
 - Elimina obras.
+- Modera comentarios de cualquier usuario.
 - Revisa solicitudes de compra.
 - Aprueba o rechaza operaciones.
 - Consulta el histórico de compras y ventas.
+- Consulta el panel de administración con las métricas de la galería.
 
 ### Usuario
 
 - Gestiona su perfil.
-- Publica obras.
-- Edita sus propias obras.
+- Publica, edita y gestiona sus obras.
 - Añade favoritos.
-- Comenta obras.
+- Comenta obras y publicaciones y responde a comentarios.
+- Valora obras de otros usuarios.
 - Crea y gestiona sus publicaciones.
+- Recibe notificaciones de la actividad en su contenido.
+- Puede crear exposiciones si dispone del permiso de vendedor (`is_vendor`).
 
 La autorización se implementa mediante Policies y controles de acceso en las rutas de Laravel.
 
@@ -583,14 +656,21 @@ El panel administrativo permite consultar el saldo acumulado y el historial de m
 
 ## Exposiciones
 
-El sistema permite organizar obras mediante exposiciones.
+El sistema permite organizar obras mediante exposiciones con fecha de inicio y de fin.
 
 Características:
 
-- Creación de exposiciones.
-- Asociación de obras.
-- Gestión de fechas.
-- Consulta de exposiciones relacionadas con cada obra.
+- Creación y edición de exposiciones por parte del organizador o de los administradores.
+- Solo pueden crear exposiciones los administradores y los usuarios con permiso de vendedor (`is_vendor`).
+- Asociación de obras: solo se pueden adjuntar obras públicas o propias.
+- Búsqueda por título y descripción.
+- Filtro por estado: `upcoming` (próxima), `active` (activa) o `finished` (finalizada).
+- El estado se calcula a partir de las fechas y no se almacena en la base de datos.
+- El listado muestra primero las exposiciones próximas, después las activas y por último las finalizadas.
+- El título de cada exposición debe ser único.
+- La fecha de fin no puede ser anterior a la de inicio.
+- Cada exposición muestra el número de obras y una portada con la primera de ellas.
+- Consulta de las exposiciones relacionadas con cada obra.
 
 La relación entre exposiciones y obras utiliza una relación muchos a muchos (N:M).
 
@@ -599,6 +679,25 @@ Tabla intermedia:
 ```text
 exhibition_painting
 ```
+
+---
+
+## Panel de administración
+
+Los administradores disponen de un panel con las métricas de la galería:
+
+```text
+/admin
+```
+
+Muestra:
+
+- Totales de usuarios, obras, obras públicas, obras vendidas, exposiciones, comentarios, valoraciones y solicitudes pendientes.
+- Ventas de los últimos seis meses.
+- Número de obras por categoría.
+- Artistas con más obras.
+- Solicitudes de compra pendientes de revisión.
+- Últimas ventas completadas.
 
 ---
 
@@ -620,12 +719,14 @@ database/database.sqlite
 | paintings | Obras de arte (incluye `image_path`, `image_hash`, `image_phash` e `image_dhash`) |
 | categories | Categorías |
 | favorites | Favoritos |
-| comments | Comentarios de obras |
+| comments | Comentarios de obras (incluye `parent_id` para las respuestas) |
 | publications | Publicaciones (incluye `image_path`, `image_hash`, `image_phash` e `image_dhash`) |
-| publication_comments | Comentarios de publicaciones |
+| publication_comments | Comentarios de publicaciones (incluye `parent_id` para las respuestas) |
 | exhibitions | Exposiciones |
 | exhibition_painting | Relación entre exposiciones y obras |
+| ratings | Valoraciones de obras (1 a 5) |
 | inquiries | Solicitudes de compra |
+| notifications | Notificaciones internas de los usuarios |
 | accounts | Cuentas administrativas |
 | account_transactions | Movimientos de cuentas |
 | balance_transactions | Movimientos de saldo |
@@ -666,6 +767,7 @@ galeria-cuadros/
 │   │   ├── Controllers/
 │   │   └── Middleware/
 │   ├── Models/
+│   ├── Notifications/
 │   ├── Policies/
 │   ├── Services/
 │   └── Support/
@@ -724,17 +826,25 @@ galeria-cuadros/
 |---|---|
 | `/` | Página principal |
 | `/login` | Inicio de sesión |
-| `/cuadros` | Galería de obras |
+| `/cuadros` | Galería de obras con búsqueda, filtros y ordenación |
 | `/cuadros/create` | Crear una obra |
 | `/cuadros/{painting}` | Detalle de una obra |
+| `/cuadros/{painting}/edit` | Editar una obra (propietario o administrador) |
+| `/mis-obras` | Obras del usuario autenticado |
 | `/publicaciones` | Listado de publicaciones |
 | `/publicaciones/create` | Crear publicación |
 | `/publicaciones/{publication}` | Detalle de publicación |
 | `/publicaciones/{publication}/edit` | Editar publicación |
+| `/exposiciones` | Listado de exposiciones con búsqueda y filtro por estado |
+| `/exposiciones/create` | Crear exposición (administrador o vendedor) |
+| `/exposiciones/{exhibition}` | Detalle de exposición |
+| `/exposiciones/{exhibition}/edit` | Editar exposición (organizador o administrador) |
+| `/notificaciones` | Notificaciones del usuario autenticado |
 | `/users/list` | Listado de usuarios |
 | `/users/view/{user}` | Consultar perfil |
 | `/users/create` | Crear usuario |
 | `/users/edit/{user}` | Editar usuario |
+| `/admin` | Panel de administración con métricas (solo administradores) |
 | `/admin/archivos` | Gestión de archivos e imágenes (solo administradores) |
 | `/settings` | Ajustes y estadísticas |
 | `/mi-cuenta` | Gestión del saldo |
@@ -887,7 +997,17 @@ O utilizar:
 composer test
 ```
 
-Las pruebas cubren, entre otras áreas, autenticación, autorización, usuarios, obras, publicaciones, favoritos, comentarios y solicitudes de compra. También verifican que se rechacen nombres, correos, títulos, descripciones, resúmenes, contenidos, comentarios e imágenes duplicadas o casi duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
+Las pruebas cubren, entre otras áreas, autenticación, autorización, usuarios, obras (incluida su edición y la página «Mis obras»), publicaciones, favoritos, comentarios y sus respuestas, valoraciones, notificaciones, exposiciones, solicitudes de compra y el panel de administración. También verifican que se rechacen nombres, correos, títulos, descripciones, resúmenes, contenidos, comentarios e imágenes duplicadas o casi duplicadas, y que la limpieza de archivos elimine huérfanos, duplicados y registros repetidos.
+
+### Colección de Postman
+
+El repositorio incluye una colección de Postman para probar los endpoints de forma manual:
+
+```text
+Mi-Proyecto.postman_collection.json
+```
+
+Está organizada en carpetas por módulo (autenticación, cuadros, publicaciones, exposiciones, notificaciones, solicitudes de compra, panel de administración y usuarios) e incluye ejemplos del cuerpo de las peticiones. Para mantener la sesión, ejecuta primero la petición `login.store` con las credenciales de un usuario existente.
 
 ---
 
@@ -919,6 +1039,8 @@ Los datos de prueba deben generarse mediante seeders y no deben contener credenc
 - Sistema de roles y permisos.
 - Gestión de obras y exposiciones.
 - Sistema interno de solicitudes y ventas.
+- Valoraciones de obras y notificaciones internas.
+- Panel de administración con métricas.
 - Gestión de saldo virtual simulado.
 - Interfaz adaptada a dispositivos móviles, tablets y ordenadores.
 - Subida de imágenes y protección frente a registros duplicados.

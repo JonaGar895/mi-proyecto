@@ -6,10 +6,14 @@ use App\Models\Category;
 use App\Models\Painting;
 use App\Models\Publication;
 use App\Models\PublicationComment;
+use App\Models\User;
+use App\Notifications\CommentReplied;
+use App\Notifications\PublicationCommented;
 use App\Rules\UniqueNormalized;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PublicationController extends Controller
@@ -100,25 +104,26 @@ class PublicationController extends Controller
         ]);
         $publication->loadCount('comments');
 
+        $comments = $publication->comments()
+            ->whereNull('parent_id')
+            ->with(['user:id,name', 'replies.user:id,name'])
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('Publicaciones/Show', [
             'publication' => array_merge($this->publicationData($publication), [
                 'content' => $publication->content,
                 'can_edit' => $publication->user_id === $user->id || $user->isAdmin(),
                 'can_delete' => $publication->user_id === $user->id || $user->isAdmin(),
             ]),
-            'comments' => $publication->comments()
-                ->with('user:id,name')
-                ->latest()
-                ->get()
-                ->map(fn ($comment) => [
-                    'id' => $comment->id,
-                    'body' => $comment->body,
-                    'created_at' => $comment->created_at->diffForHumans(),
-                    'user' => [
-                        'id' => $comment->user->id,
-                        'name' => $comment->user->name,
-                    ],
-                ]),
+            'comments' => [
+                'data' => $comments->getCollection()
+                    ->map(fn (PublicationComment $comment) => $this->commentData($comment, $user))
+                    ->all(),
+                'links' => $comments->links(),
+                'has_pages' => $comments->hasPages(),
+            ],
         ]);
     }
 
@@ -208,14 +213,102 @@ class PublicationController extends Controller
                     message: 'Ya has publicado este mismo comentario en esta publicación.',
                 ),
             ],
+            'parent_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('publication_comments', 'id')
+                    ->where('publication_id', $publication->id)
+                    ->whereNull('parent_id'),
+            ],
         ]);
 
-        $publication->comments()->create([
+        $comment = $publication->comments()->create([
             'user_id' => $user->id,
+            'parent_id' => filled($attributes['parent_id'] ?? null) ? (int) $attributes['parent_id'] : null,
             'body' => trim($attributes['body']),
         ]);
 
+        $owner = $publication->user;
+
+        if ($owner !== null && $owner->id !== $user->id) {
+            $owner->notify(new PublicationCommented($comment, $publication));
+        }
+
+        if ($comment->parent_id !== null) {
+            $parentAuthor = $comment->parent?->user;
+
+            if ($parentAuthor !== null && $parentAuthor->id !== $user->id && $parentAuthor->id !== $owner?->id) {
+                $parentAuthor->notify(new CommentReplied($comment, $comment->parent));
+            }
+        }
+
         return back()->with('success', 'Comentario añadido.');
+    }
+
+    public function updateComment(Request $request, Publication $publication, PublicationComment $comment)
+    {
+        $user = $request->user();
+        abort_unless($comment->publication_id === $publication->id, 404);
+        abort_unless($comment->user_id === $user->id || $user->isAdmin(), 403);
+
+        $attributes = $request->validate([
+            'body' => [
+                'required',
+                'string',
+                'max:1000',
+                new UniqueNormalized(
+                    PublicationComment::class,
+                    'body',
+                    $comment,
+                    scopes: [
+                        'user_id' => $comment->user_id,
+                        'publication_id' => $publication->id,
+                    ],
+                    message: 'Ya has publicado este mismo comentario en esta publicación.',
+                ),
+            ],
+        ]);
+
+        $comment->update(['body' => trim($attributes['body'])]);
+
+        return back()->with('success', 'Comentario actualizado.');
+    }
+
+    public function destroyComment(Request $request, Publication $publication, PublicationComment $comment)
+    {
+        $user = $request->user();
+        abort_unless($comment->publication_id === $publication->id, 404);
+        abort_unless($comment->user_id === $user->id || $user->isAdmin(), 403);
+
+        $comment->delete();
+
+        return back()->with('success', 'Comentario eliminado.');
+    }
+
+    private function commentData(PublicationComment $comment, User $user): array
+    {
+        return [
+            'id' => $comment->id,
+            'body' => $comment->body,
+            'created_at' => $comment->created_at->diffForHumans(),
+            'can_edit' => $comment->user_id === $user->id || $user->isAdmin(),
+            'can_delete' => $comment->user_id === $user->id || $user->isAdmin(),
+            'user' => [
+                'id' => $comment->user->id,
+                'name' => $comment->user->name,
+            ],
+            'replies' => $comment->replies->map(fn (PublicationComment $reply) => [
+                'id' => $reply->id,
+                'body' => $reply->body,
+                'created_at' => $reply->created_at->diffForHumans(),
+                'can_edit' => $reply->user_id === $user->id || $user->isAdmin(),
+                'can_delete' => $reply->user_id === $user->id || $user->isAdmin(),
+                'user' => [
+                    'id' => $reply->user->id,
+                    'name' => $reply->user->name,
+                ],
+            ])->all(),
+        ];
     }
 
     private function validatePublication(Request $request, ?Publication $publication = null): array

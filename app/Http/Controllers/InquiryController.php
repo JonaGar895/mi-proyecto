@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Exceptions\SaleException;
 use App\Models\Inquiry;
 use App\Models\Painting;
+use App\Notifications\InquiryProcessed;
+use App\Notifications\InquiryReceived;
 use App\Services\SaleService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,13 +30,17 @@ class InquiryController extends Controller
             'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        Inquiry::create([
+        $inquiry = Inquiry::create([
             'painting_id' => $painting->id,
             'buyer_id' => $user->id,
             'seller_id' => $painting->user_id,
             'message' => $attributes['message'] ?? null,
             'status' => 'pending',
         ]);
+
+        if ($painting->user_id !== null && $painting->user_id !== $user->id) {
+            $painting->user->notify(new InquiryReceived($inquiry));
+        }
 
         return back()->with('success', 'Solicitud de compra enviada. Quedará pendiente de aprobación por un administrador.');
     }
@@ -164,6 +170,7 @@ class InquiryController extends Controller
         }
 
         $inquiry->update($data);
+        $inquiry->buyer?->notify(new InquiryProcessed($inquiry->fresh()));
 
         return back()->with('success', 'Solicitud actualizada.');
     }
@@ -178,6 +185,8 @@ class InquiryController extends Controller
         } catch (SaleException $exception) {
             return back()->with('error', $exception->getMessage());
         }
+
+        $inquiry->buyer?->notify(new InquiryProcessed($inquiry->fresh()));
 
         return back()->with('success', 'Venta aprobada. Se descontó el importe al comprador y se ingresó en la cuenta del super administrador.');
     }
@@ -200,6 +209,8 @@ class InquiryController extends Controller
             'approved_at' => null,
         ]);
 
+        $inquiry->buyer?->notify(new InquiryProcessed($inquiry->fresh()));
+
         return back()->with('success', 'Solicitud rechazada. El comprador ha sido notificado en sus solicitudes.');
     }
 
@@ -213,6 +224,8 @@ class InquiryController extends Controller
         } catch (SaleException $exception) {
             return back()->with('error', $exception->getMessage());
         }
+
+        $inquiry->buyer?->notify(new InquiryProcessed($inquiry->fresh()));
 
         return back()->with('success', 'Venta concretada. Se descontó el importe al comprador y se ingresó en la cuenta del super administrador.');
     }

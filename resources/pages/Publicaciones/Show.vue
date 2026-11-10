@@ -154,7 +154,7 @@
 
             <div class="mt-6 space-y-3">
                 <div
-                    v-for="comment in comments"
+                    v-for="comment in comments.data"
                     :key="comment.id"
                     class="rounded-xl bg-white p-4 shadow-sm"
                 >
@@ -166,20 +166,192 @@
                             {{ comment.created_at }}
                         </span>
                     </div>
-                    <p class="mt-2 break-words text-gray-700">{{ comment.body }}</p>
+
+                    <template v-if="editingCommentId === comment.id">
+                        <form class="mt-2" @submit.prevent="submitEditComment(comment)">
+                            <textarea
+                                v-model="editForm.body"
+                                rows="3"
+                                class="w-full rounded-lg border px-3 py-2 text-sm"
+                                required
+                            />
+                            <p v-if="editForm.errors.body" class="mt-1 text-xs text-red-600">
+                                {{ editForm.errors.body }}
+                            </p>
+
+                            <div class="mt-2 flex gap-3 text-sm">
+                                <button
+                                    type="submit"
+                                    class="rounded-lg bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+                                    :disabled="editForm.processing"
+                                >
+                                    Guardar
+                                </button>
+                                <button
+                                    type="button"
+                                    class="text-gray-600 hover:underline"
+                                    @click="cancelEdit"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </template>
+
+                    <template v-else>
+                        <p class="mt-2 break-words text-gray-700">{{ comment.body }}</p>
+
+                        <div class="mt-2 flex flex-wrap gap-4 text-sm">
+                            <button
+                                v-if="comment.can_edit"
+                                type="button"
+                                class="text-blue-600 hover:underline"
+                                @click="startEdit(comment)"
+                            >
+                                Editar
+                            </button>
+
+                            <button
+                                v-if="comment.can_delete"
+                                type="button"
+                                class="text-red-600 hover:underline"
+                                @click="destroyComment(comment)"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </template>
+
+                    <div class="mt-3 space-y-3 border-l-2 border-gray-100 pl-4">
+                        <div v-for="reply in comment.replies" :key="reply.id">
+                            <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+                                <span class="font-medium text-gray-700">
+                                    {{ reply.user.name }}
+                                </span>
+                                <span class="text-xs text-gray-400">{{ reply.created_at }}</span>
+                            </div>
+
+                            <template v-if="editingCommentId === reply.id">
+                                <form class="mt-1" @submit.prevent="submitEditComment(reply)">
+                                    <textarea
+                                        v-model="editForm.body"
+                                        rows="2"
+                                        class="w-full rounded-lg border px-3 py-2 text-sm"
+                                        required
+                                    />
+                                    <p v-if="editForm.errors.body" class="mt-1 text-xs text-red-600">
+                                        {{ editForm.errors.body }}
+                                    </p>
+
+                                    <div class="mt-2 flex gap-3 text-sm">
+                                        <button
+                                            type="submit"
+                                            class="rounded-lg bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+                                            :disabled="editForm.processing"
+                                        >
+                                            Guardar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="text-gray-600 hover:underline"
+                                            @click="cancelEdit"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            </template>
+
+                            <template v-else>
+                                <p class="mt-1 break-words text-sm text-gray-600">
+                                    {{ reply.body }}
+                                </p>
+
+                                <div class="mt-1 flex flex-wrap gap-4 text-xs">
+                                    <button
+                                        v-if="reply.can_edit"
+                                        type="button"
+                                        class="text-blue-600 hover:underline"
+                                        @click="startEdit(reply)"
+                                    >
+                                        Editar
+                                    </button>
+
+                                    <button
+                                        v-if="reply.can_delete"
+                                        type="button"
+                                        class="text-red-600 hover:underline"
+                                        @click="destroyComment(reply)"
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                        <form
+                            v-if="replyingTo === comment.id"
+                            class="mt-1"
+                            @submit.prevent="submitReply(comment)"
+                        >
+                            <textarea
+                                v-model="replyForm.body"
+                                rows="2"
+                                :placeholder="`Responder a ${comment.user.name}...`"
+                                class="w-full rounded-lg border px-3 py-2 text-sm"
+                                required
+                            />
+                            <p v-if="replyForm.errors.body" class="mt-1 text-xs text-red-600">
+                                {{ replyForm.errors.body }}
+                            </p>
+
+                            <div class="mt-2 flex gap-3 text-sm">
+                                <button
+                                    type="submit"
+                                    class="rounded-lg bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+                                    :disabled="replyForm.processing"
+                                >
+                                    Responder
+                                </button>
+                                <button
+                                    type="button"
+                                    class="text-gray-600 hover:underline"
+                                    @click="cancelReply"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+
+                        <button
+                            v-else
+                            type="button"
+                            class="text-xs font-medium text-blue-600 hover:underline"
+                            @click="startReply(comment)"
+                        >
+                            ↩︎ Responder
+                        </button>
+                    </div>
                 </div>
 
-                <p v-if="!comments.length" class="text-gray-500">
+                <p v-if="!comments.data.length" class="text-gray-500">
                     Todavía no hay comentarios. Sé el primero.
                 </p>
             </div>
+
+            <Pagination
+                v-if="comments.has_pages"
+                :links="comments.links"
+                class="mt-8"
+            />
         </section>
     </Layout>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { Head, Link, router, useForm } from "@inertiajs/vue3";
+import Pagination from "../../shared/Pagination.vue";
 
 const props = defineProps({
     publication: {
@@ -187,8 +359,8 @@ const props = defineProps({
         required: true,
     },
     comments: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [], links: null, has_pages: false }),
     },
 });
 
@@ -200,11 +372,72 @@ const commentForm = useForm({
     body: "",
 });
 
+const replyForm = useForm({
+    body: "",
+    parent_id: null,
+});
+
+const editForm = useForm({
+    body: "",
+});
+
+const replyingTo = ref(null);
+const editingCommentId = ref(null);
+
 const submitComment = () => {
     commentForm.post(`/publicaciones/${props.publication.id}/comments`, {
         preserveScroll: true,
         onSuccess: () => commentForm.reset(),
     });
+};
+
+const startReply = (comment) => {
+    replyingTo.value = comment.id;
+    replyForm.body = "";
+    replyForm.parent_id = comment.id;
+};
+
+const cancelReply = () => {
+    replyingTo.value = null;
+    replyForm.reset();
+};
+
+const submitReply = () => {
+    replyForm.post(`/publicaciones/${props.publication.id}/comments`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            replyingTo.value = null;
+            replyForm.reset();
+        },
+    });
+};
+
+const startEdit = (comment) => {
+    editingCommentId.value = comment.id;
+    editForm.body = comment.body;
+};
+
+const cancelEdit = () => {
+    editingCommentId.value = null;
+    editForm.reset();
+};
+
+const submitEditComment = (comment) => {
+    editForm.post(`/publicaciones/${props.publication.id}/comments/${comment.id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingCommentId.value = null;
+            editForm.reset();
+        },
+    });
+};
+
+const destroyComment = (comment) => {
+    if (confirm("¿Seguro que quieres eliminar este comentario?")) {
+        router.delete(`/publicaciones/${props.publication.id}/comments/${comment.id}`, {
+            preserveScroll: true,
+        });
+    }
 };
 
 const destroy = () => {

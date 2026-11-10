@@ -103,6 +103,17 @@ class Painting extends Model
         return $this->hasMany(Inquiry::class);
     }
 
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /** Valoración media de la obra (0 si nadie la ha puntuado). */
+    public function averageRating(): float
+    {
+        return (float) ($this->ratings_avg_rating ?? 0);
+    }
+
     public function soldTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sold_to_user_id');

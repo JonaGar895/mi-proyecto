@@ -34,6 +34,26 @@
       "key": "publication_id",
       "value": "1",
       "type": "string"
+    },
+    {
+      "key": "exhibition_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "inquiry_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "comment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "1",
+      "type": "string"
     }
   ],
   "item": [
@@ -408,7 +428,7 @@
                 "comments"
               ]
             },
-            "description": "Añadir comentario al cuadro | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "description": "Añadir comentario al cuadro. Enviar parent_id para responder a un comentario de primer nivel | Auth: Auth Session (cookie) | Middleware: web, auth",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -416,6 +436,12 @@
                   "key": "body",
                   "value": "Me gusta mucho esta obra",
                   "type": "text"
+                },
+                {
+                  "key": "parent_id",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
                 }
               ]
             }
@@ -478,6 +504,252 @@
               ]
             },
             "description": "Formulario crear cuadro | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.edit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/edit",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "edit"
+              ]
+            },
+            "description": "Formulario editar obra (propietario o admin; bloqueado si está vendida) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}"
+              ]
+            },
+            "description": "Actualizar obra (propietario o admin). Reemplaza la imagen si se envía una nueva; las obras vendidas no se pueden editar | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Mi cuadro editado",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Descripción actualizada",
+                  "type": "text"
+                },
+                {
+                  "key": "technique",
+                  "value": "Óleo sobre lienzo",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "300",
+                  "type": "text"
+                },
+                {
+                  "key": "is_public",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.mine",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/mis-obras",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "mis-obras"
+              ]
+            },
+            "description": "Mis obras: listado de las obras propias con estado, valoración y gestión | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.comments.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/comments/{comment}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "comments",
+                "{comment}"
+              ]
+            },
+            "description": "Editar comentario (autor o admin) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "body",
+                  "value": "Comentario editado desde Postman",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.comments.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/comments/{comment}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "comments",
+                "{comment}"
+              ]
+            },
+            "description": "Eliminar comentario y sus respuestas (autor o admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "paintings.ratings.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/rating",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "rating"
+              ]
+            },
+            "description": "Valorar una obra del 1 al 5 (no la propia; un voto por usuario y obra) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "rating",
+                  "value": "5",
+                  "type": "text"
+                }
+              ]
+            }
           },
           "response": []
         }
@@ -737,7 +1009,7 @@
                 "comments"
               ]
             },
-            "description": "Añadir comentario a publicación (requiere poder verla) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "description": "Añadir comentario a publicación (requiere poder verla). Enviar parent_id para responder a un comentario de primer nivel | Auth: Auth Session (cookie) | Middleware: web, auth",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -745,9 +1017,91 @@
                   "key": "body",
                   "value": "Muy interesante, me ha gustado mucho.",
                   "type": "text"
+                },
+                {
+                  "key": "parent_id",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
                 }
               ]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "publications.comments.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}/comments/{comment}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}",
+                "comments",
+                "{comment}"
+              ]
+            },
+            "description": "Editar comentario de publicación (autor o admin) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "body",
+                  "value": "Comentario editado desde Postman",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "publications.comments.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{publication}/comments/{comment}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{publication}",
+                "comments",
+                "{comment}"
+              ]
+            },
+            "description": "Eliminar comentario de publicación y sus respuestas (autor o admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
           },
           "response": []
         },
@@ -807,6 +1161,651 @@
               ]
             },
             "description": "Formulario crear publicación | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exposiciones",
+      "item": [
+        {
+          "name": "exhibitions.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones"
+              ]
+            },
+            "description": "Listado de exposiciones con búsqueda por texto y filtro por estado (active, upcoming, finished) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.create",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones/create",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones",
+                "create"
+              ]
+            },
+            "description": "Formulario crear exposición (solo admin o vendedor) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones"
+              ]
+            },
+            "description": "Crear exposición (solo admin o vendedor). Solo se adjuntan obras públicas o propias | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Luz y color",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Un recorrido por las obras que cambiaron la forma de mirar el color.",
+                  "type": "text"
+                },
+                {
+                  "key": "starts_at",
+                  "value": "2026-11-01",
+                  "type": "text"
+                },
+                {
+                  "key": "ends_at",
+                  "value": "2026-11-30",
+                  "type": "text"
+                },
+                {
+                  "key": "paintings[]",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "paintings[]",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.show",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones/{exhibition}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones",
+                "{exhibition}"
+              ]
+            },
+            "description": "Detalle de la exposición con sus obras paginadas | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.edit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones/{exhibition}/edit",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones",
+                "{exhibition}",
+                "edit"
+              ]
+            },
+            "description": "Formulario editar exposición (organizador o admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones/{exhibition}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones",
+                "{exhibition}"
+              ]
+            },
+            "description": "Actualizar exposición (organizador o admin) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Luz y color (edición otoño)",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Descripción actualizada de la exposición.",
+                  "type": "text"
+                },
+                {
+                  "key": "starts_at",
+                  "value": "2026-11-01",
+                  "type": "text"
+                },
+                {
+                  "key": "ends_at",
+                  "value": "2026-12-15",
+                  "type": "text"
+                },
+                {
+                  "key": "paintings[]",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "exhibitions.destroy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/exposiciones/{exhibition}",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "exposiciones",
+                "{exhibition}"
+              ]
+            },
+            "description": "Eliminar exposición (organizador o admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notificaciones",
+      "item": [
+        {
+          "name": "notifications.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notificaciones",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones"
+              ]
+            },
+            "description": "Listado paginado de notificaciones del usuario (comentarios, favoritos, respuestas y solicitudes) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "notifications.read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notificaciones/{notification}/leer",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones",
+                "{notification}",
+                "leer"
+              ]
+            },
+            "description": "Marcar una notificación propia como leída | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "notifications.read-all",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notificaciones/leer-todas",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones",
+                "leer-todas"
+              ]
+            },
+            "description": "Marcar todas las notificaciones como leídas | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Solicitudes de compra",
+      "item": [
+        {
+          "name": "paintings.inquiries.store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cuadros/{painting}/inquiries",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cuadros",
+                "{painting}",
+                "inquiries"
+              ]
+            },
+            "description": "Enviar una solicitud de compra al vendedor de la obra (una por comprador y obra) | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "message",
+                  "value": "Me interesa adquirir esta obra.",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries"
+              ]
+            },
+            "description": "Listado de solicitudes de compra recibidas (vista de administración para aprobar ventas) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries/history",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries",
+                "history"
+              ]
+            },
+            "description": "Histórico de operaciones de compra y venta | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries/{inquiry}/status",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries",
+                "{inquiry}",
+                "status"
+              ]
+            },
+            "description": "Cambiar el estado de una solicitud (solo admin): pending, contacted, declined, rejected o closed | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "status",
+                  "value": "contacted",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.approve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries/{inquiry}/approve",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries",
+                "{inquiry}",
+                "approve"
+              ]
+            },
+            "description": "Aprobar la venta: descuenta el saldo del comprador, ingresa en la cuenta central y marca la obra como vendida (solo admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries/{inquiry}/reject",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries",
+                "{inquiry}",
+                "reject"
+              ]
+            },
+            "description": "Rechazar una solicitud de compra (solo admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        },
+        {
+          "name": "inquiries.markSold",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/inquiries/{inquiry}/mark-sold",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inquiries",
+                "{inquiry}",
+                "mark-sold"
+              ]
+            },
+            "description": "Marcar la obra como vendida sin pasar por la venta con saldo (solo admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Panel de administración",
+      "item": [
+        {
+          "name": "admin.dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "XMLHttpRequest"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin",
+              "protocol": "http",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin"
+              ]
+            },
+            "description": "Panel con métricas: totales, ventas por mes, categorías, artistas, solicitudes pendientes y últimas ventas (solo admin) | Auth: Auth Session (cookie) | Middleware: web, auth"
           },
           "response": []
         }
