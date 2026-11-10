@@ -178,6 +178,26 @@ class NotificationTest extends TestCase
         $this->assertNotNull($notification->fresh()->read_at);
     }
 
+    public function test_opening_a_notification_marks_it_as_read_and_redirects_to_its_content(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($visitor)
+            ->post(route('paintings.comments.store', $painting), ['body' => 'Hola.']);
+
+        $notification = $owner->notifications()->first();
+        $this->assertNotNull($notification);
+
+        $this->actingAs($owner)
+            ->post(route('notifications.read', $notification->id), ['open' => true])
+            ->assertRedirect($notification->data['url']);
+
+        $this->assertSame(0, $owner->unreadNotifications()->count());
+        $this->assertNotNull($notification->fresh()->read_at);
+    }
+
     public function test_all_notifications_can_be_marked_as_read_at_once(): void
     {
         $owner = User::factory()->create();

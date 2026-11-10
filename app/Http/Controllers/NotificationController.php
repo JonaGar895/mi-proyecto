@@ -47,6 +47,10 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
+        if ($request->boolean('open') && ($url = $notification->data['url'] ?? null)) {
+            return redirect()->to($url);
+        }
+
         return back();
     }
 

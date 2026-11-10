@@ -1503,7 +1503,18 @@
                 "leer"
               ]
             },
-            "description": "Marcar una notificación propia como leída | Auth: Auth Session (cookie) | Middleware: web, auth"
+            "description": "Marcar una notificación propia como leída. Enviar open=1 para marcarla y redirigir al contenido al que hace referencia | Auth: Auth Session (cookie) | Middleware: web, auth",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "open",
+                  "value": "1",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
           },
           "response": []
         },

@@ -140,7 +140,17 @@ const open = (notification) => {
         return;
     }
 
-    router.get(notification.url);
+    if (notification.unread) {
+        // Marca la notificación como leída y redirige al contenido
+        // al que hace referencia en una sola petición.
+        router.post(`/notificaciones/${notification.id}/leer`, {
+            open: true,
+        }, {
+            preserveScroll: true,
+        });
+    } else {
+        router.get(notification.url);
+    }
 };
 
 const markRead = (notification) => {

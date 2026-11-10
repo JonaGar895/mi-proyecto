@@ -490,7 +490,8 @@ Características:
 
 - La campana de la cabecera muestra el número de notificaciones sin leer.
 - La página `/notificaciones` muestra el listado paginado con acceso directo al contenido relacionado.
-- Al tocar una notificación se abre el contenido al que hace referencia; no hace falta usar el enlace «Ver».
+- Al tocar una notificación se marca como leída y se abre el contenido al que hace referencia en un solo paso.
+- El botón «Marcar como leída» sigue disponible para leerla sin salir del listado.
 - Las notificaciones se pueden marcar como leídas de forma individual o todas a la vez.
 - Las notificaciones se pueden eliminar de forma individual o todas a la vez.
 - No se envían auto-avisos: el autor de la acción nunca recibe notificación por ella.
