@@ -48,20 +48,22 @@
                 class="overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
             >
                 <Link :href="`/exposiciones/${exhibition.id}`" class="block">
-                    <div
-                        class="relative flex aspect-[4/3] items-center justify-center bg-gray-100"
-                    >
+                    <div class="relative bg-gray-100">
                         <img
                             v-if="exhibition.cover"
                             :src="exhibition.cover"
                             :alt="exhibition.title"
-                            class="h-full w-full object-scale-down"
+                            class="block h-auto w-full"
                         />
-                        <HeroIcon
+                        <span
                             v-else
-                            name="building-library"
-                            class="h-16 w-16 text-gray-400"
-                        />
+                            class="flex h-48 w-full items-center justify-center"
+                        >
+                            <HeroIcon
+                                name="building-library"
+                                class="h-16 w-16 text-gray-400"
+                            />
+                        </span>
 
                         <span
                             class="absolute left-2 top-2 rounded-full px-2 py-1 text-xs font-semibold text-white"

@@ -44,16 +44,19 @@
                     :href="`/cuadros/${painting.id}`"
                     class="overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
-                    <div
-                        class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-5xl"
-                    >
+                    <div class="bg-gray-100">
                         <img
                             v-if="painting.image_url"
                             :src="painting.image_url"
                             :alt="painting.title"
-                            class="h-full w-full object-scale-down"
+                            class="block h-auto w-full"
                         />
-                        <span v-else>{{ painting.emoji }}</span>
+                        <span
+                            v-else
+                            class="flex h-48 w-full items-center justify-center text-5xl"
+                        >
+                            {{ painting.emoji }}
+                        </span>
                     </div>
                     <div class="p-4">
                         <p class="font-medium text-gray-800">
@@ -80,16 +83,19 @@
                     :href="`/cuadros/${topRatedPainting.id}`"
                     class="shrink-0 overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
-                    <div
-                        class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl sm:w-72"
-                    >
+                    <div class="bg-gray-100 sm:w-72">
                         <img
                             v-if="topRatedPainting.image_url"
                             :src="topRatedPainting.image_url"
                             :alt="topRatedPainting.title"
-                            class="h-full w-full object-scale-down"
+                            class="block h-auto w-full"
                         />
-                        <span v-else>{{ topRatedPainting.emoji }}</span>
+                        <span
+                            v-else
+                            class="flex h-48 w-full items-center justify-center text-6xl"
+                        >
+                            {{ topRatedPainting.emoji }}
+                        </span>
                     </div>
                 </Link>
 
@@ -140,14 +146,11 @@
                     :href="`/publicaciones/${publication.id}`"
                     class="overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
-                    <div
-                        v-if="publication.image_url"
-                        class="flex aspect-[4/3] items-center justify-center bg-gray-100"
-                    >
+                    <div v-if="publication.image_url" class="bg-gray-100">
                         <img
                             :src="publication.image_url"
                             :alt="publication.title"
-                            class="h-full w-full object-scale-down"
+                            class="block h-auto w-full"
                         />
                     </div>
                     <div class="p-5">

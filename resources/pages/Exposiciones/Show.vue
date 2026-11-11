@@ -71,16 +71,19 @@
                     class="overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
                 >
                     <Link :href="`/cuadros/${painting.id}`" class="block">
-                        <div
-                            class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl"
-                        >
+                        <div class="bg-gray-100">
                             <img
                                 v-if="painting.image_url"
                                 :src="painting.image_url"
                                 :alt="painting.title"
-                                class="h-full w-full object-scale-down"
+                                class="block h-auto w-full"
                             />
-                            <span v-else>{{ painting.emoji }}</span>
+                            <span
+                                v-else
+                                class="flex h-48 w-full items-center justify-center text-6xl"
+                            >
+                                {{ painting.emoji }}
+                            </span>
                         </div>
                     </Link>
 

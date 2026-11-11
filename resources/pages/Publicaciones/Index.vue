@@ -51,18 +51,22 @@
                 class="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
             >
                 <Link :href="`/publicaciones/${publication.id}`" class="block">
-                    <div class="flex aspect-[4/3] items-center justify-center bg-gray-100">
+                    <div class="bg-gray-100">
                         <img
                             v-if="imageFor(publication)"
                             :src="imageFor(publication)"
                             :alt="publication.title"
-                            class="h-full w-full object-scale-down"
+                            class="block h-auto w-full"
                         />
-                        <HeroIcon
+                        <span
                             v-else
-                            name="newspaper"
-                            class="h-14 w-14 text-gray-400"
-                        />
+                            class="flex h-48 w-full items-center justify-center"
+                        >
+                            <HeroIcon
+                                name="newspaper"
+                                class="h-14 w-14 text-gray-400"
+                            />
+                        </span>
                     </div>
                 </Link>
 
