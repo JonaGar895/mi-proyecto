@@ -4,7 +4,10 @@
     <Layout>
         <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">🏛️ Exposiciones</h1>
+                <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+                    <HeroIcon name="building-library" class="h-8 w-8 text-indigo-600" />
+                    Exposiciones
+                </h1>
                 <p class="mt-2 text-gray-600">
                     Colecciones temáticas de obras organizadas por la galería.
                 </p>
@@ -46,15 +49,19 @@
             >
                 <Link :href="`/exposiciones/${exhibition.id}`" class="block">
                     <div
-                        class="relative flex h-44 items-center justify-center bg-gray-100 text-6xl sm:h-48"
+                        class="relative flex aspect-[4/3] items-center justify-center bg-gray-100"
                     >
                         <img
                             v-if="exhibition.cover"
                             :src="exhibition.cover"
                             :alt="exhibition.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
-                        <span v-else>🏛️</span>
+                        <HeroIcon
+                            v-else
+                            name="building-library"
+                            class="h-16 w-16 text-gray-400"
+                        />
 
                         <span
                             class="absolute left-2 top-2 rounded-full px-2 py-1 text-xs font-semibold text-white"
@@ -120,6 +127,7 @@ import { ref, watch } from "vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import debounce from "lodash/debounce";
 import Pagination from "../../shared/Pagination.vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 const props = defineProps({
     exhibitions: {

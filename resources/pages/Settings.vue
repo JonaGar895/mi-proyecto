@@ -2,7 +2,10 @@
     <Head title="Mi cuenta" />
 
     <Layout>
-        <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">⚙️ Mi cuenta</h1>
+        <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+            <HeroIcon name="cog-6-tooth" class="h-8 w-8 text-indigo-600" />
+            Mi cuenta
+        </h1>
         <p class="mt-2 text-gray-600">
             Hola, {{ $page.props.auth.user.name || $page.props.auth.user.username || $page.props.auth.user.email }}
             <span class="text-sm text-gray-400">
@@ -237,7 +240,10 @@
                                 {{ publication.category }}
                             </span>
                             <span>{{ publication.date }}</span>
-                            <span>💬 {{ publication.comments_count }}</span>
+                            <span class="inline-flex items-center gap-1">
+                                <HeroIcon name="chat-bubble-left" class="h-4 w-4 text-gray-400" />
+                                {{ publication.comments_count }}
+                            </span>
                         </div>
 
                         <p
@@ -313,6 +319,7 @@
 
 <script setup>
 import { Head, Link, useForm } from "@inertiajs/vue3";
+import HeroIcon from "../shared/HeroIcon.vue";
 
 defineProps({
     stats: {

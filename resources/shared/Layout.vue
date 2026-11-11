@@ -14,8 +14,11 @@
                 class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8 2xl:max-w-[1500px]"
             >
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100 sm:text-xl">
-                        🎨 Galería de Arte
+                    <h1
+                        class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100 sm:text-xl"
+                    >
+                        <HeroIcon name="paint-brush" class="h-7 w-7 text-indigo-600" />
+                        Galería de Arte
                     </h1>
 
                     <NotificationBell />
@@ -57,6 +60,7 @@
 
 <script>
 import { Head } from "@inertiajs/vue3";
+import HeroIcon from "./HeroIcon.vue";
 import Nav from "./Nav.vue";
 import NotificationBell from "./NotificationBell.vue";
 import ThemeToggle from "./ThemeToggle.vue";
@@ -64,6 +68,7 @@ import ThemeToggle from "./ThemeToggle.vue";
 export default {
     components: {
         Head,
+        HeroIcon,
         Nav,
         NotificationBell,
         ThemeToggle,

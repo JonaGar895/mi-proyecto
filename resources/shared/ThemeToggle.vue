@@ -5,16 +5,15 @@
             'inline-flex items-center border border-gray-200 bg-white text-gray-700 shadow-sm transition duration-200 ease-out hover:bg-gray-50 active:scale-95 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:active:bg-gray-600 dark:focus:ring-offset-gray-900',
             variant === 'menu'
                 ? 'w-full justify-start gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium'
-                : 'h-10 w-10 justify-center rounded-full text-xl',
+                : 'h-10 w-10 justify-center rounded-full',
         ]"
         :aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
         :aria-pressed="isDark"
         :title="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
         @click="toggleTheme"
     >
-        <span aria-hidden="true" :class="variant === 'menu' ? 'text-base' : ''">
-            {{ isDark ? "☀️" : "🌙" }}
-        </span>
+        <HeroIcon :name="isDark ? 'sun' : 'moon'" class="h-5 w-5 shrink-0" />
+
         <span v-if="variant === 'menu'">
             {{ isDark ? "Modo claro" : "Modo oscuro" }}
         </span>
@@ -26,6 +25,7 @@ import axios from "axios";
 import { onMounted } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { applyTheme, isDark, resolveTheme, saveTheme } from "../js/theme";
+import HeroIcon from "./HeroIcon.vue";
 
 defineProps({
     variant: {

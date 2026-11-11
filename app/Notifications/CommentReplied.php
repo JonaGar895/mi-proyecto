@@ -27,7 +27,7 @@ class CommentReplied extends Notification implements ShouldQueue
         $isPaintingComment = $this->parent instanceof Comment;
 
         return [
-            'icon' => '↩️',
+            'icon' => 'arrow-uturn-left',
             'title' => 'Respuesta a tu comentario',
             'message' => sprintf(
                 '%s ha respondido a tu comentario en "%s".',

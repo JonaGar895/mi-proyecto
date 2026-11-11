@@ -25,7 +25,7 @@ class PaintingFavorited extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'icon' => '♥',
+            'icon' => 'heart',
             'title' => 'Nueva obra en favoritos',
             'message' => sprintf(
                 '%s ha añadido tu obra "%s" a sus favoritos.',

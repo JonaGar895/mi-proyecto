@@ -4,16 +4,22 @@
     <Layout>
         <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
             <div class="overflow-hidden rounded-xl bg-white shadow-sm">
-                <div
-                    class="flex h-64 items-center justify-center bg-gray-100 text-7xl sm:h-80 sm:text-8xl"
-                >
+                <!-- El recuadro se adapta a la proporcion de la imagen: se
+                     muestra completa, con un alto maximo para las muy
+                     verticales. -->
+                <div class="flex items-center justify-center bg-gray-100 text-7xl sm:text-8xl">
                     <img
                         v-if="painting.image_url"
                         :src="painting.image_url"
                         :alt="painting.title"
-                        class="h-full w-full object-cover"
+                        class="max-h-[75vh] w-full object-contain"
                     />
-                    <span v-else>{{ painting.emoji }}</span>
+                    <span
+                        v-else
+                        class="flex h-64 w-full items-center justify-center sm:h-80"
+                    >
+                        {{ painting.emoji }}
+                    </span>
                 </div>
             </div>
 
@@ -29,7 +35,7 @@
 
                     <button
                         type="button"
-                        class="shrink-0 rounded-full px-3 py-1 text-2xl leading-none"
+                        class="shrink-0 rounded-full p-2"
                         :class="
                             painting.is_favorited
                                 ? 'text-red-500'
@@ -42,7 +48,11 @@
                         "
                         @click="toggleFavorite"
                     >
-                        {{ painting.is_favorited ? "♥" : "♡" }}
+                        <HeroIcon
+                            name="heart"
+                            :solid="painting.is_favorited"
+                            class="h-7 w-7"
+                        />
                     </button>
                 </div>
 
@@ -73,7 +83,7 @@
 
                 <div class="mt-4 rounded-lg bg-amber-50 p-3">
                     <p class="flex items-center gap-2 text-sm font-medium text-amber-800">
-                        <span class="text-base">⭐</span>
+                        <HeroIcon name="star" class="h-4 w-4" />
                         Valoración
                     </p>
 
@@ -91,14 +101,19 @@
                                 v-for="star in 5"
                                 :key="star"
                                 type="button"
-                                class="text-2xl leading-none transition hover:scale-110"
+                                class="rounded transition hover:scale-110"
                                 :class="star <= hoverRating ? 'text-amber-400' : star <= painting.my_rating ? 'text-amber-500' : 'text-gray-300'"
                                 :title="`Valorar con ${star} estrella${star > 1 ? 's' : ''}`"
+                                :aria-label="`Valorar con ${star} estrella${star > 1 ? 's' : ''}`"
                                 @mouseenter="hoverRating = star"
                                 @mouseleave="hoverRating = 0"
                                 @click="rate(star)"
                             >
-                                ★
+                                <HeroIcon
+                                    name="star"
+                                    :solid="star <= (hoverRating || painting.my_rating)"
+                                    class="h-7 w-7"
+                                />
                             </button>
                         </div>
                         <p v-else class="text-xs text-amber-700">
@@ -146,9 +161,15 @@
                     {{ painting.description || "Sin descripción." }}
                 </p>
 
-                <div class="mt-4 flex gap-4 text-sm text-gray-500">
-                    <span>♥ {{ painting.favorites_count }} favoritos</span>
-                    <span>💬 {{ painting.comments_count }} comentarios</span>
+                <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-500">
+                    <span class="inline-flex items-center gap-1">
+                        <HeroIcon name="heart" class="h-4 w-4 text-red-500" />
+                        {{ painting.favorites_count }} favoritos
+                    </span>
+                    <span class="inline-flex items-center gap-1">
+                        <HeroIcon name="chat-bubble-left" class="h-4 w-4 text-gray-400" />
+                        {{ painting.comments_count }} comentarios
+                    </span>
                 </div>
 
                 <div v-if="painting.exhibitions.length" class="mt-6">
@@ -403,10 +424,11 @@
                         <button
                             v-else
                             type="button"
-                            class="text-xs font-medium text-blue-600 hover:underline"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
                             @click="startReply(comment)"
                         >
-                            ↩︎ Responder
+                            <HeroIcon name="arrow-uturn-left" class="h-3.5 w-3.5" />
+                            Responder
                         </button>
                     </div>
                 </div>
@@ -429,6 +451,7 @@
 import { Head, Link, router, useForm } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import Pagination from "../../shared/Pagination.vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 const props = defineProps({
     painting: {

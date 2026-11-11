@@ -32,7 +32,7 @@ class InquiryProcessed extends Notification implements ShouldQueue
         $label = self::STATUS_LABELS[$this->inquiry->status] ?? $this->inquiry->status;
 
         return [
-            'icon' => '📋',
+            'icon' => 'clipboard-document-check',
             'title' => 'Actualización de tu solicitud',
             'message' => sprintf(
                 'Tu solicitud de compra de "%s" ha sido %s.',

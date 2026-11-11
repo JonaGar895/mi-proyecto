@@ -21,7 +21,7 @@ class InquiryReceived extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'icon' => '🛒',
+            'icon' => 'shopping-cart',
             'title' => 'Nueva solicitud de compra',
             'message' => sprintf(
                 '%s ha solicitado comprar tu obra "%s".',

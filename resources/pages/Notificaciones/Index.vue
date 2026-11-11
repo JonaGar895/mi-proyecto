@@ -4,7 +4,10 @@
     <Layout>
         <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">🔔 Notificaciones</h1>
+                <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+                    <HeroIcon name="bell" class="h-8 w-8 text-indigo-600" />
+                    Notificaciones
+                </h1>
                 <p class="mt-2 text-gray-600">
                     Comentarios, favoritos, respuestas y actualizaciones de tus solicitudes.
                 </p>
@@ -48,7 +51,10 @@
                 @keydown.enter="open(notification)"
             >
                 <div class="flex items-start gap-3">
-                    <span class="text-2xl leading-none">{{ notification.icon }}</span>
+                    <HeroIcon
+                        :name="notification.icon"
+                        class="mt-0.5 h-6 w-6 shrink-0 text-2xl text-indigo-600 dark:text-indigo-400"
+                    />
 
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -125,6 +131,7 @@
 <script setup>
 import { Head, router, useForm } from "@inertiajs/vue3";
 import Pagination from "../../shared/Pagination.vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 defineProps({
     notifications: {

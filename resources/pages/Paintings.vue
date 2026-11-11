@@ -4,7 +4,10 @@
     <Layout>
         <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">🖼️ Cuadros</h1>
+                <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+                    <HeroIcon name="photo" class="h-8 w-8 text-indigo-600" />
+                    Cuadros
+                </h1>
                 <p class="mt-2 text-gray-600">
                     Explora la galería, valora las obras, guarda tus favoritas y comenta.
                 </p>
@@ -133,13 +136,13 @@
             >
                 <Link :href="`/cuadros/${painting.id}`" class="block">
                     <div
-                        class="relative flex h-44 items-center justify-center bg-gray-100 text-6xl sm:h-48"
+                        class="relative flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl"
                     >
                         <img
                             v-if="painting.image_url"
                             :src="painting.image_url"
                             :alt="painting.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
                         <span v-else>{{ painting.emoji }}</span>
 
@@ -171,7 +174,7 @@
 
                         <button
                             type="button"
-                            class="shrink-0 rounded-full px-2 py-1 text-xl leading-none"
+                            class="shrink-0 rounded-full p-1.5"
                             :class="
                                 painting.is_favorited
                                     ? 'text-red-500'
@@ -184,7 +187,11 @@
                             "
                             @click="toggleFavorite(painting)"
                         >
-                            {{ painting.is_favorited ? "♥" : "♡" }}
+                            <HeroIcon
+                                name="heart"
+                                :solid="painting.is_favorited"
+                                class="h-6 w-6"
+                            />
                         </button>
                     </div>
 
@@ -204,10 +211,20 @@
                     <div
                         class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500"
                     >
-                        <span>♥ {{ painting.favorites_count }}</span>
-                        <span>💬 {{ painting.comments_count }}</span>
-                        <span v-if="painting.ratings_avg" class="text-amber-600">
-                            ⭐ {{ painting.ratings_avg }}
+                        <span class="inline-flex items-center gap-1">
+                            <HeroIcon name="heart" class="h-4 w-4 text-red-500" />
+                            {{ painting.favorites_count }}
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <HeroIcon name="chat-bubble-left" class="h-4 w-4 text-gray-400" />
+                            {{ painting.comments_count }}
+                        </span>
+                        <span
+                            v-if="painting.ratings_avg"
+                            class="inline-flex items-center gap-1 text-amber-600"
+                        >
+                            <HeroIcon name="star" class="h-4 w-4" />
+                            {{ painting.ratings_avg }}
                         </span>
                         <span v-if="painting.price">{{ formatPrice(painting.price) }}</span>
                     </div>
@@ -228,6 +245,7 @@ import { computed, ref, watch } from "vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import debounce from "lodash/debounce";
 import Pagination from "../shared/Pagination.vue";
+import HeroIcon from "../shared/HeroIcon.vue";
 
 const props = defineProps({
     paintings: {

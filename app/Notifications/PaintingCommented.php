@@ -25,7 +25,7 @@ class PaintingCommented extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'icon' => '💬',
+            'icon' => 'chat-bubble-left',
             'title' => 'Nuevo comentario',
             'message' => sprintf(
                 '%s ha comentado tu obra "%s".',

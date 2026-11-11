@@ -107,6 +107,7 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 | Laravel 12 | Framework principal |
 | Inertia.js | Comunicación frontend/backend |
 | Vue 3 | Interfaz de usuario |
+| heroicons | Iconografía de la interfaz |
 | Tailwind CSS | Diseño y estilos |
 | SQLite | Base de datos |
 | Composer | Dependencias PHP |
@@ -490,6 +491,7 @@ Características:
 
 - La campana de la cabecera muestra el número de notificaciones sin leer.
 - La página `/notificaciones` muestra el listado paginado con acceso directo al contenido relacionado.
+- Cada notificación se acompaña de un icono de [heroicons](https://heroicons.com); las notificaciones creadas antes del cambio muestran su emoji original.
 - Al tocar una notificación se marca como leída y se abre el contenido al que hace referencia en un solo paso.
 - El botón «Marcar como leída» sigue disponible para leerla sin salir del listado.
 - Las notificaciones se pueden marcar como leídas de forma individual o todas a la vez.

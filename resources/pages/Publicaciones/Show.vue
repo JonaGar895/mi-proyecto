@@ -12,7 +12,7 @@
         <article class="mt-4 overflow-hidden rounded-xl bg-white shadow-sm">
             <div
                 v-if="publicationImage || publication.painting"
-                class="flex h-40 items-center justify-center bg-gray-100 text-6xl sm:h-48 sm:text-7xl"
+                class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl sm:text-7xl"
             >
                 <Link
                     v-if="publication.painting"
@@ -24,7 +24,7 @@
                         v-if="publicationImage"
                         :src="publicationImage"
                         :alt="publication.title"
-                        class="h-full w-full object-cover"
+                        class="h-full w-full object-contain"
                     />
                     <span v-else>{{ publication.painting.emoji }}</span>
                 </Link>
@@ -32,7 +32,7 @@
                     v-else
                     :src="publicationImage"
                     :alt="publication.title"
-                    class="h-full w-full object-cover"
+                    class="h-full w-full object-contain"
                 />
             </div>
 
@@ -87,7 +87,7 @@
                             v-if="publication.painting.image_url"
                             :src="publication.painting.image_url"
                             :alt="publication.painting.title"
-                            class="h-12 w-12 rounded-md object-cover"
+                            class="h-12 w-12 rounded-md bg-gray-100 object-contain"
                         />
                         <span v-else class="text-3xl">
                             {{ publication.painting.emoji }}
@@ -99,7 +99,10 @@
                 </div>
 
                 <div class="mt-8 flex gap-4 text-sm text-gray-500">
-                    <span>💬 {{ publication.comments_count }} comentarios</span>
+                    <span class="inline-flex items-center gap-1">
+                        <HeroIcon name="chat-bubble-left" class="h-4 w-4 text-gray-400" />
+                        {{ publication.comments_count }} comentarios
+                    </span>
                 </div>
 
                 <div v-if="publication.can_edit" class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -326,10 +329,11 @@
                         <button
                             v-else
                             type="button"
-                            class="text-xs font-medium text-blue-600 hover:underline"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
                             @click="startReply(comment)"
                         >
-                            ↩︎ Responder
+                            <HeroIcon name="arrow-uturn-left" class="h-3.5 w-3.5" />
+                            Responder
                         </button>
                     </div>
                 </div>
@@ -352,6 +356,7 @@
 import { computed, ref } from "vue";
 import { Head, Link, router, useForm } from "@inertiajs/vue3";
 import Pagination from "../../shared/Pagination.vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 const props = defineProps({
     publication: {

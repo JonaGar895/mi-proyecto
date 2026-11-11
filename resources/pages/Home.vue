@@ -8,8 +8,9 @@
             <p class="text-sm uppercase tracking-widest text-indigo-600">
                 Galería de arte
             </p>
-            <h1 class="mt-2 text-3xl font-bold text-gray-800 sm:text-4xl">
-                🎨 Galería de Cuadros
+            <h1 class="mt-2 flex items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+                <HeroIcon name="paint-brush" class="h-9 w-9 text-indigo-600" />
+                Galería de Cuadros
             </h1>
             <p class="mt-2 max-w-2xl text-gray-600">
                 Bienvenido a nuestra galería. Descubre obras, guarda tus favoritas
@@ -44,13 +45,13 @@
                     class="overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
                     <div
-                        class="flex h-32 items-center justify-center bg-gray-100 text-5xl"
+                        class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-5xl"
                     >
                         <img
                             v-if="painting.image_url"
                             :src="painting.image_url"
                             :alt="painting.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
                         <span v-else>{{ painting.emoji }}</span>
                     </div>
@@ -80,13 +81,13 @@
                     class="shrink-0 overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md"
                 >
                     <div
-                        class="flex h-40 items-center justify-center bg-gray-100 text-6xl sm:h-48 sm:w-72"
+                        class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl sm:w-72"
                     >
                         <img
                             v-if="topRatedPainting.image_url"
                             :src="topRatedPainting.image_url"
                             :alt="topRatedPainting.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
                         <span v-else>{{ topRatedPainting.emoji }}</span>
                     </div>
@@ -101,8 +102,9 @@
                         {{ topRatedPainting.artist || "Anónimo" }}
                     </p>
 
-                    <p class="mt-3 text-lg font-semibold text-amber-600">
-                        ⭐ {{ topRatedPainting.ratings_avg }} / 5
+                    <p class="mt-3 flex flex-wrap items-center gap-2 text-lg font-semibold text-amber-600">
+                        <HeroIcon name="star" class="h-5 w-5" />
+                        {{ topRatedPainting.ratings_avg }} / 5
                         <span class="text-sm font-normal text-gray-500">
                             ({{ topRatedPainting.ratings_count }} valoraciones)
                         </span>
@@ -140,12 +142,12 @@
                 >
                     <div
                         v-if="publication.image_url"
-                        class="flex h-32 items-center justify-center bg-gray-100"
+                        class="flex aspect-[4/3] items-center justify-center bg-gray-100"
                     >
                         <img
                             :src="publication.image_url"
                             :alt="publication.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
                     </div>
                     <div class="p-5">
@@ -169,6 +171,7 @@
 
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
+import HeroIcon from "../shared/HeroIcon.vue";
 
 defineProps({
     featuredPaintings: {

@@ -4,7 +4,10 @@
     <Layout>
         <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">📰 Publicaciones</h1>
+                <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+                    <HeroIcon name="newspaper" class="h-8 w-8 text-indigo-600" />
+                    Publicaciones
+                </h1>
                 <p class="mt-2 text-gray-600">
                     Noticias, artículos y reflexiones sobre las obras de la galería.
                 </p>
@@ -48,16 +51,18 @@
                 class="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
             >
                 <Link :href="`/publicaciones/${publication.id}`" class="block">
-                    <div
-                        class="flex h-40 items-center justify-center bg-gray-100 text-5xl"
-                    >
+                    <div class="flex aspect-[4/3] items-center justify-center bg-gray-100">
                         <img
                             v-if="imageFor(publication)"
                             :src="imageFor(publication)"
                             :alt="publication.title"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                         />
-                        <span v-else>📰</span>
+                        <HeroIcon
+                            v-else
+                            name="newspaper"
+                            class="h-14 w-14 text-gray-400"
+                        />
                     </div>
                 </Link>
 
@@ -97,13 +102,17 @@
                     </div>
 
                     <div class="mt-2 flex items-center gap-3 text-sm text-gray-500">
-                        <span>💬 {{ publication.comments_count }}</span>
+                        <span class="inline-flex items-center gap-1">
+                            <HeroIcon name="chat-bubble-left" class="h-4 w-4 text-gray-400" />
+                            {{ publication.comments_count }}
+                        </span>
                         <span
                             v-if="publication.painting"
-                            class="truncate"
+                            class="inline-flex items-center gap-1 truncate"
                             :title="publication.painting.title"
                         >
-                            🖼️ {{ publication.painting.title }}
+                            <HeroIcon name="photo" class="h-4 w-4 shrink-0 text-gray-400" />
+                            {{ publication.painting.title }}
                         </span>
                     </div>
                 </div>
@@ -126,6 +135,7 @@ import { ref, watch } from "vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import debounce from "lodash/debounce";
 import Pagination from "../../shared/Pagination.vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 const props = defineProps({
     publications: {

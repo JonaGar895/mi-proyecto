@@ -2,7 +2,10 @@
     <Head title="Panel de administración" />
 
     <Layout>
-        <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl">📊 Panel de administración</h1>
+        <h1 class="flex flex-wrap items-center gap-3 text-3xl font-bold text-gray-800 sm:text-4xl">
+            <HeroIcon name="chart-bar" class="h-8 w-8 text-indigo-600" />
+            Panel de administración
+        </h1>
         <p class="mt-2 text-gray-600">
             Resumen de la actividad de la galería: obras, ventas, ingresos y solicitudes.
         </p>
@@ -204,6 +207,7 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
 import { computed } from "vue";
+import HeroIcon from "../../shared/HeroIcon.vue";
 
 const props = defineProps({
     stats: {

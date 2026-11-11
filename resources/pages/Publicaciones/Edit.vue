@@ -105,7 +105,7 @@
                         <img
                             :src="preview || publication.image_url"
                             alt="Imagen de la publicación"
-                            class="h-48 w-full object-cover"
+                            class="h-48 w-full bg-gray-50 object-contain dark:bg-gray-900"
                         />
                     </div>
                 </div>

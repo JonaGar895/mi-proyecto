@@ -21,7 +21,7 @@ class NotificationController extends Controller
             'notifications' => [
                 'data' => $notifications->getCollection()->map(fn (DatabaseNotification $notification) => [
                     'id' => $notification->id,
-                    'icon' => $notification->data['icon'] ?? '🔔',
+                    'icon' => $notification->data['icon'] ?? 'bell',
                     'title' => $notification->data['title'] ?? 'Notificación',
                     'message' => $notification->data['message'] ?? '',
                     'url' => $notification->data['url'] ?? null,
