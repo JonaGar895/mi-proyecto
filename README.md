@@ -93,7 +93,9 @@ Incluye herramientas para la interacción entre usuarios, la administración de 
 - Tema claro y oscuro.
 - Preferencia de tema guardada por usuario.
 - Navegación adaptable con menú animado en móvil y tablet.
+- Iconografía de la interfaz con [heroicons](https://heroicons.com).
 - Subida de imágenes para obras y publicaciones con vista previa.
+- Recuadros de imagen que se ajustan a la resolución y proporción real de cada imagen.
 - Validación anti-duplicados en usuarios, obras, publicaciones, comentarios y demás registros.
 - Imágenes de demostración generadas automáticamente por los seeders.
 
@@ -412,6 +414,16 @@ La gestión de archivos se centraliza en:
 app/Services/ImageService.php
 ```
 
+#### Presentación de las imágenes
+
+Los recuadros que muestran las imágenes se adaptan a cada archivo en lugar de forzar un tamaño fijo:
+
+- En el detalle de una obra, el recuadro blanco se ciñe al tamaño real de la imagen con un margen fino: no se estira por encima de su resolución original y solo se limita en altura para las imágenes muy verticales (75% de la altura de la ventana).
+- El recuadro del detalle tampoco se estira verticalmente hasta igualar la altura de la columna de información (título, valoración, descripción, comentarios…).
+- La imagen de portada de una publicación se comporta igual, con una altura máxima del 60% de la ventana.
+- Las tarjetas de los listados (galería, portada, exposiciones y publicaciones) muestran cada imagen completa siguiendo su propia proporción, sin recortes ni bandas laterales.
+- La vista previa de los formularios de creación y edición también se ciñe a la imagen seleccionada, con una altura máxima de 288 píxeles.
+
 ### Detección de imágenes duplicadas
 
 Cada imagen se compara en dos niveles antes de guardarla:
@@ -490,7 +502,7 @@ Se genera una notificación cuando:
 
 Características:
 
-- La campana de la cabecera muestra el número de notificaciones sin leer.
+- La campana de la cabecera muestra el número de notificaciones sin leer (hasta «99+») y enlaza con el listado.
 - La página `/notificaciones` muestra el listado paginado con acceso directo al contenido relacionado.
 - Cada notificación se acompaña de un icono de [heroicons](https://heroicons.com); las notificaciones creadas antes del cambio muestran su emoji original.
 - Al tocar una notificación se marca como leída y se abre el contenido al que hace referencia en un solo paso.
@@ -760,9 +772,12 @@ galeria-cuadros/
 │   │   ├── bootstrap.js
 │   │   └── theme.js
 │   ├── shared/
+│   │   ├── HeroIcon.vue
 │   │   ├── Layout.vue
 │   │   ├── Nav.vue
 │   │   ├── NavLink.vue
+│   │   ├── NotificationBell.vue
+│   │   ├── Pagination.vue
 │   │   └── ThemeToggle.vue
 │   ├── pages/
 │   └── views/
@@ -833,6 +848,8 @@ La cabecera forma parte del layout compartido y se adapta al tamaño de pantalla
 Características:
 
 - La cabecera ocupa todo el ancho de la ventana; el espaciado horizontal se aplica al contenido interno.
+- El título «Galería de Arte» y su icono de pincel enlazan con la página de inicio.
+- La campana de notificaciones y el conmutador de tema forman parte de la cabecera.
 - En escritorio (a partir del breakpoint `xl`) los enlaces se muestran en una barra horizontal.
 - En móvil y tablet se muestra un botón que despliega la navegación.
 - El desplegable aparece con una transición de opacidad, escala y desplazamiento.
@@ -840,6 +857,12 @@ Características:
 - El botón y los enlaces tienen respuesta visual al presionarlos.
 - En móvil y tablet el menú incluye la opción para cambiar entre tema claro y oscuro.
 - Las animaciones se desactivan si el usuario configura `prefers-reduced-motion`.
+
+Los iconos de la interfaz provienen de [heroicons](https://heroicons.com) y se renderizan mediante el componente compartido:
+
+```text
+resources/shared/HeroIcon.vue
+```
 
 El componente de navegación se encuentra en:
 
@@ -1011,6 +1034,8 @@ Los datos de prueba deben generarse mediante seeders y no deben contener credenc
 - Panel de administración con métricas.
 - Gestión de saldo virtual simulado.
 - Interfaz adaptada a dispositivos móviles, tablets y ordenadores.
+- Iconografía de la interfaz con heroicons.
+- Presentación de imágenes adaptada a su resolución y proporción real.
 - Subida de imágenes y protección frente a registros duplicados.
 
 ---
