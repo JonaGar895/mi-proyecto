@@ -15,10 +15,15 @@
             >
                 <div class="flex items-center gap-2 sm:gap-3">
                     <h1
-                        class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100 sm:text-xl"
+                        class="text-lg font-bold text-gray-800 dark:text-gray-100 sm:text-xl"
                     >
-                        <HeroIcon name="paint-brush" class="h-7 w-7 text-indigo-600" />
-                        Galería de Arte
+                        <Link
+                            href="/"
+                            class="flex items-center gap-2 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"
+                        >
+                            <HeroIcon name="paint-brush" class="h-7 w-7 text-indigo-600" />
+                            Galería de Arte
+                        </Link>
                     </h1>
 
                     <NotificationBell />
@@ -59,7 +64,7 @@
 </template>
 
 <script>
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import HeroIcon from "./HeroIcon.vue";
 import Nav from "./Nav.vue";
 import NotificationBell from "./NotificationBell.vue";
@@ -69,6 +74,7 @@ export default {
     components: {
         Head,
         HeroIcon,
+        Link,
         Nav,
         NotificationBell,
         ThemeToggle,
