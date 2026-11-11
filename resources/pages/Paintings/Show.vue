@@ -2,12 +2,14 @@
     <Head :title="painting.title" />
 
     <Layout>
-        <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
+        <!-- items-start evita que el recuadro de la imagen se estire
+             verticalmente hasta la altura de la columna de informacion. -->
+        <div class="grid items-start gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
             <div class="flex justify-center">
                 <!-- El recuadro se ajusta al tamano real de la imagen:
                      no se estira mas alla de su resolucion y solo respeta
                      un alto maximo para las muy verticales. -->
-                <div class="max-w-full rounded-xl bg-white p-2 shadow-sm sm:p-3">
+                <div class="max-w-full self-start rounded-xl bg-white p-2 shadow-sm sm:p-3">
                     <img
                         v-if="painting.image_url"
                         :src="painting.image_url"
