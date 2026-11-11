@@ -484,6 +484,7 @@ Se genera una notificación cuando:
 - Un usuario comenta una obra o publicación de otro usuario.
 - Un usuario responde a un comentario ajeno.
 - Un usuario añade una obra de otro usuario a favoritos.
+- Un usuario valora una obra de otro usuario.
 - Un comprador envía una solicitud de compra al vendedor.
 - Un administrador cambia el estado de una solicitud de compra.
 

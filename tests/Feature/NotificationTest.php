@@ -78,6 +78,39 @@ class NotificationTest extends TestCase
         $this->assertSame(1, $owner->unreadNotifications()->count());
     }
 
+    public function test_rating_a_painting_notifies_the_owner(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($visitor)
+            ->post(route('paintings.ratings.store', $painting), ['rating' => 5])
+            ->assertRedirect();
+
+        $notification = $owner->unreadNotifications()->first();
+        $this->assertNotNull($notification);
+        $this->assertSame('star', $notification->data['icon']);
+        $this->assertSame(
+            route('paintings.show', $painting, absolute: false),
+            $notification->data['url'],
+        );
+    }
+
+    public function test_updating_a_rating_does_not_notify_the_owner_again(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $painting = Painting::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($visitor)
+            ->post(route('paintings.ratings.store', $painting), ['rating' => 4]);
+        $this->actingAs($visitor)
+            ->post(route('paintings.ratings.store', $painting), ['rating' => 5]);
+
+        $this->assertSame(1, $owner->notifications()->count());
+    }
+
     public function test_replying_to_a_comment_notifies_its_author(): void
     {
         $owner = User::factory()->create();
