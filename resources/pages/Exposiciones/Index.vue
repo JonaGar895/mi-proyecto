@@ -55,7 +55,7 @@
                             v-if="exhibition.cover"
                             :src="exhibition.cover"
                             :alt="exhibition.title"
-                            class="h-full w-full object-contain"
+                            class="h-full w-full object-scale-down"
                         />
                         <HeroIcon
                             v-else

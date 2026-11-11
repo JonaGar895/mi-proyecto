@@ -3,20 +3,20 @@
 
     <Layout>
         <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm">
-                <!-- El recuadro se adapta a la proporcion de la imagen: se
-                     muestra completa, con un alto maximo para las muy
-                     verticales. -->
-                <div class="flex items-center justify-center bg-gray-100 text-7xl sm:text-8xl">
+            <div class="flex justify-center">
+                <!-- El recuadro se ajusta al tamano real de la imagen:
+                     no se estira mas alla de su resolucion y solo respeta
+                     un alto maximo para las muy verticales. -->
+                <div class="max-w-full rounded-xl bg-white p-2 shadow-sm sm:p-3">
                     <img
                         v-if="painting.image_url"
                         :src="painting.image_url"
                         :alt="painting.title"
-                        class="max-h-[75vh] w-full object-contain"
+                        class="block h-auto max-h-[75vh] w-auto max-w-full rounded-lg"
                     />
                     <span
                         v-else
-                        class="flex h-64 w-full items-center justify-center sm:h-80"
+                        class="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-100 text-7xl sm:h-80 sm:w-80 sm:text-8xl"
                     >
                         {{ painting.emoji }}
                     </span>

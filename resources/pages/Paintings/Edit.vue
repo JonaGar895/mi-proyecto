@@ -133,16 +133,12 @@
                             {{ form.errors.image }}
                         </p>
 
-                        <div
+                        <img
                             v-if="preview"
-                            class="mt-3 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
-                        >
-                            <img
-                                :src="preview"
-                                alt="Vista previa de la imagen"
-                                class="h-48 w-full bg-gray-50 object-contain dark:bg-gray-900"
-                            />
-                        </div>
+                            :src="preview"
+                            alt="Vista previa de la imagen"
+                            class="mt-3 block h-auto max-h-72 w-auto max-w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                        />
                     </div>
                 </div>
 

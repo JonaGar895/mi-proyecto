@@ -12,27 +12,32 @@
         <article class="mt-4 overflow-hidden rounded-xl bg-white shadow-sm">
             <div
                 v-if="publicationImage || publication.painting"
-                class="flex aspect-[4/3] items-center justify-center bg-gray-100 text-6xl sm:text-7xl"
+                class="flex justify-center p-3 text-6xl sm:p-6 sm:text-7xl"
             >
                 <Link
                     v-if="publication.painting"
                     :href="`/cuadros/${publication.painting.id}`"
-                    class="flex h-full w-full items-center justify-center transition hover:opacity-90"
+                    class="flex max-w-full items-center justify-center transition hover:opacity-90"
                     :title="`Ver ${publication.painting.title}`"
                 >
                     <img
                         v-if="publicationImage"
                         :src="publicationImage"
                         :alt="publication.title"
-                        class="h-full w-full object-contain"
+                        class="block h-auto max-h-[60vh] w-auto max-w-full rounded-lg"
                     />
-                    <span v-else>{{ publication.painting.emoji }}</span>
+                    <span
+                        v-else
+                        class="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-100 sm:h-80 sm:w-80"
+                    >
+                        {{ publication.painting.emoji }}
+                    </span>
                 </Link>
                 <img
                     v-else
                     :src="publicationImage"
                     :alt="publication.title"
-                    class="h-full w-full object-contain"
+                    class="block h-auto max-h-[60vh] w-auto max-w-full rounded-lg"
                 />
             </div>
 
@@ -87,7 +92,7 @@
                             v-if="publication.painting.image_url"
                             :src="publication.painting.image_url"
                             :alt="publication.painting.title"
-                            class="h-12 w-12 rounded-md bg-gray-100 object-contain"
+                            class="h-12 w-12 rounded-md bg-gray-100 object-scale-down"
                         />
                         <span v-else class="text-3xl">
                             {{ publication.painting.emoji }}

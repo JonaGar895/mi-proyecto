@@ -78,7 +78,7 @@
                                 v-if="painting.image_url"
                                 :src="painting.image_url"
                                 :alt="painting.title"
-                                class="h-full w-full object-contain"
+                                class="h-full w-full object-scale-down"
                             />
                             <span v-else>{{ painting.emoji }}</span>
                         </div>

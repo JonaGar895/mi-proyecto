@@ -56,7 +56,7 @@
                             v-if="imageFor(publication)"
                             :src="imageFor(publication)"
                             :alt="publication.title"
-                            class="h-full w-full object-contain"
+                            class="h-full w-full object-scale-down"
                         />
                         <HeroIcon
                             v-else

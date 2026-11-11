@@ -51,7 +51,7 @@
                             v-if="painting.image_url"
                             :src="painting.image_url"
                             :alt="painting.title"
-                            class="h-full w-full object-contain"
+                            class="h-full w-full object-scale-down"
                         />
                         <span v-else>{{ painting.emoji }}</span>
                     </div>
@@ -87,7 +87,7 @@
                             v-if="topRatedPainting.image_url"
                             :src="topRatedPainting.image_url"
                             :alt="topRatedPainting.title"
-                            class="h-full w-full object-contain"
+                            class="h-full w-full object-scale-down"
                         />
                         <span v-else>{{ topRatedPainting.emoji }}</span>
                     </div>
@@ -147,7 +147,7 @@
                         <img
                             :src="publication.image_url"
                             :alt="publication.title"
-                            class="h-full w-full object-contain"
+                            class="h-full w-full object-scale-down"
                         />
                     </div>
                     <div class="p-5">
