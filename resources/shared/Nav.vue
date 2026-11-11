@@ -113,12 +113,6 @@
                                 :as="item.as"
                             >
                                 {{ item.label }}
-                                <span
-                                    v-if="item.badge"
-                                    class="ml-2 inline-block rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white"
-                                >
-                                    {{ item.badge }}
-                                </span>
                             </NavLink>
                         </li>
                     </ul>
@@ -144,8 +138,6 @@ const drawerPanel = ref(null);
 const closeButton = ref(null);
 let closeTimer = null;
 let previousOverflow = "";
-
-const unread = computed(() => Number(page.props.unreadNotifications ?? 0));
 
 function clearCloseTimer() {
     if (closeTimer !== null) {
@@ -262,12 +254,6 @@ const items = computed(() => {
             active:
                 page.component === "Inquiries/Index" ||
                 page.component === "Inquiries/History",
-        },
-        {
-            href: "/notificaciones",
-            label: "Notificaciones",
-            badge: unread.value > 0 ? (unread.value > 99 ? "99+" : String(unread.value)) : null,
-            active: page.component === "Notificaciones/Index",
         },
         {
             href: "/mi-cuenta",
